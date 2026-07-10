@@ -19,7 +19,8 @@ HALF_W = (BODY_W - COL_GAP) / 2
 COL2_L = MARGIN_L + HALF_W + COL_GAP
 VSEP_X = MARGIN_L + HALF_W + COL_GAP / 2
 PITCH = 0.76                 # 불릿 행간 (수직 균형 확대 적용)
-GAP_BLK = 0.50               # 블록 간 간격
+GAP_BLK = 0.50               # 블록 간 간격 (좌 컬럼)
+GAP_BLK_R = 1.05             # 블록 간 간격 (우 컬럼 — 좌우 하단 높이 정렬용 확대)
 
 
 def col_title(slide, l, t, text):
@@ -77,13 +78,13 @@ y = block(s, COL2_L, y, "시범 운영 ('26. 7. 9.~)", [
     "기존 예약배송 병행 선택 가능",
     "사륜차 활용, 대용량·중량 대응",
 ])
-y += GAP_BLK
+y += GAP_BLK_R
 y = block(s, COL2_L, y, "기대 효과", [
     "대용량 즉시배송 서비스 공백 흡수",
     "점포 15만 종 구색 → 즉시배송 확장",
     "PP센터 낮 시간대 가동률 제고",
 ])
-y += GAP_BLK
+y += GAP_BLK_R
 y = block(s, COL2_L, y, "확대 로드맵", [])
 add_timeline(s, COL2_L, y + 0.05, HALF_W, [
     ("'26. 7월", "양재·하남"),
