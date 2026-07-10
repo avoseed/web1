@@ -41,6 +41,7 @@ WHITE      = RGBColor(0xFF, 0xFF, 0xFF)
 
 # 크롬 좌표 (실측 고정값)  L, T, W, H  (cm)
 HDR   = (1.16, 1.20, 25.24, 0.90)             # 좌상단 브래킷 헤더
+LEAD  = (1.16, 2.32, 21.80, 0.65)             # 제목 하단 리드메시지 (■ 한 줄)
 UNIT  = (23.10, 2.35, 3.30, 0.60)             # 우상단 단위
 PAGE  = (25.42, 18.23, 2.10, 0.60)            # 우하단 페이지번호 n/N
 FOOT  = (1.04, 17.90, 18.00, 0.55)            # 좌하단 각주
@@ -125,6 +126,12 @@ def add_header(slide, category, title, tier="P"):
     return tb
 
 
+def add_lead(slide, text, size=14):
+    """제목 하단 리드메시지: `■ ` 접두 볼드 검정 한 줄 (v4.1, 산출물 실측 반영)."""
+    l, t, w, h = LEAD
+    return _txt(slide, l, t, w, h, "■ " + text, size=size, bold=True, color=INK)
+
+
 def add_unit(slide, text="(단위 : 억원, %)"):
     """우상단 단위 표기."""
     l, t, w, h = UNIT
@@ -192,10 +199,15 @@ def add_divider(prs, num, title, items):
 
 
 def add_content(prs, category, title, n, total, tier="P",
-                unit=None, footnote=None):
-    """[본문 P/F계열] 크롬만 세팅한 슬라이드 반환 → 본문 자유 배치."""
+                lead=None, unit=None, footnote=None):
+    """[본문 P/F계열] 크롬만 세팅한 슬라이드 반환 → 본문 자유 배치.
+
+    lead: 제목 하단 `■ ` 리드메시지 한 줄 (선택). 사용 시 본문은 3.20 이후 권장.
+    """
     s = _blank(prs)
     add_header(s, category, title, tier)
+    if lead:
+        add_lead(s, lead)
     if unit:
         add_unit(s, unit)
     if footnote:
