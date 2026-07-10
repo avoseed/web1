@@ -63,8 +63,8 @@ data = [
 add_fin_table(s, MARGIN_L, y, HALF_W, 5.0, data,
               col_w=[2.75, 2.30, 3.05, 1.60, HALF_W - 9.70], header_rows=1)
 y += 5.0 + 0.30
-_txt(s, MARGIN_L + BULLET_INDENT, y, HALF_W - BULLET_INDENT, LINE_H,
-     "→ 즉시배송은 이륜 소량뿐, 대용량 즉시배송 공백",
+_txt(s, MARGIN_L + 0.20, y, HALF_W - 0.20, LINE_H,
+     "→ 사륜 차량 2시간 배송 통한, 서비스 공백 해소 (대용량/즉시)",
      size=FONT_PT["bullet1"], bold=False, color=INK)
 y += PITCH + 0.30
 block(s, MARGIN_L, y, "규제 제약", [
