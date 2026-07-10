@@ -293,15 +293,21 @@ def add_closing(prs, company="롯데마트 · 롯데슈퍼"):
 
 
 # ─────────────────────────────────────────────────────────────
-# 5. 재무형 표 (EAEEF6 헤더 · 개조식 · 우측정렬 숫자)
+# 5. 재무형 표 (EAEEF6 헤더 · 전 셀 가운데 · 재무 수치열만 우측)
 # ─────────────────────────────────────────────────────────────
+_TBL_ALIGN = {"l": PP_ALIGN.LEFT, "c": PP_ALIGN.CENTER, "r": PP_ALIGN.RIGHT}
+
+
 def add_fin_table(slide, l, t, w, h, data, col_w=None,
                   header_rows=1, header_fill=TH_PRIMARY,
-                  first_col_left=True, font_size=None):
+                  col_align=None, font_size=None):
     """
     data: 2D list [ [row0col0, ...], ... ]  (문자열)
-    header_rows: 상단 헤더 행 수 (헤더 채움 + 볼드 + 가운데)
-    first_col_left: 1열(구분)은 좌측정렬, 나머지 우측정렬(숫자)
+    header_rows: 상단 헤더 행 수 (헤더 채움 + 네이비 볼드 + 가운데)
+
+    정렬 표준 (v4.1, 정기협의체 본장 실측): 헤더·본문 전 셀 **가운데** 고정.
+    재무 수치열만 col_align 으로 우측 지정 — 예: col_align=["c","r","r"].
+    셀별 임의 정렬 금지. 1열(구분)은 볼드.
     """
     rows, cols = len(data), len(data[0])
     gtbl = slide.shapes.add_table(rows, cols, Cm(l), Cm(t), Cm(w), Cm(h))
@@ -324,12 +330,15 @@ def add_fin_table(slide, l, t, w, h, data, col_w=None,
             else:
                 cell.fill.solid(); cell.fill.fore_color.rgb = WHITE
             tf = cell.text_frame; tf.word_wrap = True
-            p = tf.paragraphs[0]
-            if is_head or (j == 0 and first_col_left):
-                p.alignment = PP_ALIGN.LEFT if (j == 0 and not is_head) else PP_ALIGN.CENTER
+            if is_head:
+                align = PP_ALIGN.CENTER
             else:
-                p.alignment = PP_ALIGN.RIGHT
-            r = p.add_run(); r.text = str(val)
-            _set_font(r, font_size or FONT_PT["table"], bold=is_head or j == 0,
-                      color=NAVY if is_head else INK)
+                align = _TBL_ALIGN[col_align[j] if col_align else "c"]
+            # 다중행 셀도 전 행 동일 정렬 — 줄마다 문단 분리
+            for k, line in enumerate(str(val).split("\n")):
+                p = tf.paragraphs[0] if k == 0 else tf.add_paragraph()
+                p.alignment = align
+                r = p.add_run(); r.text = line
+                _set_font(r, font_size or FONT_PT["table"], bold=is_head or j == 0,
+                          color=NAVY if is_head else INK)
     return tbl

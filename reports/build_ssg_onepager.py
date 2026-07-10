@@ -12,7 +12,6 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "zetta-ppt-standard"))
 from zetta_ppt_standard import *
 from zetta_ppt_standard import _txt
-from pptx.enum.text import PP_ALIGN
 
 SRC = "※ 출처 : 비즈워치 「SSG닷컴, '2시간 실험'에 나선 진짜 이유는」('26. 7. 10. 정혜인 기자)"
 HALF_W = 12.30
@@ -30,13 +29,6 @@ def bullet(slide, l, t, w, text, size=None):
     return _txt(slide, l + BULLET_INDENT, t, w - BULLET_INDENT, LINE_H,
                 "- " + text, size=size or FONT_PT["bullet1"], color=INK)
 
-
-def left_align_body(tbl, cols, header_rows=1):
-    for i, row in enumerate(tbl.rows):
-        if i < header_rows:
-            continue
-        for j in cols:
-            tbl.cell(i, j).text_frame.paragraphs[0].alignment = PP_ALIGN.LEFT
 
 
 prs = new_deck()
@@ -74,9 +66,8 @@ data = [
     ["바로퀵", "1시간 내외 (반경 약 3km)", "이륜차", "약 1만 종", "소량·1~2인 가구, 6월 매출 1월比 197%↑"],
     ["2시간 배송 (신규)", "2시간 이내 (20시 마감)", "사륜차", "약 15만 종 기반", "대용량 즉시배송"],
 ]
-tbl = add_fin_table(s, MARGIN_L, y + GAP_HEAD, 25.26, MAIN_TBL_H, data,
+add_fin_table(s, MARGIN_L, y + GAP_HEAD, 25.26, MAIN_TBL_H, data,
                     col_w=[3.9, 5.3, 2.5, 3.6, 9.96], header_rows=1)
-left_align_body(tbl, [1, 3, 4])
 y += GAP_HEAD + MAIN_TBL_H + GAP_SECTION
 
 # 4. 하단 2단 (취급 품목 수 비교 / 확대 로드맵)
@@ -88,10 +79,9 @@ data = [
     ["바로퀵", "약 10,000", "이륜차 적재 한계"],
     ["B마트", "약 20,000", "퀵커머스 1위"],
 ]
-tbl = add_fin_table(s, MARGIN_L, y + GAP_HEAD, HALF_W, SUB_TBL_H, data,
+add_fin_table(s, MARGIN_L, y + GAP_HEAD, HALF_W, SUB_TBL_H, data,
                     col_w=[3.5, 3.6, 5.2], header_rows=1,
-                    header_fill=TH_SECOND)
-left_align_body(tbl, [2])
+                    header_fill=TH_SECOND, col_align=["c", "r", "c"])
 
 section(s, COL2_L, y, HALF_W, "확대 로드맵")
 data = [
@@ -100,10 +90,9 @@ data = [
     ["'26. 8월", "서울 주요 지역 확대"],
     ["'26. 9월 → 연말", "전국 확대 → 50여 개 점포 목표"],
 ]
-tbl = add_fin_table(s, COL2_L, y + GAP_HEAD, HALF_W, SUB_TBL_H, data,
+add_fin_table(s, COL2_L, y + GAP_HEAD, HALF_W, SUB_TBL_H, data,
                     col_w=[3.9, 8.4], header_rows=1,
                     header_fill=TH_SECOND)
-left_align_body(tbl, [1])
 y += GAP_HEAD + SUB_TBL_H + GAP_SECTION
 
 # 규제 참고

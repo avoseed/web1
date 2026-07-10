@@ -26,7 +26,8 @@ data = [
     ["영업이익", "▲260", "▲298", "▲38", "▲14.8"],
 ]
 add_fin_table(s, MARGIN_L, BODY_TOP, 25.26, 8.0, data,
-              col_w=[7.26, 4.5, 4.5, 4.5, 4.5], header_rows=1, font_size=11)
+              col_w=[7.26, 4.5, 4.5, 4.5, 4.5], header_rows=1,
+              col_align=["c", "r", "r", "r", "r"])
 
 # 4. F계열 백업/참고
 s = add_content(prs, "Back-up", "주문확대 계획 12월 7,400건 달성", 4, TOTAL, tier="F",
@@ -39,7 +40,7 @@ data2 = [
 ]
 add_fin_table(s, MARGIN_L, BODY_TOP, 25.26, 4.0, data2,
               col_w=[6.0, 14.26, 5.0], header_rows=1,
-              header_fill=TH_SECOND, font_size=11)
+              header_fill=TH_SECOND)
 
 # 5. 종료
 add_closing(prs)

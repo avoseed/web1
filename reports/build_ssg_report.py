@@ -11,7 +11,6 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "zetta-ppt-standard"))
 from zetta_ppt_standard import *
 from zetta_ppt_standard import _txt
-from pptx.enum.text import PP_ALIGN
 
 TOTAL = 7
 SRC = "※ 출처 : 비즈워치 「SSG닷컴, '2시간 실험'에 나선 진짜 이유는」('26. 7. 10. 정혜인 기자)"
@@ -24,14 +23,6 @@ def bullets(slide, items, t=BODY_TOP_LEAD):
     """표준 불릿 체계(• 주항목 / - 하위) 배치 — 템플릿 add_bullets 위임."""
     return add_bullets(slide, items, t=t, line_h=DECK_LINE)
 
-
-def left_align_body(tbl, cols, header_rows=1):
-    """서술형 열은 좌측정렬로 보정(재무표 우측정렬 규칙은 숫자열 전용)."""
-    for i, row in enumerate(tbl.rows):
-        if i < header_rows:
-            continue
-        for j in cols:
-            tbl.cell(i, j).text_frame.paragraphs[0].alignment = PP_ALIGN.LEFT
 
 
 prs = new_deck()
@@ -61,9 +52,8 @@ data = [
     ["배송 완료", "결제 시점 기준 2시간 이내"],
     ["운송 수단", "쓱배송 사륜 배송 차량 (대용량·중량 상품 대응)"],
 ]
-tbl = add_fin_table(s, MARGIN_L, y + GAP_SECTION, 25.26, 4.4, data,
+add_fin_table(s, MARGIN_L, y + GAP_SECTION, 25.26, 4.4, data,
                     col_w=[6.0, 19.26], header_rows=1)
-left_align_body(tbl, [1])
 
 # 4. [서비스현황②] 배송 서비스 비교 (P + T)
 s = add_content(prs, "서비스현황②", "이마트·SSG닷컴 배송 서비스 비교", 4, TOTAL, tier="P",
@@ -77,9 +67,8 @@ data = [
     ["바로퀵", "1시간 내외\n(반경 약 3km)", "이륜차", "약 1만 종", "소량 위주 · 1~2인 가구 중심\n6월 매출 1월 대비 197% 증가"],
     ["2시간 배송 (신규)", "2시간 이내\n(20시 주문 마감)", "사륜차", "약 15만 종 기반", "대용량 즉시배송\n예약배송 병행 선택 가능"],
 ]
-tbl = add_fin_table(s, MARGIN_L, BODY_TOP_LEAD, 25.26, 10.6, data,
+add_fin_table(s, MARGIN_L, BODY_TOP_LEAD, 25.26, 10.6, data,
                     col_w=[4.6, 4.7, 3.0, 4.0, 8.96], header_rows=1)
-left_align_body(tbl, [1, 3, 4])
 
 # 5. [도입배경③] 대용량 수요·퀵커머스 세분화 (P)
 s = add_content(prs, "도입배경③", "대용량 장보기 수요와 퀵커머스 세분화", 5, TOTAL, tier="P",
@@ -99,7 +88,7 @@ data = [
 ]
 add_fin_table(s, MARGIN_L, y + GAP_SECTION, 25.26, 3.6, data,
               col_w=[9.0, 6.0, 10.26], header_rows=1,
-              header_fill=TH_SECOND)
+              header_fill=TH_SECOND, col_align=["c", "r", "c"])
 
 # 6. [규제·확대④] 규제 환경·확대 로드맵 (P)
 s = add_content(prs, "규제·확대④", "새벽배송 규제와 확대 로드맵", 6, TOTAL, tier="P",
@@ -118,9 +107,8 @@ data = [
     ["'26. 9월", "전국 서비스 확대"],
     ["'26. 연말", "50여 개 점포 운영 목표"],
 ]
-tbl = add_fin_table(s, MARGIN_L, y + GAP_SECTION, 25.26, 4.2, data,
+add_fin_table(s, MARGIN_L, y + GAP_SECTION, 25.26, 4.2, data,
                     col_w=[5.0, 20.26], header_rows=1)
-left_align_body(tbl, [1])
 
 # 7. 종료 (Z)
 add_closing(prs)

@@ -98,7 +98,7 @@
 
 ### 재무형 표(T) 규칙
 - 헤더행: **#EAEEF6**(1차)/#D8E0EC(2차) 채움 + **네이비 볼드 + 가운데정렬**.
-- 1열(구분): **좌측정렬 볼드**. 2열~: **우측정렬**(숫자). 서술형 열은 좌측정렬 허용.
+- **정렬(v4.1, 정기협의체 본장 실측): 헤더·본문 전 셀 가운데 고정.** 재무 수치열만 `col_align`(예: `["c","r","r"]`)으로 우측 지정. **셀별 임의 정렬 금지.** 1열(구분)은 볼드.
 - **격자: 전 셀 4방 #BFBFBF 0.75pt 실선을 코드로 명시**(v4.1 — 테마 기본선에 의존 금지), 밴딩 off, 셀 상하 여백 0·좌우 0.1cm, 세로 가운데.
 - 감소값 `▲` 접두(개조식 관례 유지).
 
@@ -135,7 +135,7 @@ new_deck()
 add_cover(prs, "제목", org="온라인사업단", date="2026. 07. 06", tag="내부 토의용")
 add_divider(prs, 1, "섹션제목", ["하위①","하위②","하위③"])
 s = add_content(prs, "경영실적①", "제목", n, total, tier="P", lead="핵심 한 줄 메시지", unit="(단위 : 억원, %)", footnote="※ ...")   # lead 는 `■ ` 자동 접두
-add_fin_table(s, MARGIN_L, BODY_TOP, 25.26, 8.0, data, col_w=[...], header_rows=1)
+add_fin_table(s, MARGIN_L, BODY_TOP, 25.26, 8.0, data, col_w=[...], header_rows=1, col_align=["c","r","r"])   # 수치열만 'r'
 s = add_content(prs, "Back-up", "제목", n, total, tier="F")   # F계열
 add_closing(prs)
 prs.save("out.pptx")
