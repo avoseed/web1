@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-"""SSG닷컴 '2시간 배송' 보고서 — ZETTA 표준 PPT 빌더(v4) 기반 생성 스크립트.
+"""SSG닷컴 '2시간 배송' 보고서 — ZETTA 표준 PPT 빌더(v4.1) 기반 생성 스크립트.
 
 출처: 비즈워치 「[인사이드 스토리] SSG닷컴, '2시간 실험'에 나선 진짜 이유는」('26. 7. 10.)
 구성: 표지(C) → 간지(D) → P계열 본문 4매(요약·비교표·배경·규제/로드맵) → 종료(Z)
+본문 4매는 리드메시지(■)와 수직 간격 토큰(BODY_TOP_LEAD·GAP_SECTION·LINE_H) 적용.
 """
 import os
 import sys
@@ -16,8 +17,11 @@ TOTAL = 7
 SRC = "※ 출처 : 비즈워치 「SSG닷컴, '2시간 실험'에 나선 진짜 이유는」('26. 7. 10. 정혜인 기자)"
 
 
-def bullets(slide, items, l=MARGIN_L, t=BODY_TOP, w=25.26, size=13, gap=0.95):
-    """개조식 불릿(□ 주항목 / - 하위항목) 배치. items: [(level, text), ...]"""
+DECK_LINE = 2 * LINE_H          # 13pt 개조식 행간 (표준 LINE_H의 2배 피치)
+
+
+def bullets(slide, items, l=MARGIN_L, t=BODY_TOP_LEAD, w=25.26, size=13, gap=DECK_LINE):
+    """개조식 불릿(□ 주항목 / - 하위항목) 배치. items: [(level, text), ...] → 종료 y 반환."""
     y = t
     for level, text in items:
         mark = "□ " if level == 0 else "- "
@@ -48,8 +52,9 @@ add_divider(prs, 1, "SSG닷컴 배송 서비스 분석",
 
 # 3. [핵심요약①] 시범 운영 개요 (P)
 s = add_content(prs, "핵심요약①", "'2시간 배송' 시범 운영 개시", 3, TOTAL, tier="P",
+                lead="양재·하남점 '2시간 내 배송' 시범 도입 — 대용량 장보기 공략, PP센터 가동률 제고",
                 footnote=SRC)
-bullets(s, [
+y = bullets(s, [
     (0, "'26. 7. 9.부터 이마트 양재점·하남점 인근 고객 대상 '2시간 내 배송' 시범 운영 개시"),
     (1, "오후 8시까지 주문 시 결제 시점 기준 2시간 내 배송 완료, 기존 예약배송과 병행 선택 가능"),
     (0, "이륜차 퀵커머스(바로퀵)로 소화 불가한 3~4인 가구 대용량 장보기 수요를 사륜차로 흡수"),
@@ -62,12 +67,13 @@ data = [
     ["배송 완료", "결제 시점 기준 2시간 이내"],
     ["운송 수단", "쓱배송 사륜 배송 차량 (대용량·중량 상품 대응)"],
 ]
-tbl = add_fin_table(s, MARGIN_L, 8.2, 25.26, 4.6, data,
+tbl = add_fin_table(s, MARGIN_L, y + GAP_SECTION, 25.26, 4.4, data,
                     col_w=[6.0, 19.26], header_rows=1, font_size=12)
 left_align_body(tbl, [1])
 
 # 4. [서비스현황②] 배송 서비스 비교 (P + T)
 s = add_content(prs, "서비스현황②", "이마트·SSG닷컴 배송 서비스 비교", 4, TOTAL, tier="P",
+                lead="신규 2시간 배송으로 소량 퀵배송과 대용량 예약배송 사이 공백 보완",
                 unit="(기준 : '26. 7월)",
                 footnote="※ 취급 품목 : 이마트 점포당 평균 약 15만 종 / 바로퀵 약 1만 종 / B마트 약 2만 종")
 data = [
@@ -78,14 +84,15 @@ data = [
     ["바로퀵", "1시간 내외\n(반경 약 3km)", "이륜차", "약 1만 종", "소량 위주 · 1~2인 가구 중심\n6월 매출 1월 대비 197% 증가"],
     ["2시간 배송 (신규)", "2시간 이내\n(20시 주문 마감)", "사륜차", "약 15만 종 기반", "대용량 즉시배송\n예약배송 병행 선택 가능"],
 ]
-tbl = add_fin_table(s, MARGIN_L, BODY_TOP, 25.26, 11.5, data,
+tbl = add_fin_table(s, MARGIN_L, BODY_TOP_LEAD, 25.26, 10.6, data,
                     col_w=[4.6, 4.7, 3.0, 4.0, 8.96], header_rows=1, font_size=11)
 left_align_body(tbl, [1, 3, 4])
 
 # 5. [도입배경③] 대용량 수요·퀵커머스 세분화 (P)
 s = add_content(prs, "도입배경③", "대용량 장보기 수요와 퀵커머스 세분화", 5, TOTAL, tier="P",
+                lead="바로퀵 매출 197% 증가로 온디맨드 수요 실증 — 1시간/2시간 이원화 대응",
                 unit="(단위 : 종, %)", footnote=SRC)
-bullets(s, [
+y = bullets(s, [
     (0, "이륜차 퀵커머스는 적재량 제약으로 소량 배송에 한정 → 대형마트 주력인 3~4인 가족 대용량 장보기 공백"),
     (0, "바로퀵 6월 매출 '26. 1월 대비 197% 증가 → 온디맨드 장보기 수요 실증 후 서비스 확대"),
     (0, "1시간(소량·이륜차) / 2시간(대용량·사륜차) 이원화로 퀵커머스 수요 세분화 대응"),
@@ -97,14 +104,15 @@ data = [
     ["바로퀵", "약 10,000", "이륜차 적재량 한계"],
     ["B마트 (배달의민족)", "약 20,000", "퀵커머스 시장 1위"],
 ]
-add_fin_table(s, MARGIN_L, 8.4, 25.26, 3.8, data,
+add_fin_table(s, MARGIN_L, y + GAP_SECTION, 25.26, 3.6, data,
               col_w=[9.0, 6.0, 10.26], header_rows=1,
               header_fill=TH_SECOND, font_size=12)
 
 # 6. [규제·확대④] 규제 환경·확대 로드맵 (P)
 s = add_content(prs, "규제·확대④", "새벽배송 규제와 확대 로드맵", 6, TOTAL, tier="P",
+                lead="새벽 규제 하 낮 시간대 가동률 승부 — 연말 50여 개 점포 확대 목표",
                 footnote="※ 유통산업발전법('12년 도입) : 대형마트 영업 자정~오전 10시 제한 · 월 2회 의무휴업")
-bullets(s, [
+y = bullets(s, [
     (0, "전국 160여 이마트 점포(PP센터)는 유통산업발전법상 새벽 시간대 가동 불가"),
     (1, "바로퀵 · 2시간 배송으로 낮 시간대 PP센터 가동률 제고 → 규제 하 물류거점 활용 극대화"),
     (0, "정치권 규제 완화 논의 진행 중 → 개정 시 주간 운영 노하우의 새벽배송 확장 가능"),
@@ -117,7 +125,7 @@ data = [
     ["'26. 9월", "전국 서비스 확대"],
     ["'26. 연말", "50여 개 점포 운영 목표"],
 ]
-tbl = add_fin_table(s, MARGIN_L, 8.8, 25.26, 4.4, data,
+tbl = add_fin_table(s, MARGIN_L, y + GAP_SECTION, 25.26, 4.2, data,
                     col_w=[5.0, 20.26], header_rows=1, font_size=12)
 left_align_body(tbl, [1])
 
