@@ -269,6 +269,31 @@ def add_timeline(slide, l, t, w, milestones):
     return axis_y + 0.80
 
 
+def add_vtimeline(slide, l, t, w, h, steps):
+    """[세로 타임라인] 세로축 + 단계 점, 각 점 우측 [시점]·[내용] — 좁은 컬럼 세로 공간 채움.
+
+    steps: [(시점, 내용), ...] (6:4 비대칭 우측 컬럼용, v4.1 실측). → 종료 y 반환.
+    """
+    n = len(steps)
+    dot_x = l + 0.20
+    axis_top = t + 0.30
+    axis_bot = t + h - 0.30
+    _line(slide, dot_x, axis_top, dot_x, axis_bot, color=INK, w_pt=1.75)
+    gap = (axis_bot - axis_top) / (n - 1) if n > 1 else 0
+    for i, (when, content) in enumerate(steps):
+        cy = axis_top + gap * i
+        dot = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(dot_x - 0.13),
+                                     Cm(cy - 0.13), Cm(0.26), Cm(0.26))
+        dot.shadow.inherit = False
+        dot.fill.solid(); dot.fill.fore_color.rgb = WHITE
+        dot.line.color.rgb = INK; dot.line.width = Pt(1.0)
+        _txt(slide, dot_x + 0.45, cy - 0.30, 2.0, 0.5, when,
+             size=FONT_PT["bullet1"], bold=True, color=INK, anchor=MSO_ANCHOR.MIDDLE)
+        _txt(slide, dot_x + 2.55, cy - 0.30, w - dot_x - 2.55 + l, 0.60, content,
+             size=FONT_PT["bullet1"], color=INK, anchor=MSO_ANCHOR.MIDDLE)
+    return axis_bot + 0.30
+
+
 def add_insight_box(slide, l, t, w, h, items, tab="주요 시사점"):
     """[시사점 박스] 회색 테두리 박스 + 좌상단 짙은 탭 라벨 (Coles 협업 실측).
 
@@ -406,12 +431,13 @@ _TBL_ALIGN = {"l": PP_ALIGN.LEFT, "c": PP_ALIGN.CENTER, "r": PP_ALIGN.RIGHT}
 def add_fin_table(slide, l, t, w, h, data, col_w=None,
                   header_rows=1, header_fill=TH_PRIMARY,
                   col_align=None, font_size=None,
-                  merges=None, hl_rows=None, bold_cols=(0,)):
+                  merges=None, hl_rows=None, hl_cols=None, bold_cols=(0,)):
     """
     data: 2D list [ [row0col0, ...], ... ]  (문자열, None=위 셀과 병합 예정 자리)
     header_rows: 상단 헤더 행 수 (헤더 채움 + 검정 볼드 + 가운데)
     merges: [(row_start, row_end, col), ...] — 동일 값·그룹 구분의 세로 병합 (v4.1)
-    hl_rows: 강조 행 인덱스 — 연블루(HL_FILL) 채움 + 네이비(HL_TEXT) 볼드 (신규·핵심 행 한정)
+    hl_rows: 강조 행 인덱스 — 연블루(HL_FILL) 채움 + 네이비(HL_TEXT) 볼드 (신규·핵심 행)
+    hl_cols: 강조 열 인덱스 — 신·구 비교표에서 신규 서비스 열 음영 (헤더 포함, v4.1)
     bold_cols: 볼드 처리 열 (기본 1열; 서비스명 등 구분성 열 추가 지정 가능)
 
     정렬 표준 (v4.1, 정기협의체 본장 실측): 헤더·본문 전 셀 **가운데** 고정.
@@ -434,11 +460,11 @@ def add_fin_table(slide, l, t, w, h, data, col_w=None,
             cell.margin_top = 0; cell.margin_bottom = 0
             _cell_border(cell)                       # 격자 #BFBFBF 0.75pt (v4.1 코드 강제)
             is_head = i < header_rows
-            is_hl = hl_rows and i in hl_rows
-            if is_head:
-                cell.fill.solid(); cell.fill.fore_color.rgb = header_fill
-            elif is_hl:
+            is_hl = (hl_rows and i in hl_rows) or (hl_cols and j in hl_cols)
+            if is_hl:
                 cell.fill.solid(); cell.fill.fore_color.rgb = HL_FILL
+            elif is_head:
+                cell.fill.solid(); cell.fill.fore_color.rgb = header_fill
             else:
                 cell.fill.solid(); cell.fill.fore_color.rgb = WHITE
             tf = cell.text_frame; tf.word_wrap = True
