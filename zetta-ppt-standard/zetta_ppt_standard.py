@@ -18,6 +18,7 @@ from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.oxml.ns import qn
 import copy
+import re
 
 # ─────────────────────────────────────────────────────────────
 # 1. 디자인 토큰 (역설계 확정값)
@@ -84,6 +85,28 @@ FONT_PT = {
 # ─────────────────────────────────────────────────────────────
 # 2. 저수준 헬퍼
 # ─────────────────────────────────────────────────────────────
+PAREN_DROP_PT = 1.0                              # 본문 이어지는 괄호는 한 사이즈 작게
+_PAREN_RE = re.compile(r"\([^()]*\)")
+
+
+def _emit_runs(p, text, size, bold, color, name=FONT):
+    """문단에 run 생성 — 본문 이어지는 `(…)`는 한 사이즈 작게 + 여는 괄호 앞 한 칸 강제 (v4.1)."""
+    text = re.sub(r"(?<=\S)\(", " (", text)      # 본문↔괄호 사이 한 칸
+    text = re.sub(r" {2,}\(", " (", text)        # 이중 공백 방지
+    small = None if size is None else max(size - PAREN_DROP_PT, 1)
+    idx = 0
+    for m in _PAREN_RE.finditer(text):
+        if m.start() > idx:
+            r = p.add_run(); r.text = text[idx:m.start()]
+            _set_font(r, size, bold, color, name)
+        r = p.add_run(); r.text = m.group()
+        _set_font(r, small, bold, color, name)
+        idx = m.end()
+    if idx < len(text) or not p.runs:
+        r = p.add_run(); r.text = text[idx:]
+        _set_font(r, size, bold, color, name)
+
+
 def _set_font(run, size=None, bold=None, color=None, name=FONT):
     """맑은 고딕 3중 지정(latin·ea·cs) + 속성. v4 폰트 규칙."""
     f = run.font
@@ -116,8 +139,7 @@ def _txt(slide, l, t, w, h, text="", size=11, bold=False, color=INK,
     for i, line in enumerate(lines):
         p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
         p.alignment = align
-        r = p.add_run(); r.text = line
-        _set_font(r, size, bold, color, name)
+        _emit_runs(p, line, size, bold, color, name)
     return tb
 
 
@@ -428,10 +450,9 @@ def add_fin_table(slide, l, t, w, h, data, col_w=None,
             for k, line in enumerate(str(val).split("\n") if val is not None else []):
                 p = tf.paragraphs[0] if k == 0 else tf.add_paragraph()
                 p.alignment = align
-                r = p.add_run(); r.text = line
-                _set_font(r, font_size or FONT_PT["table"],
-                          bold=is_head or is_hl or j in bold_cols,
-                          color=HL_TEXT if is_hl else INK)
+                _emit_runs(p, line, font_size or FONT_PT["table"],
+                           is_head or is_hl or j in bold_cols,
+                           HL_TEXT if is_hl else INK)
     if merges:
         for r0, r1, jc in merges:
             tbl.cell(r0, jc).merge(tbl.cell(r1, jc))
