@@ -57,14 +57,6 @@ LINE_H        = 0.48                          # 개조식 불릿 행간 (피치)
 BULLET_MARKS  = ("•", "-", "·")
 BULLET_INDENT = 0.55                          # 하위 수준당 들여쓰기 (cm)
 
-# 원페이지 레이아웃 프레임워크 (정기협의체 실측): 좌측 레이블 레일 + 주제별 콘텐츠 행
-LABEL_W   = 2.20                              # 좌측 회색 레이블 폭
-LABEL_BG  = RGBColor(0x7F, 0x7F, 0x7F)        # 레이블 회색
-LABEL_SUB = RGBColor(0x59, 0x59, 0x59)        # 박스 캡션 회색
-ROW_GAP   = 0.30                              # 레일 행 간 간격
-CONTENT_L = MARGIN_L + LABEL_W + 0.30         # 레일 우측 콘텐츠 시작 x
-CONTENT_W = BODY_W - LABEL_W - 0.30           # 콘텐츠 폭
-
 # 제목 크기 (tier 별) — v4.1 교정: v3 실측(20pt 단일)로 회귀, tier 는 색상만 구분
 TITLE_PT = {"P": 20, "F": 20}                 # P계열 검정 / F계열 네이비, 공통 20pt
 
@@ -194,32 +186,6 @@ def add_bullets(slide, items, l=MARGIN_L, t=BODY_TOP, w=BODY_W,
              bold=(level == 0 and bold_top), color=INK)
         y += line_h
     return y
-
-
-def add_label_row(slide, t, h, label):
-    """[레이아웃 레일] 좌측 회색 레이블 박스 (백색 볼드·가운데) → 콘텐츠 시작 x 반환."""
-    _rect(slide, MARGIN_L, t, LABEL_W, h, fill=LABEL_BG)
-    _txt(slide, MARGIN_L, t, LABEL_W, h, label, size=FONT_PT["bullet1"], bold=True,
-         color=WHITE, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
-    return CONTENT_L
-
-
-def add_frame_box(slide, l, t, w, h, title, caption=None, sub=None, active=False):
-    """[프레임 박스] 키메시지·단계 박스. active=네이비 채움·백색 텍스트 (현재 단계 강조)."""
-    _rect(slide, l, t, w, h, fill=NAVY if active else DIVIDER_BG)
-    main = WHITE if active else INK
-    dim = WHITE if active else LABEL_SUB
-    yy = t + 0.15
-    if caption:
-        _txt(slide, l, yy, w, 0.40, caption, size=FONT_PT["footnote"], color=dim,
-             align=PP_ALIGN.CENTER)
-        yy += 0.45
-    _txt(slide, l, yy, w, 0.55, title, size=FONT_PT["bullet1"], bold=True, color=main,
-         align=PP_ALIGN.CENTER)
-    yy += 0.60
-    if sub:
-        _txt(slide, l, yy, w, 0.40, sub, size=FONT_PT["footnote"], color=dim,
-             align=PP_ALIGN.CENTER)
 
 
 def add_unit(slide, text="(단위 : 억원, %)"):
