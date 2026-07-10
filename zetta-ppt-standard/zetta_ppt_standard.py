@@ -270,34 +270,28 @@ def add_timeline(slide, l, t, w, milestones):
 
 
 def add_matrix2x2(slide, l, t, w, h, col_labels, row_labels, cells,
-                  star=(0, 1), corner=""):
-    """[2×2 포지셔닝 맵] 2축 사분면 — 기존 서비스 배치 + 빈 사분면에 ★ 신규 (v4.1 앵커).
+                  star=(0, 1), corner="속도＼물량"):
+    """[2×2 포지셔닝 맵] **하나의 3×3 표 객체**로 구현 (v4.1 확정 — 파편화 금지).
 
-    col_labels: [상단 좌, 상단 우] / row_labels: [좌 상, 좌 하]
-    cells: [[r0c0, r0c1], [r1c0, r1c1]] / star: (row, col) 강조 셀 (연블루+네이비 볼드).
-    corner: 좌상단 축 캡션 (예: '속도 ↓ / 물량 →'). → 종료 y 반환.
+    헤더행(0)=물량 축, 헤더열(0)=속도 축, 내부 4셀=서비스 위치. 축 라벨은 헤더 셀에
+    녹인다(떠 있는 텍스트박스 금지). star 셀만 음영+네이비 볼드.
+    col_labels: [소량, 대용량] / row_labels: [빠름…, 예약…] / cells: [[r0c0,r0c1],[r1c0,r1c1]].
     """
-    lab_w, lab_h = 2.05, 0.62
-    gx, gy = l + lab_w, t + lab_h
-    cw, ch = (w - lab_w) / 2, (h - lab_h) / 2
-    if corner:
-        _txt(slide, l, t, lab_w, lab_h, corner, size=FONT_PT["footnote"],
-             bold=True, color=SUB_GRAY, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
-    for j, cl in enumerate(col_labels):
-        _txt(slide, gx + cw * j, t, cw, lab_h, cl, size=FONT_PT["bullet1"],
-             bold=True, color=INK, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
-    for i, rl in enumerate(row_labels):
-        _txt(slide, l, gy + ch * i, lab_w, ch, rl, size=FONT_PT["bullet1"],
-             bold=True, color=INK, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
-    for i in range(2):
-        for j in range(2):
-            hot = (i, j) == tuple(star)
-            _rect(slide, gx + cw * j, gy + ch * i, cw, ch,
-                  fill=HL_FILL if hot else WHITE, line=GRID, line_w=1.0)
-            _txt(slide, gx + cw * j, gy + ch * i, cw, ch, cells[i][j],
-                 size=FONT_PT["bullet1"], bold=hot,
-                 color=HL_TEXT if hot else INK,
-                 align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    data = [
+        [corner, col_labels[0], col_labels[1]],
+        [row_labels[0], cells[0][0], cells[0][1]],
+        [row_labels[1], cells[1][0], cells[1][1]],
+    ]
+    star_cell = (star[0] + 1, star[1] + 1)      # 내부 좌표 → 표 좌표(헤더 +1)
+    tbl = add_fin_table(slide, l, t, w, h, data,
+                        col_w=[w * 0.30, w * 0.35, w - w * 0.30 - w * 0.35],
+                        header_rows=1, header_cols=1, hl_cells=[star_cell])
+    # 행 높이: 헤더행 짧게, 내부(사분면) 행 크게 → 맵이 컬럼 세로 공간을 채움
+    hdr_h = 0.95
+    body_h = (h - hdr_h) / 2
+    tbl.rows[0].height = Cm(hdr_h)
+    tbl.rows[1].height = Cm(body_h)
+    tbl.rows[2].height = Cm(body_h)
     return t + h
 
 
@@ -463,7 +457,8 @@ _TBL_ALIGN = {"l": PP_ALIGN.LEFT, "c": PP_ALIGN.CENTER, "r": PP_ALIGN.RIGHT}
 def add_fin_table(slide, l, t, w, h, data, col_w=None,
                   header_rows=1, header_fill=TH_PRIMARY,
                   col_align=None, font_size=None,
-                  merges=None, hl_rows=None, hl_cols=None, bold_cols=(0,)):
+                  merges=None, hl_rows=None, hl_cols=None, hl_cells=None,
+                  header_cols=0, bold_cols=(0,)):
     """
     data: 2D list [ [row0col0, ...], ... ]  (문자열, None=위 셀과 병합 예정 자리)
     header_rows: 상단 헤더 행 수 (헤더 채움 + 검정 볼드 + 가운데)
@@ -491,8 +486,9 @@ def add_fin_table(slide, l, t, w, h, data, col_w=None,
             cell.margin_left = Cm(0.1); cell.margin_right = Cm(0.1)
             cell.margin_top = 0; cell.margin_bottom = 0
             _cell_border(cell)                       # 격자 #BFBFBF 0.75pt (v4.1 코드 강제)
-            is_head = i < header_rows
-            is_hl = (hl_rows and i in hl_rows) or (hl_cols and j in hl_cols)
+            is_head = i < header_rows or j < header_cols
+            is_hl = ((hl_rows and i in hl_rows) or (hl_cols and j in hl_cols)
+                     or (hl_cells and (i, j) in hl_cells))
             if is_hl:
                 cell.fill.solid(); cell.fill.fore_color.rgb = HL_FILL
             elif is_head:
