@@ -8,7 +8,7 @@
 
 - **A4 가로 27.52×19.05cm** 고정, **맑은 고딕 3중지정**(한글·영문·숫자)
 - 팔레트: 네이비 `#000066` · 크림슨 `#C30C3E` · 표헤더 `#EAEEF6`/`#D8E0EC`
-- 전 페이지 공통 크롬: 좌상단 브래킷 헤더 · 우상단 단위 · 우하단 `n/N` · 좌하단 각주
+- 전 페이지 공통 크롬: 좌상단 브래킷 헤더 · ■ 리드메시지 · 우상단 단위 · 좌하단 각주
 - 원형 6종: 표지(C) · 챕터 간지(D) · P계열 본문 · F계열 본문 · 재무형 표(T) · 종료(Z)
 
 ## 설치
@@ -28,12 +28,14 @@ add_cover(prs, "11차 Ocado Project 정기협의체",
 add_divider(prs, 1, "26년 상반기 경영실적",
             ["경영실적 종합현황", "손익계산서(PL)", "투자현황"])
 
-s = add_content(prs, "경영실적①", "경영실적 종합현황", 3, 5, tier="P",
-                unit="(단위 : 억원, %)", footnote="※ ISF+CFC 통합 기준")
+s = add_content(prs, "경영실적①", "경영실적 종합현황", tier="P",
+                lead="핵심 한 줄 메시지", unit="(단위 : 억원, %)",
+                footnote="※ ISF+CFC 통합 기준")
 data = [["구분","'25년","'26년","증감","증감률"],
         ["총매출","1,677","1,815","+138","+8.2"]]
-add_fin_table(s, MARGIN_L, BODY_TOP, 25.26, 8.0, data,
-              col_w=[7.26,4.5,4.5,4.5,4.5], header_rows=1)
+add_fin_table(s, MARGIN_L, BODY_TOP, BODY_W, 8.0, data,
+              col_w=[7.16,4.5,4.5,4.5,4.5], header_rows=1,
+              col_align=["c","r","r","r","r"])
 
 add_closing(prs)
 prs.save("out.pptx")

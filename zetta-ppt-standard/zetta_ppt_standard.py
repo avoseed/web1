@@ -23,8 +23,7 @@ import copy
 # 1. 디자인 토큰 (역설계 확정값)
 # ─────────────────────────────────────────────────────────────
 PAGE_W_CM, PAGE_H_CM = 27.52, 19.05          # A4 가로 (9906000 x 6858000 EMU)
-FONT       = "맑은 고딕"                       # 3중 지정 대상
-FONT_NUM   = "맑은 고딕"                       # 숫자도 동일 (v4)
+FONT       = "맑은 고딕"                       # 단일 폰트 — 한글·영문·숫자 공통 3중 지정 (v4.1)
 
 # 팔레트 (theme1.xml 실측)
 NAVY       = RGBColor(0x00, 0x00, 0x66)       # accent1  [F계열] 제목·강조
@@ -39,13 +38,13 @@ GRID       = RGBColor(0xBF, 0xBF, 0xBF)       # 표 격자
 DIVIDER_BG = RGBColor(0xF2, 0xF2, 0xF2)       # 챕터 간지 회색 풀블리드(bg1 lumMod95%)
 WHITE      = RGBColor(0xFF, 0xFF, 0xFF)
 
-# 크롬 좌표 (실측 고정값)  L, T, W, H  (cm)
-HDR   = (1.16, 1.20, 25.24, 0.90)             # 좌상단 브래킷 헤더
-LEAD  = (1.16, 2.90, 21.80, 0.65)             # 제목 하단 리드메시지 (■ 한 줄, 헤더 하단 +0.80)
-UNIT  = (23.10, 2.35, 3.30, 0.60)             # 우상단 단위
-PAGE  = (25.42, 18.23, 2.10, 0.60)            # 우하단 페이지번호 n/N
-FOOT  = (1.04, 17.90, 18.00, 0.55)            # 좌하단 각주
-MARGIN_L, MARGIN_R = 1.13, 1.13               # 좌우 여백(대칭)
+# 크롬 좌표 (실측 기반, v4.1 여백 +0.5mm 조정)  L, T, W, H  (cm)
+HDR   = (1.21, 1.20, 25.14, 0.90)             # 좌상단 브래킷 헤더
+LEAD  = (1.21, 2.90, 21.75, 0.65)             # 제목 하단 리드메시지 (■ 한 줄, 헤더 하단 +0.80)
+UNIT  = (23.04, 2.35, 3.30, 0.60)             # 우상단 단위 (우측 여백선 정렬)
+FOOT  = (1.09, 17.90, 18.00, 0.55)            # 좌하단 각주
+MARGIN_L, MARGIN_R = 1.18, 1.18               # 좌우 여백(대칭, v4.1 +0.5mm)
+BODY_W = PAGE_W_CM - MARGIN_L - MARGIN_R      # 본문 폭 25.16
 BODY_TOP = 3.00                               # 본문 시작 y (리드메시지 미사용 시)
 
 # 수직 간격 토큰 (정기협의체 산출물 실측 — 개체 간 간격 표준)
@@ -171,7 +170,7 @@ def add_lead(slide, text, size=None):
                 size=size or FONT_PT["lead"], bold=True, color=INK)
 
 
-def add_bullets(slide, items, l=MARGIN_L, t=BODY_TOP, w=25.26,
+def add_bullets(slide, items, l=MARGIN_L, t=BODY_TOP, w=BODY_W,
                 line_h=LINE_H, bold_top=True):
     """표준 개조식 불릿 배치 (v4.1). items: [(level, text), ...] → 종료 y 반환.
 
@@ -193,13 +192,6 @@ def add_unit(slide, text="(단위 : 억원, %)"):
     """우상단 단위 표기."""
     l, t, w, h = UNIT
     return _txt(slide, l, t, w, h, text, size=FONT_PT["unit"], bold=True,
-                align=PP_ALIGN.RIGHT, color=INK)
-
-
-def add_pagenum(slide, n, total):
-    """우하단 페이지번호 n/N."""
-    l, t, w, h = PAGE
-    return _txt(slide, l, t, w, h, f"{n}/{total}", size=FONT_PT["unit"], bold=False,
                 align=PP_ALIGN.RIGHT, color=INK)
 
 
@@ -255,11 +247,12 @@ def add_divider(prs, num, title, items):
     return s
 
 
-def add_content(prs, category, title, n, total, tier="P",
+def add_content(prs, category, title, tier="P",
                 lead=None, unit=None, footnote=None):
     """[본문 P/F계열] 크롬만 세팅한 슬라이드 반환 → 본문 자유 배치.
 
     lead: 제목 하단 `■ ` 리드메시지 한 줄 (선택). 사용 시 본문은 BODY_TOP_LEAD(4.10)부터.
+    페이지번호 크롬은 v4.1 에서 제거.
     """
     s = _blank(prs)
     add_header(s, category, title, tier)
@@ -269,7 +262,6 @@ def add_content(prs, category, title, n, total, tier="P",
         add_unit(s, unit)
     if footnote:
         add_footnote(s, footnote)
-    add_pagenum(s, n, total)
     return s
 
 
