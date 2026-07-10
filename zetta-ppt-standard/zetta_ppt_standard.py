@@ -326,9 +326,9 @@ def add_vtimeline(slide, l, t, w, h, steps, max_gap=1.55):
         dot.shadow.inherit = False
         dot.fill.solid(); dot.fill.fore_color.rgb = WHITE
         dot.line.color.rgb = INK; dot.line.width = Pt(1.0)
-        _txt(slide, dot_x + 0.45, cy - 0.30, 2.0, 0.5, when,
+        _txt(slide, dot_x + 0.45, cy - 0.45, 1.9, 0.90, when,
              size=FONT_PT["bullet1"], bold=True, color=INK, anchor=MSO_ANCHOR.MIDDLE)
-        _txt(slide, dot_x + 2.55, cy - 0.30, w - dot_x - 2.55 + l, 0.60, content,
+        _txt(slide, dot_x + 2.45, cy - 0.45, w - dot_x - 2.45 + l, 0.90, content,
              size=FONT_PT["bullet1"], color=INK, anchor=MSO_ANCHOR.MIDDLE)
     return axis_bot + 0.30
 
