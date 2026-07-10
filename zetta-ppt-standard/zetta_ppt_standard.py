@@ -216,19 +216,22 @@ def add_timeline(slide, l, t, w, milestones):
     axis_y = t + 0.55
     ax = slide.shapes.add_connector(2, Cm(l), Cm(axis_y), Cm(l + w), Cm(axis_y))
     ax.line.color.rgb = INK; ax.line.width = Pt(2.0)
+    lnEl = ax.line._get_or_add_ln()                      # 우측 끝 화살촉
+    lnEl.append(lnEl.makeelement(qn("a:tailEnd"),
+                                 {"type": "triangle", "w": "med", "len": "med"}))
     step = w / len(milestones)
     for i, (date, label) in enumerate(milestones):
         cx = l + step * (i + 0.5)
-        dot = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(cx - 0.11),
-                                     Cm(axis_y - 0.11), Cm(0.22), Cm(0.22))
+        dot = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(cx - 0.13),
+                                     Cm(axis_y - 0.13), Cm(0.26), Cm(0.26))
         dot.shadow.inherit = False
-        dot.fill.solid(); dot.fill.fore_color.rgb = GRID
-        dot.line.fill.background()
+        dot.fill.solid(); dot.fill.fore_color.rgb = WHITE
+        dot.line.color.rgb = INK; dot.line.width = Pt(1.0)
         _txt(slide, cx - step / 2, t, step, 0.45, date, size=FONT_PT["table"],
              bold=True, color=SUB_GRAY, align=PP_ALIGN.CENTER)
-        _txt(slide, cx - step / 2, axis_y + 0.15, step, 0.55, label,
+        _txt(slide, cx - step / 2, axis_y + 0.20, step, 0.55, label,
              size=FONT_PT["bullet1"], bold=True, color=INK, align=PP_ALIGN.CENTER)
-    return axis_y + 0.75
+    return axis_y + 0.80
 
 
 def add_insight_box(slide, l, t, w, h, items, tab="주요 시사점"):
