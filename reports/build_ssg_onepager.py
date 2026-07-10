@@ -26,6 +26,7 @@ COL2_L = MARGIN_L + LW + COL_GAP
 VSEP_X = MARGIN_L + LW + COL_GAP / 2
 Y0 = 4.18
 BOTTOM = 16.35                       # 좌측 맵 하단선(긴 쪽) — 각주(17.90)와 이격
+LEAD_TOP = 15.95                     # 우측 리드 — 좌 맵 하단선과 바닥 정렬(휑한 하단 여백 방지)
 
 prs = new_deck()
 # 헤드라인 = 결론 선치 (순한글: '물류거점화')
@@ -45,17 +46,17 @@ y = add_bullets(s, [
 
 y = add_bullets(s, [(0, "③ 확산 계획")], l=COL2_L, t=y + 0.30, w=RW, line_h=0.64)
 VT_TOP = y + 0.10
-# §0.6 노드 간격 상한(max_gap) → 4개 노드 조밀 배치, 잔여는 하단 여백
-vt_bot = add_vtimeline(s, COL2_L, VT_TOP, RW, BOTTOM - VT_TOP, [
+# 로드맵을 리드 직전까지 균등 분산 → 좌 맵 하단선과 바닥 정렬(휑한 하단 여백 방지).
+# max_gap 은 과대(>2.6배) 벌어짐만 차단하는 상한 — 여기선 충분히 채워 바닥을 맞춘다.
+add_vtimeline(s, COL2_L, VT_TOP, RW, (LEAD_TOP - 0.20) - VT_TOP, [
     ("'26.7월", "양재·하남점 도입"),
     ("8월", "서울 확대 (월계·가든5·신도림)"),
     ("9월", "전국 확대"),
     ("연말", "50여 점포 운영"),
-], max_gap=1.55)
+], max_gap=2.6)
 add_bullets(s, [
     (0, "(리드) 유휴 PP센터 재활용 → 신규 투자 최소 · 저비용 급속 확산"),
-], l=COL2_L, t=vt_bot + 0.12, w=RW, line_h=0.64)
-# → 우측 콘텐츠 하단선 ≈ vt_bot+0.76. 이하 BOTTOM 까지는 절제된 하단 여백(§0.5).
+], l=COL2_L, t=LEAD_TOP, w=RW, line_h=0.64)
 
 # ══════════ 좌 45% : ① 도입 배경 + 2×2 맵 ══════════
 y = add_bullets(s, [
