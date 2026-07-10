@@ -28,7 +28,7 @@ def col_title(slide, l, t, text):
     _txt(slide, l, t, HALF_W, 0.55, text, size=FONT_PT["bullet0"], bold=True,
          color=INK, align=PP_ALIGN.CENTER)
     add_hline(slide, l, t + 0.62, HALF_W, color=INK, w_pt=1.5)
-    return t + 0.90
+    return t + 1.15          # 룰 하단 +0.53 여백 (제목 아래는 넉넉히)
 
 
 def block(slide, l, t, head, subs):
@@ -99,8 +99,8 @@ add_timeline(s, COL2_L, y + 0.05, HALF_W, [
 ])
 
 # ══ 중앙 세로선 + 전폭 결론 박스 (하단 앵커) ══
-add_vsep(s, VSEP_X, Y0, 15.45 - Y0)
-add_conclusion_box(s, MARGIN_L, 16.30, BODY_W,
+add_vsep(s, VSEP_X, Y0, 15.35 - Y0)
+add_conclusion_box(s, MARGIN_L, 15.65, BODY_W,   # 본문 하단 +0.45 밀착
                    "사륜차 대용량 즉시배송으로 퀵커머스 공백 흡수 — 연말 50여 개 점포, 전국 즉시배송 기반 구축",
                    h=1.00)
 
