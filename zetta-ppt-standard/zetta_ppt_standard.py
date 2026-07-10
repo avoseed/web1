@@ -155,7 +155,8 @@ def _rect(slide, l, t, w, h, fill=None, line=None, line_w=0.75):
 # 3. 슬라이드 크롬 (전 페이지 공통)
 # ─────────────────────────────────────────────────────────────
 def add_header(slide, category, title, tier="P"):
-    """좌상단 브래킷 헤더: [분류] 제목. v4.1: P/F 공통 검정 (파란 글자 금지)."""
+    """좌상단 헤더. category 지정 시 `[분류] 제목`, None 이면 `■ 제목`
+    (v4.1 — 원페이지 등 단독 보고서는 브래킷 분류 생략)."""
     l, t, w, h = HDR
     color = BLACK
     size = TITLE_PT[tier]
@@ -164,7 +165,8 @@ def add_header(slide, category, title, tier="P"):
     for m in ("margin_left", "margin_right", "margin_top", "margin_bottom"):
         setattr(tf, m, 0)
     p = tf.paragraphs[0]; p.alignment = PP_ALIGN.LEFT
-    r1 = p.add_run(); r1.text = f"[{category}] "
+    r1 = p.add_run()
+    r1.text = f"[{category}] " if category else "■  "
     _set_font(r1, size, True, color)
     r2 = p.add_run(); r2.text = title
     _set_font(r2, size, True, color)
