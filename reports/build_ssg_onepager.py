@@ -61,7 +61,11 @@ data = [
 ]
 add_fin_table(s, MARGIN_L, y, HALF_W, 4.8, data,
               col_w=[3.2, 4.2, HALF_W - 7.4], header_rows=1)
-y += 4.8 + GAP_BLK
+y += 4.8 + 0.20
+_txt(s, MARGIN_L + BULLET_INDENT, y, HALF_W - BULLET_INDENT, LINE_H,
+     "→ 즉시배송은 이륜 소량(바로퀵)뿐, 대용량 즉시배송 부재",
+     size=FONT_PT["bullet1"], bold=False, color=INK)
+y += PITCH + GAP_BLK - 0.20
 block(s, MARGIN_L, y, "규제 제약", [
     "유통산업발전법 → PP센터 새벽배송 불가",
 ])
