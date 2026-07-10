@@ -333,6 +333,53 @@ def add_vtimeline(slide, l, t, w, h, steps, max_gap=1.55):
     return axis_bot + 0.30
 
 
+def add_htimeline(slide, l, t, w, steps, when_h=0.45, content_h=1.15):
+    """[가로 타임라인] 굵은 축 + 노드 점, 노드 위 [시점](볼드)·아래 [내용] — 전폭 밴드용.
+
+    steps: [(시점, 내용), ...] — 밴드 폭 w 에 노드 균등 분포(세로 늘어짐 없음, v4.1 §4). → 종료 y 반환.
+    내용은 여러 줄(\\n) 허용, 노드끼리 겹치지 않게 세그먼트 폭 안에서 가운데 줄바꿈.
+    """
+    n = len(steps)
+    axis_y = t + when_h + 0.12
+    ax = _line(slide, l, axis_y, l + w, axis_y, color=INK, w_pt=2.0)
+    lnEl = ax.line._get_or_add_ln()                      # 우측 끝 화살촉
+    lnEl.append(lnEl.makeelement(qn("a:tailEnd"),
+                                 {"type": "triangle", "w": "med", "len": "med"}))
+    step = w / n
+    for i, (when, content) in enumerate(steps):
+        cx = l + step * (i + 0.5)
+        dot = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(cx - 0.14),
+                                     Cm(axis_y - 0.14), Cm(0.28), Cm(0.28))
+        dot.shadow.inherit = False
+        dot.fill.solid(); dot.fill.fore_color.rgb = WHITE
+        dot.line.color.rgb = INK; dot.line.width = Pt(1.25)
+        _txt(slide, cx - step / 2, t, step, when_h, when, size=FONT_PT["bullet1"],
+             bold=True, color=INK, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.BOTTOM)
+        _txt(slide, cx - step / 2, axis_y + 0.18, step, content_h, content,
+             size=FONT_PT["bullet1"], color=INK, align=PP_ALIGN.CENTER,
+             anchor=MSO_ANCHOR.TOP)
+    return axis_y + 0.18 + content_h
+
+
+def add_flow_row(slide, l, t, w, items, h=1.35, gap=0.90):
+    """[가로 논리 흐름] 칩(옅은 헤더색) N개를 → 연결로 전폭 배치 — 배경·논거 압축용(v4.1 §5).
+
+    items: [문구, ...] — 좌→우 인과·전개 흐름. 마지막 칩에 결론/공백을 둔다. → 종료 y 반환.
+    """
+    n = len(items)
+    seg_w = (w - gap * (n - 1)) / n
+    x = l
+    for i, item in enumerate(items):
+        _rect(slide, x, t, seg_w, h, fill=TH_PRIMARY)
+        _txt(slide, x + 0.25, t, seg_w - 0.50, h, item, size=FONT_PT["bullet1"],
+             color=INK, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+        if i < n - 1:
+            _txt(slide, x + seg_w, t, gap, h, "→", size=FONT_PT["lead"], bold=True,
+                 color=SUB_GRAY, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+        x += seg_w + gap
+    return t + h
+
+
 def add_insight_box(slide, l, t, w, h, items, tab="주요 시사점"):
     """[시사점 박스] 회색 테두리 박스 + 좌상단 짙은 탭 라벨 (Coles 협업 실측).
 
