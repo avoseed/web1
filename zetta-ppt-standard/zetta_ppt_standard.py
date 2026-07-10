@@ -269,6 +269,38 @@ def add_timeline(slide, l, t, w, milestones):
     return axis_y + 0.80
 
 
+def add_matrix2x2(slide, l, t, w, h, col_labels, row_labels, cells,
+                  star=(0, 1), corner=""):
+    """[2×2 포지셔닝 맵] 2축 사분면 — 기존 서비스 배치 + 빈 사분면에 ★ 신규 (v4.1 앵커).
+
+    col_labels: [상단 좌, 상단 우] / row_labels: [좌 상, 좌 하]
+    cells: [[r0c0, r0c1], [r1c0, r1c1]] / star: (row, col) 강조 셀 (연블루+네이비 볼드).
+    corner: 좌상단 축 캡션 (예: '속도 ↓ / 물량 →'). → 종료 y 반환.
+    """
+    lab_w, lab_h = 2.05, 0.62
+    gx, gy = l + lab_w, t + lab_h
+    cw, ch = (w - lab_w) / 2, (h - lab_h) / 2
+    if corner:
+        _txt(slide, l, t, lab_w, lab_h, corner, size=FONT_PT["footnote"],
+             bold=True, color=SUB_GRAY, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    for j, cl in enumerate(col_labels):
+        _txt(slide, gx + cw * j, t, cw, lab_h, cl, size=FONT_PT["bullet1"],
+             bold=True, color=INK, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    for i, rl in enumerate(row_labels):
+        _txt(slide, l, gy + ch * i, lab_w, ch, rl, size=FONT_PT["bullet1"],
+             bold=True, color=INK, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    for i in range(2):
+        for j in range(2):
+            hot = (i, j) == tuple(star)
+            _rect(slide, gx + cw * j, gy + ch * i, cw, ch,
+                  fill=HL_FILL if hot else WHITE, line=GRID, line_w=1.0)
+            _txt(slide, gx + cw * j, gy + ch * i, cw, ch, cells[i][j],
+                 size=FONT_PT["bullet1"], bold=hot,
+                 color=HL_TEXT if hot else INK,
+                 align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    return t + h
+
+
 def add_vtimeline(slide, l, t, w, h, steps):
     """[세로 타임라인] 세로축 + 단계 점, 각 점 우측 [시점]·[내용] — 좁은 컬럼 세로 공간 채움.
 
