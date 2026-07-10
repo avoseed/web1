@@ -72,16 +72,17 @@ y = add_bullets(s, [
 ], l=COL2_L, t=y, w=RW, line_h=0.55)
 add_bullets(s, [(0, "② 확산 로드맵")], l=COL2_L, t=y + 0.22, w=RW, line_h=0.5)
 VT_TOP = y + 0.22 + 0.50
-add_vtimeline(s, COL2_L, VT_TOP, RW, 14.40 - VT_TOP + 0.30, [
+# So What = 네이비 결론 박스(하단 고정, 좌 표 하단과 16.55 동일선)
+CONCL_TOP = BOTTOM - 1.35
+add_vtimeline(s, COL2_L, VT_TOP, RW, (CONCL_TOP - 0.30) - VT_TOP + 0.30, [
     ("'26.7월", "양재·하남점 도입"),
     ("8월", "서울 확대\n(월계·가든5·신도림)"),
     ("9월", "전국 확대"),
     ("연말", "50여 점포 운영"),
-], max_gap=2.4)
-# So What = 로드맵 하단 리드 1줄 (별도 블록 없이, SPEC 3-2). 하단 16.55 정렬
-_txt(s, COL2_L, BOTTOM - 1.10, RW, 1.10,
-     "• 유휴 PP센터 재활용 → 신규 투자 최소 · 저비용 급속 확산",
-     size=FONT_PT["bullet0"], bold=True, color=INK, anchor=MSO_ANCHOR.BOTTOM)
+], max_gap=2.2)
+add_conclusion_box(s, COL2_L, CONCL_TOP, RW,
+                   "유휴 PP센터 재활용 → 신규 투자 최소 · 저비용 급속 확산",
+                   h=1.35)
 
 # ══ 중앙 세로 구분선 ══
 add_vsep(s, VSEP_X, Y0, BOTTOM - Y0)
