@@ -137,6 +137,18 @@ def _cell_border(cell, color=None, w_pt=0.75):
         tcPr.insert(0, ln)
 
 
+def _line(slide, x1, y1, x2, y2, color=None, w_pt=0.75):
+    """직선 커넥터 — 그림자 없음·실선 강제 (v4.1: 선에 그림자·점선 금지)."""
+    ln = slide.shapes.add_connector(2, Cm(x1), Cm(y1), Cm(x2), Cm(y2))
+    ln.shadow.inherit = False                        # 그림자 제거
+    lf = ln.line
+    lf.color.rgb = color if color is not None else INK
+    lf.width = Pt(w_pt)
+    d = lf._get_or_add_ln().makeelement(qn("a:prstDash"), {"val": "solid"})
+    lf._get_or_add_ln().append(d)                    # 실선 강제 (점선 방지)
+    return ln
+
+
 def _rect(slide, l, t, w, h, fill=None, line=None, line_w=0.75):
     sp = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Cm(l), Cm(t), Cm(w), Cm(h))
     sp.shadow.inherit = False
@@ -205,11 +217,9 @@ def add_block_header(slide, l, t, w, text):
 
 
 def add_hline(slide, l, t, w, color=None, w_pt=0.75):
-    """가로 괘선 — 구분 매트릭스(D형) 행 구분·제목 밑줄 룰."""
-    ln = slide.shapes.add_connector(2, Cm(l), Cm(t), Cm(l + w), Cm(t))
-    ln.line.color.rgb = color if color is not None else GRID
-    ln.line.width = Pt(w_pt)
-    return ln
+    """가로 괘선 — 구분 매트릭스(D형) 행 구분·제목 밑줄 룰. (그림자·점선 없음)"""
+    return _line(slide, l, t, l + w, t,
+                 color=color if color is not None else GRID, w_pt=w_pt)
 
 
 def add_timeline(slide, l, t, w, milestones):
@@ -218,8 +228,7 @@ def add_timeline(slide, l, t, w, milestones):
     milestones: [(날짜, 라벨), ...] → 종료 y 반환. (OSP 경과보고·Coles 협업 실측)
     """
     axis_y = t + 0.55
-    ax = slide.shapes.add_connector(2, Cm(l), Cm(axis_y), Cm(l + w), Cm(axis_y))
-    ax.line.color.rgb = INK; ax.line.width = Pt(2.0)
+    ax = _line(slide, l, axis_y, l + w, axis_y, color=INK, w_pt=2.0)
     lnEl = ax.line._get_or_add_ln()                      # 우측 끝 화살촉
     lnEl.append(lnEl.makeelement(qn("a:tailEnd"),
                                  {"type": "triangle", "w": "med", "len": "med"}))
@@ -266,11 +275,8 @@ def add_conclusion_box(slide, l, t, w, text, h=CONCL_H):
 
 
 def add_vsep(slide, x, t, h):
-    """[본장 2단 컬럼] 중앙 세로 구분선 (#BFBFBF 0.75pt)."""
-    ln = slide.shapes.add_connector(2, Cm(x), Cm(t), Cm(x), Cm(t + h))
-    ln.line.color.rgb = GRID
-    ln.line.width = Pt(0.75)
-    return ln
+    """[본장 2단 컬럼] 중앙 세로 구분선 (#BFBFBF 0.75pt 실선, 그림자·점선 없음)."""
+    return _line(slide, x, t, x, t + h, color=GRID, w_pt=0.75)
 
 
 def add_unit(slide, text="(단위 : 억원, %)"):

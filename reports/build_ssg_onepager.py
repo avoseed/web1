@@ -63,7 +63,8 @@ data = [
     ["퀵커머스", "1시간 배송\n(바로퀵)", "점포 (반경 3km)", "이륜차", "소량 (1만 종)"],
     [None, "2시간 배송", "점포", "사륜차", "대용량"],
 ]
-add_fin_table(s, MARGIN_L, 11.15, HALF_W, 5.34, data,
+# 표 하단 = 우 컬럼 마지막 블록(규제 변수) 하단선과 정렬 (bottom ≈ 16.87)
+add_fin_table(s, MARGIN_L, 11.15, HALF_W, 5.72, data,
               col_w=[1.92, 3.13, 2.77, 1.88, 2.55], header_rows=1,
               merges=[(1, 3, 0), (1, 3, 3), (1, 3, 4), (4, 5, 0)],
               hl_rows=[5], bold_cols=(0, 1))
@@ -95,8 +96,8 @@ block(s, COL2_L, 15.24, "규제 변수", [
     "규제 완화 논의 중 → 개정 시 새벽배송 확장 여지",
 ])
 
-# ══ 중앙 세로 구분선 ══
-add_vsep(s, VSEP_X, Y0, 17.30 - Y0)
+# ══ 중앙 세로 구분선 (정렬된 하단선까지) ══
+add_vsep(s, VSEP_X, Y0, 16.87 - Y0)
 
 out = os.path.join(os.path.dirname(__file__), "ssg-quickcommerce-onepager.pptx")
 prs.save(out)
