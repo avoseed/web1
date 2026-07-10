@@ -380,6 +380,40 @@ def add_flow_row(slide, l, t, w, items, h=1.35, gap=0.90):
     return t + h
 
 
+def add_specbox(slide, l, t, w, h, rows, header=None, label_w=2.5, hdr_h=0.95):
+    """[스펙 패널] 프레임 박스 + (선택)헤더 스트립 + 굵은 라벨:값 행 균등 분배 — 맵과 시각적 쌍둥이.
+
+    rows: [(라벨, 값), ...] — 행을 박스 높이에 균등 분배(헐거운 흩뿌림 방지, 밀도 확보).
+    맵(add_matrix2x2)과 동일 t·h 로 나란히 두면 좌우 질량이 맞아 바닥선까지 정렬된다.
+    표가 아니라 패널(가로 구분선만, 세로 격자 없음) — '표는 맵 하나' 가드레일과 양립.
+    """
+    _rect(slide, l, t, w, h, fill=WHITE, line=GRID, line_w=0.75)
+    y = t
+    if header:
+        _rect(slide, l, t, w, hdr_h, fill=TH_PRIMARY)
+        _txt(slide, l, t, w, hdr_h, header, size=FONT_PT["table"], bold=True,
+             color=INK, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+        y = t + hdr_h
+        _line(slide, l, y, l + w, y, color=GRID, w_pt=0.75)
+    n = len(rows)
+    pitch = (t + h - y) / n
+    for i, (lab, val) in enumerate(rows):
+        ry = y + pitch * i
+        if i > 0:
+            _line(slide, l + 0.15, ry, l + w - 0.15, ry, color=GRID, w_pt=0.5)
+        _txt(slide, l + 0.30, ry, label_w, pitch, lab, size=FONT_PT["bullet1"],
+             bold=True, color=INK, anchor=MSO_ANCHOR.MIDDLE)
+        _txt(slide, l + 0.30 + label_w, ry, w - 0.60 - label_w, pitch, val,
+             size=FONT_PT["bullet1"], color=INK, anchor=MSO_ANCHOR.MIDDLE)
+    return t + h
+
+
+def add_frame(slide, l, t, w, h, fill=WHITE, line=None, line_w=0.75):
+    """[프레임 박스] 얇은 테두리 박스 — 타임라인·강조 영역을 감싸 밀도·구획감 부여."""
+    return _rect(slide, l, t, w, h, fill=fill,
+                 line=line if line is not None else GRID, line_w=line_w)
+
+
 def add_insight_box(slide, l, t, w, h, items, tab="주요 시사점"):
     """[시사점 박스] 회색 테두리 박스 + 좌상단 짙은 탭 라벨 (Coles 협업 실측).
 
