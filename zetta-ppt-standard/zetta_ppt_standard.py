@@ -270,13 +270,20 @@ def add_timeline(slide, l, t, w, milestones):
 
 
 def add_matrix2x2(slide, l, t, w, h, col_labels, row_labels, cells,
-                  star=(0, 1), corner="속도＼물량"):
+                  star=(0, 1), corner="속도＼물량", dim=None):
     """[2×2 포지셔닝 맵] **하나의 3×3 표 객체**로 구현 (v4.1 확정 — 파편화 금지).
 
     헤더행(0)=물량 축, 헤더열(0)=속도 축, 내부 4셀=서비스 위치. 축 라벨은 헤더 셀에
     녹인다(떠 있는 텍스트박스 금지). star 셀만 음영+네이비 볼드.
     col_labels: [소량, 대용량] / row_labels: [빠름…, 예약…] / cells: [[r0c0,r0c1],[r1c0,r1c1]].
+    dim: 의도적 공백 사분면 내부 좌표(예: (1,0) 예약×소량) — 대시 대신 `해당 없음`(옅은 회색·가운데)
+         으로 채워 '의도된 공백'을 표시(v4.1 §0.7). 대시 하나만 덩그러니 두지 말 것.
     """
+    cells = [list(cells[0]), list(cells[1])]     # 원본 불변 — 복사본에만 기입
+    dim_cells = None
+    if dim is not None:
+        cells[dim[0]][dim[1]] = "해당 없음"
+        dim_cells = [(dim[0] + 1, dim[1] + 1)]   # 내부 좌표 → 표 좌표(헤더 +1)
     data = [
         [corner, col_labels[0], col_labels[1]],
         [row_labels[0], cells[0][0], cells[0][1]],
@@ -285,7 +292,8 @@ def add_matrix2x2(slide, l, t, w, h, col_labels, row_labels, cells,
     star_cell = (star[0] + 1, star[1] + 1)      # 내부 좌표 → 표 좌표(헤더 +1)
     tbl = add_fin_table(slide, l, t, w, h, data,
                         col_w=[w * 0.30, w * 0.35, w - w * 0.30 - w * 0.35],
-                        header_rows=1, header_cols=1, hl_cells=[star_cell])
+                        header_rows=1, header_cols=1, hl_cells=[star_cell],
+                        dim_cells=dim_cells)
     # 행 높이: 헤더행 짧게, 내부(사분면) 행 크게 → 맵이 컬럼 세로 공간을 채움
     hdr_h = 0.95
     body_h = (h - hdr_h) / 2
@@ -295,17 +303,22 @@ def add_matrix2x2(slide, l, t, w, h, col_labels, row_labels, cells,
     return t + h
 
 
-def add_vtimeline(slide, l, t, w, h, steps):
+def add_vtimeline(slide, l, t, w, h, steps, max_gap=1.55):
     """[세로 타임라인] 세로축 + 단계 점, 각 점 우측 [시점]·[내용] — 좁은 컬럼 세로 공간 채움.
 
     steps: [(시점, 내용), ...] (6:4 비대칭 우측 컬럼용, v4.1 실측). → 종료 y 반환.
+    max_gap: 노드 간 세로 간격 상한(cm, v4.1 §0.6) — 노드를 억지로 h 전체에 늘리지 않는다.
+             간격이 상한을 넘으면 상한으로 조밀하게 두고 남는 공간은 하단 여백으로 비운다.
     """
     n = len(steps)
     dot_x = l + 0.20
     axis_top = t + 0.30
     axis_bot = t + h - 0.30
-    _line(slide, dot_x, axis_top, dot_x, axis_bot, color=INK, w_pt=1.75)
     gap = (axis_bot - axis_top) / (n - 1) if n > 1 else 0
+    if gap > max_gap:                       # 조밀 상한 적용 → 축을 위쪽에 고정, 하단 여백
+        gap = max_gap
+        axis_bot = axis_top + gap * (n - 1)
+    _line(slide, dot_x, axis_top, dot_x, axis_bot, color=INK, w_pt=1.75)
     for i, (when, content) in enumerate(steps):
         cy = axis_top + gap * i
         dot = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(dot_x - 0.13),
@@ -458,13 +471,14 @@ def add_fin_table(slide, l, t, w, h, data, col_w=None,
                   header_rows=1, header_fill=TH_PRIMARY,
                   col_align=None, font_size=None,
                   merges=None, hl_rows=None, hl_cols=None, hl_cells=None,
-                  header_cols=0, bold_cols=(0,)):
+                  dim_cells=None, header_cols=0, bold_cols=(0,)):
     """
     data: 2D list [ [row0col0, ...], ... ]  (문자열, None=위 셀과 병합 예정 자리)
     header_rows: 상단 헤더 행 수 (헤더 채움 + 검정 볼드 + 가운데)
     merges: [(row_start, row_end, col), ...] — 동일 값·그룹 구분의 세로 병합 (v4.1)
     hl_rows: 강조 행 인덱스 — 연블루(HL_FILL) 채움 + 네이비(HL_TEXT) 볼드 (신규·핵심 행)
     hl_cols: 강조 열 인덱스 — 신·구 비교표에서 신규 서비스 열 음영 (헤더 포함, v4.1)
+    dim_cells: 의도된 공백 셀 [(i,j),...] — 옅은 회색(SUB_GRAY)·볼드 해제 (v4.1 §0.7)
     bold_cols: 볼드 처리 열 (기본 1열; 서비스명 등 구분성 열 추가 지정 가능)
 
     정렬 표준 (v4.1, 정기협의체 본장 실측): 헤더·본문 전 셀 **가운데** 고정.
@@ -500,13 +514,14 @@ def add_fin_table(slide, l, t, w, h, data, col_w=None,
                 align = PP_ALIGN.CENTER
             else:
                 align = _TBL_ALIGN[col_align[j] if col_align else "c"]
+            is_dim = bool(dim_cells and (i, j) in dim_cells)
             # 다중행 셀도 전 행 동일 정렬 — 줄마다 문단 분리 (None = 병합 자리)
             for k, line in enumerate(str(val).split("\n") if val is not None else []):
                 p = tf.paragraphs[0] if k == 0 else tf.add_paragraph()
                 p.alignment = align
                 _emit_runs(p, line, font_size or FONT_PT["table"],
-                           is_head or is_hl or j in bold_cols,
-                           HL_TEXT if is_hl else INK)
+                           (not is_dim) and (is_head or is_hl or j in bold_cols),
+                           SUB_GRAY if is_dim else (HL_TEXT if is_hl else INK))
     if merges:
         for r0, r1, jc in merges:
             tbl.cell(r0, jc).merge(tbl.cell(r1, jc))
