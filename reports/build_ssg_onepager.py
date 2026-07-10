@@ -64,8 +64,10 @@ data = [
     [None, "2시간 배송", "점포", "사륜차", "대용량"],
 ]
 # 표 하단 = 우 컬럼 마지막 블록(규제 변수) 하단선과 정렬 (bottom ≈ 16.87)
-add_fin_table(s, MARGIN_L, 11.15, HALF_W, 5.72, data,
-              col_w=[1.92, 3.13, 2.77, 1.88, 2.55], header_rows=1,
+# 표 폭은 제목 밑줄(HALF_W) 안쪽 + 중앙 세로선과 여백 확보 (우측 edge ≈ 13.03)
+TBL_W = 11.85          # < HALF_W(12.25), vsep(13.76)과 0.73cm gap
+add_fin_table(s, MARGIN_L, 11.15, TBL_W, 5.72, data,
+              col_w=[1.85, 3.00, 2.65, 1.80, 2.55], header_rows=1,
               merges=[(1, 3, 0), (1, 3, 3), (1, 3, 4), (4, 5, 0)],
               hl_rows=[5], bold_cols=(0, 1))
 
