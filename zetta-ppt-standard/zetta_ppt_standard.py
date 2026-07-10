@@ -54,8 +54,8 @@ GAP_SECTION   = 0.50                          # 본문 블록(소제목 묶음) 
 GAP_HEAD      = 0.55                          # 소제목 시작 → 첫 본문 요소 시작 (피치)
 LINE_H        = 0.48                          # 개조식 불릿 행간 (피치)
 
-# 제목 크기 (tier 별)
-TITLE_PT = {"P": 28, "F": 20}                 # P계열 검정 28~32 / F계열 네이비 20
+# 제목 크기 (tier 별) — v4.1 교정: v3 실측(20pt 단일)로 회귀, tier 는 색상만 구분
+TITLE_PT = {"P": 20, "F": 20}                 # P계열 검정 / F계열 네이비, 공통 20pt
 
 
 # ─────────────────────────────────────────────────────────────
@@ -96,6 +96,22 @@ def _txt(slide, l, t, w, h, text="", size=11, bold=False, color=INK,
         r = p.add_run(); r.text = line
         _set_font(r, size, bold, color, name)
     return tb
+
+
+def _cell_border(cell, color=None, w_pt=0.75):
+    """셀 4방(lnL·lnR·lnT·lnB) 실선 격자 — 스키마 순서 보존 위해 tcPr 선두 삽입."""
+    hexval = str(color) if color is not None else str(GRID)
+    tcPr = cell._tc.get_or_add_tcPr()
+    for tag in ("a:lnB", "a:lnT", "a:lnR", "a:lnL"):     # insert(0) 역순 → 최종 L,R,T,B
+        el = tcPr.find(qn(tag))
+        if el is not None:
+            tcPr.remove(el)
+        ln = tcPr.makeelement(qn(tag), {"w": str(int(w_pt * 12700)), "cap": "flat"})
+        fill = ln.makeelement(qn("a:solidFill"), {})
+        clr = fill.makeelement(qn("a:srgbClr"), {"val": hexval})
+        fill.append(clr)
+        ln.append(fill)
+        tcPr.insert(0, ln)
 
 
 def _rect(slide, l, t, w, h, fill=None, line=None, line_w=0.75):
@@ -266,6 +282,7 @@ def add_fin_table(slide, l, t, w, h, data, col_w=None,
             cell.vertical_anchor = MSO_ANCHOR.MIDDLE
             cell.margin_left = Cm(0.1); cell.margin_right = Cm(0.1)
             cell.margin_top = 0; cell.margin_bottom = 0
+            _cell_border(cell)                       # 격자 #BFBFBF 0.75pt (v4.1 코드 강제)
             is_head = i < header_rows
             if is_head:
                 cell.fill.solid(); cell.fill.fore_color.rgb = header_fill
