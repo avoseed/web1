@@ -1,0 +1,10 @@
+# build artifacts
+*.pdf
+slide-*.jpg
+dslide-*.jpg
+thumbnails*.jpg
+__pycache__/
+*.pyc
+# generated decks (examples/build_demo.py 로 재생성)
+demo.pptx
+out.pptx

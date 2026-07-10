@@ -1,0 +1,265 @@
+# -*- coding: utf-8 -*-
+"""
+zetta_ppt_standard.py  —  롯데마트 온라인/ZETTA 표준 PPT 빌더 (v4)
+================================================================
+'_양식__내부토의_공통양식_v3_' 파일과 '11차 Ocado 정기협의체' 산출물을
+역설계하여 확정한 디자인 토큰·슬라이드 원형을 코드로 encode.
+
+설계 원칙
+  - 모든 좌표는 cm (실측 기준값). EMU 변환은 Cm() 이 처리.
+  - 폰트는 맑은 고딕 3중 지정(latin·ea·cs) — v4 확정. (v3 테마 latin=Arial 을 교정)
+  - 슬라이드 크롬(헤더/단위/페이지번호/각주)은 좌표 고정 → 전 페이지 정합.
+  - 원형(archetype) 함수는 slide 를 반환 → 호출측에서 본문 자유 배치.
+"""
+from pptx import Presentation
+from pptx.util import Cm, Pt, Emu
+from pptx.dml.color import RGBColor
+from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
+from pptx.enum.shapes import MSO_SHAPE
+from pptx.oxml.ns import qn
+import copy
+
+# ─────────────────────────────────────────────────────────────
+# 1. 디자인 토큰 (역설계 확정값)
+# ─────────────────────────────────────────────────────────────
+PAGE_W_CM, PAGE_H_CM = 27.52, 19.05          # A4 가로 (9906000 x 6858000 EMU)
+FONT       = "맑은 고딕"                       # 3중 지정 대상
+FONT_NUM   = "맑은 고딕"                       # 숫자도 동일 (v4)
+
+# 팔레트 (theme1.xml 실측)
+NAVY       = RGBColor(0x00, 0x00, 0x66)       # accent1  [F계열] 제목·강조
+CRIMSON    = RGBColor(0xC3, 0x0C, 0x3E)       # accent3  경고·리스크 강조
+BLACK      = RGBColor(0x22, 0x22, 0x22)       # [P계열] 제목
+INK        = RGBColor(0x00, 0x00, 0x00)       # 본문 기본
+RED_GUIDE  = RGBColor(0xFF, 0x00, 0x00)       # [확인] 가이드(최종본 삭제 대상)
+TH_PRIMARY = RGBColor(0xEA, 0xEE, 0xF6)       # 표 헤더 1차
+TH_SECOND  = RGBColor(0xD8, 0xE0, 0xEC)       # 표 헤더 2차
+TH_DARK    = RGBColor(0x00, 0x1E, 0x62)       # 강조 헤더(짙은 네이비)
+GRID       = RGBColor(0xBF, 0xBF, 0xBF)       # 표 격자
+DIVIDER_BG = RGBColor(0xF2, 0xF2, 0xF2)       # 챕터 간지 회색 풀블리드(bg1 lumMod95%)
+WHITE      = RGBColor(0xFF, 0xFF, 0xFF)
+
+# 크롬 좌표 (실측 고정값)  L, T, W, H  (cm)
+HDR   = (1.16, 1.20, 25.24, 0.90)             # 좌상단 브래킷 헤더
+UNIT  = (23.10, 2.35, 3.30, 0.60)             # 우상단 단위
+PAGE  = (25.42, 18.23, 2.10, 0.60)            # 우하단 페이지번호 n/N
+FOOT  = (1.04, 17.90, 18.00, 0.55)            # 좌하단 각주
+MARGIN_L, MARGIN_R = 1.13, 1.13               # 좌우 여백(대칭)
+BODY_TOP = 3.00                               # 헤더 하단 이후 본문 시작 y
+
+# 제목 크기 (tier 별)
+TITLE_PT = {"P": 28, "F": 20}                 # P계열 검정 28~32 / F계열 네이비 20
+
+
+# ─────────────────────────────────────────────────────────────
+# 2. 저수준 헬퍼
+# ─────────────────────────────────────────────────────────────
+def _set_font(run, size=None, bold=None, color=None, name=FONT):
+    """맑은 고딕 3중 지정(latin·ea·cs) + 속성. v4 폰트 규칙."""
+    f = run.font
+    if size is not None:
+        f.size = Pt(size)
+    if bold is not None:
+        f.bold = bold
+    if color is not None:
+        f.color.rgb = color
+    f.name = name                              # latin
+    rPr = run._r.get_or_add_rPr()
+    for tag in ("a:ea", "a:cs"):               # ea + cs 를 명시적으로 동일 지정
+        el = rPr.find(qn(tag))
+        if el is None:
+            el = rPr.makeelement(qn(tag), {})
+            rPr.append(el)
+        el.set("typeface", name)
+
+
+def _txt(slide, l, t, w, h, text="", size=11, bold=False, color=INK,
+         align=PP_ALIGN.LEFT, anchor=MSO_ANCHOR.TOP, name=FONT, wrap=True):
+    """텍스트 박스 1개 생성 → shape 반환. 내부 패딩 0."""
+    tb = slide.shapes.add_textbox(Cm(l), Cm(t), Cm(w), Cm(h))
+    tf = tb.text_frame
+    tf.word_wrap = wrap
+    tf.vertical_anchor = anchor
+    for m in ("margin_left", "margin_right", "margin_top", "margin_bottom"):
+        setattr(tf, m, 0)
+    lines = text.split("\n")
+    for i, line in enumerate(lines):
+        p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
+        p.alignment = align
+        r = p.add_run(); r.text = line
+        _set_font(r, size, bold, color, name)
+    return tb
+
+
+def _rect(slide, l, t, w, h, fill=None, line=None, line_w=0.75):
+    sp = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Cm(l), Cm(t), Cm(w), Cm(h))
+    sp.shadow.inherit = False
+    if fill is None:
+        sp.fill.background()
+    else:
+        sp.fill.solid(); sp.fill.fore_color.rgb = fill
+    if line is None:
+        sp.line.fill.background()
+    else:
+        sp.line.color.rgb = line; sp.line.width = Pt(line_w)
+    return sp
+
+
+# ─────────────────────────────────────────────────────────────
+# 3. 슬라이드 크롬 (전 페이지 공통)
+# ─────────────────────────────────────────────────────────────
+def add_header(slide, category, title, tier="P"):
+    """좌상단 브래킷 헤더: [분류] 제목.  tier P=검정, F=네이비."""
+    l, t, w, h = HDR
+    color = BLACK if tier == "P" else NAVY
+    size = TITLE_PT[tier]
+    tb = slide.shapes.add_textbox(Cm(l), Cm(t), Cm(w), Cm(h))
+    tf = tb.text_frame; tf.word_wrap = True
+    for m in ("margin_left", "margin_right", "margin_top", "margin_bottom"):
+        setattr(tf, m, 0)
+    p = tf.paragraphs[0]; p.alignment = PP_ALIGN.LEFT
+    r1 = p.add_run(); r1.text = f"[{category}] "
+    _set_font(r1, size, True, color)
+    r2 = p.add_run(); r2.text = title
+    _set_font(r2, size, True, color)
+    return tb
+
+
+def add_unit(slide, text="(단위 : 억원, %)"):
+    """우상단 단위 표기."""
+    l, t, w, h = UNIT
+    return _txt(slide, l, t, w, h, text, size=10, bold=True,
+                align=PP_ALIGN.RIGHT, color=INK)
+
+
+def add_pagenum(slide, n, total):
+    """우하단 페이지번호 n/N."""
+    l, t, w, h = PAGE
+    return _txt(slide, l, t, w, h, f"{n}/{total}", size=10, bold=False,
+                align=PP_ALIGN.RIGHT, color=INK)
+
+
+def add_footnote(slide, text):
+    """좌하단 각주 (※ ...)."""
+    l, t, w, h = FOOT
+    return _txt(slide, l, t, w, h, text, size=9, bold=False, color=INK)
+
+
+def _blank(prs):
+    return prs.slides.add_slide(prs.slide_layouts[6])   # 빈 레이아웃
+
+
+# ─────────────────────────────────────────────────────────────
+# 4. 원형(Archetype) 빌더
+# ─────────────────────────────────────────────────────────────
+def new_deck():
+    """A4 가로 빈 프레젠테이션."""
+    prs = Presentation()
+    prs.slide_width = Emu(9906000)
+    prs.slide_height = Emu(6858000)
+    return prs
+
+
+def add_cover(prs, title, org="온라인사업단", date="2026. 07. 06", tag="내부 토의용"):
+    """[표지] 상단 로고존 · 태그 · 대제목(밑줄) · 하단 조직/일자."""
+    s = _blank(prs)
+    _txt(s, 2.0, 6.4, 10.0, 0.7, tag, size=13, bold=True, color=INK)
+    # 대제목 (가운데, 밑줄)
+    tb = _txt(s, 2.0, 7.3, 23.5, 2.0, title, size=40, bold=True, color=INK,
+              align=PP_ALIGN.CENTER)
+    # 밑줄
+    ln = s.shapes.add_connector(2, Cm(2.2), Cm(9.4), Cm(25.3), Cm(9.4))
+    ln.line.color.rgb = INK; ln.line.width = Pt(1.5)
+    _txt(s, 2.0, 14.3, 23.5, 0.7, org, size=14, bold=True, color=INK,
+         align=PP_ALIGN.CENTER)
+    _txt(s, 2.0, 15.0, 23.5, 0.7, date, size=13, bold=True, color=INK,
+         align=PP_ALIGN.CENTER)
+    return s
+
+
+def add_divider(prs, num, title, items):
+    """[챕터 간지] 회색 풀블리드 + 대제목 + ①②③ 하위항목."""
+    s = _blank(prs)
+    _rect(s, 0.0, 3.65, PAGE_W_CM, 13.9, fill=DIVIDER_BG)
+    _txt(s, 3.5, 5.6, 20.5, 1.2, f"{num}. {title}", size=28, bold=True,
+         color=INK, align=PP_ALIGN.CENTER)
+    circ = "①②③④⑤⑥⑦⑧⑨"
+    y = 8.0
+    for i, it in enumerate(items):
+        _txt(s, 9.0, y, 15.0, 0.7, f"{circ[i]} {it}", size=15, bold=True, color=INK)
+        y += 0.85
+    return s
+
+
+def add_content(prs, category, title, n, total, tier="P",
+                unit=None, footnote=None):
+    """[본문 P/F계열] 크롬만 세팅한 슬라이드 반환 → 본문 자유 배치."""
+    s = _blank(prs)
+    add_header(s, category, title, tier)
+    if unit:
+        add_unit(s, unit)
+    if footnote:
+        add_footnote(s, footnote)
+    add_pagenum(s, n, total)
+    return s
+
+
+def add_closing(prs, company="롯데마트 · 롯데슈퍼"):
+    """[종료] No.1 GROCERY MARKET 마감 장표(간이)."""
+    s = _blank(prs)
+    _txt(s, 2.0, 2.0, 20.0, 2.2, "No.1", size=72, bold=True, color=CRIMSON)
+    _txt(s, 2.0, 4.6, 24.0, 1.6, "GROCERY MARKET", size=44, bold=True, color=CRIMSON)
+    _txt(s, 2.05, 7.0, 20.0, 0.8, "Discover a joyful food life", size=18,
+         bold=False, color=RGBColor(0x80, 0x80, 0x80))
+    cols = [("RE:TARGET", "경영목표"), ("RE:DESIGN", "고객경험"), ("RE:FOCUS", "일하는 방식")]
+    xs = [1.5, 10.0, 18.5]
+    for (en, ko), x in zip(cols, xs):
+        ln = s.shapes.add_connector(2, Cm(x), Cm(13.0), Cm(x + 6.0), Cm(13.0))
+        ln.line.color.rgb = INK; ln.line.width = Pt(1.0)
+        tb = _txt(s, x, 13.2, 7.0, 0.7, "", size=15, bold=True, color=NAVY)
+        p = tb.text_frame.paragraphs[0]
+        r1 = p.add_run(); r1.text = en + "  "; _set_font(r1, 15, True, NAVY)
+        r2 = p.add_run(); r2.text = ko; _set_font(r2, 10, False, INK)
+    return s
+
+
+# ─────────────────────────────────────────────────────────────
+# 5. 재무형 표 (EAEEF6 헤더 · 개조식 · 우측정렬 숫자)
+# ─────────────────────────────────────────────────────────────
+def add_fin_table(slide, l, t, w, h, data, col_w=None,
+                  header_rows=1, header_fill=TH_PRIMARY,
+                  first_col_left=True, font_size=9):
+    """
+    data: 2D list [ [row0col0, ...], ... ]  (문자열)
+    header_rows: 상단 헤더 행 수 (헤더 채움 + 볼드 + 가운데)
+    first_col_left: 1열(구분)은 좌측정렬, 나머지 우측정렬(숫자)
+    """
+    rows, cols = len(data), len(data[0])
+    gtbl = slide.shapes.add_table(rows, cols, Cm(l), Cm(t), Cm(w), Cm(h))
+    tbl = gtbl.table
+    # 기본 스타일 제거(밴딩 off)
+    tbl.first_row = False; tbl.horz_banding = False
+    if col_w:
+        for j, cw in enumerate(col_w):
+            tbl.columns[j].width = Cm(cw)
+    for i, row in enumerate(data):
+        for j, val in enumerate(row):
+            cell = tbl.cell(i, j)
+            cell.vertical_anchor = MSO_ANCHOR.MIDDLE
+            cell.margin_left = Cm(0.1); cell.margin_right = Cm(0.1)
+            cell.margin_top = 0; cell.margin_bottom = 0
+            is_head = i < header_rows
+            if is_head:
+                cell.fill.solid(); cell.fill.fore_color.rgb = header_fill
+            else:
+                cell.fill.solid(); cell.fill.fore_color.rgb = WHITE
+            tf = cell.text_frame; tf.word_wrap = True
+            p = tf.paragraphs[0]
+            if is_head or (j == 0 and first_col_left):
+                p.alignment = PP_ALIGN.LEFT if (j == 0 and not is_head) else PP_ALIGN.CENTER
+            else:
+                p.alignment = PP_ALIGN.RIGHT
+            r = p.add_run(); r.text = str(val)
+            _set_font(r, font_size, bold=is_head or j == 0,
+                      color=NAVY if is_head else INK)
+    return tbl

@@ -1,0 +1,129 @@
+# -*- coding: utf-8 -*-
+"""SSG닷컴 '2시간 배송' 보고서 — ZETTA 표준 PPT 빌더(v4) 기반 생성 스크립트.
+
+출처: 비즈워치 「[인사이드 스토리] SSG닷컴, '2시간 실험'에 나선 진짜 이유는」('26. 7. 10.)
+구성: 표지(C) → 간지(D) → P계열 본문 4매(요약·비교표·배경·규제/로드맵) → 종료(Z)
+"""
+import os
+import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "zetta-ppt-standard"))
+from zetta_ppt_standard import *
+from zetta_ppt_standard import _txt
+from pptx.enum.text import PP_ALIGN
+
+TOTAL = 7
+SRC = "※ 출처 : 비즈워치 「SSG닷컴, '2시간 실험'에 나선 진짜 이유는」('26. 7. 10. 정혜인 기자)"
+
+
+def bullets(slide, items, l=MARGIN_L, t=BODY_TOP, w=25.26, size=13, gap=0.95):
+    """개조식 불릿(□ 주항목 / - 하위항목) 배치. items: [(level, text), ...]"""
+    y = t
+    for level, text in items:
+        mark = "□ " if level == 0 else "- "
+        _txt(slide, l + level * 0.7, y, w - level * 0.7, gap,
+             mark + text, size=size - level, bold=(level == 0), color=INK)
+        y += gap
+    return y
+
+
+def left_align_body(tbl, cols, header_rows=1):
+    """서술형 열은 좌측정렬로 보정(재무표 우측정렬 규칙은 숫자열 전용)."""
+    for i, row in enumerate(tbl.rows):
+        if i < header_rows:
+            continue
+        for j in cols:
+            tbl.cell(i, j).text_frame.paragraphs[0].alignment = PP_ALIGN.LEFT
+
+
+prs = new_deck()
+
+# 1. 표지 (C)
+add_cover(prs, "SSG닷컴 '2시간 배송' 도입 전략",
+          org="온라인사업단", date="2026. 07. 10", tag="내부 토의용")
+
+# 2. 챕터 간지 (D)
+add_divider(prs, 1, "SSG닷컴 배송 서비스 분석",
+            ["핵심 요약 및 서비스 현황", "'2시간 배송' 도입 배경", "규제 환경 및 확대 로드맵"])
+
+# 3. [핵심요약①] 시범 운영 개요 (P)
+s = add_content(prs, "핵심요약①", "'2시간 배송' 시범 운영 개시", 3, TOTAL, tier="P",
+                footnote=SRC)
+bullets(s, [
+    (0, "'26. 7. 9.부터 이마트 양재점·하남점 인근 고객 대상 '2시간 내 배송' 시범 운영 개시"),
+    (1, "오후 8시까지 주문 시 결제 시점 기준 2시간 내 배송 완료, 기존 예약배송과 병행 선택 가능"),
+    (0, "이륜차 퀵커머스(바로퀵)로 소화 불가한 3~4인 가구 대용량 장보기 수요를 사륜차로 흡수"),
+    (0, "새벽배송이 막힌 이마트 점포(PP센터)의 낮 시간대 가동률 제고 포석"),
+])
+data = [
+    ["구분", "내용"],
+    ["시범 점포", "이마트 양재점 · 하남점 ('26. 7. 9. 개시)"],
+    ["주문 마감", "오후 8시"],
+    ["배송 완료", "결제 시점 기준 2시간 이내"],
+    ["운송 수단", "쓱배송 사륜 배송 차량 (대용량·중량 상품 대응)"],
+]
+tbl = add_fin_table(s, MARGIN_L, 8.2, 25.26, 4.6, data,
+                    col_w=[6.0, 19.26], header_rows=1, font_size=12)
+left_align_body(tbl, [1])
+
+# 4. [서비스현황②] 배송 서비스 비교 (P + T)
+s = add_content(prs, "서비스현황②", "이마트·SSG닷컴 배송 서비스 비교", 4, TOTAL, tier="P",
+                unit="(기준 : '26. 7월)",
+                footnote="※ 취급 품목 : 이마트 점포당 평균 약 15만 종 / 바로퀵 약 1만 종 / B마트 약 2만 종")
+data = [
+    ["구분", "배송 속도", "운송 수단", "취급 품목", "특징"],
+    ["주간배송", "예약배송\n(구간당 4~5시간)", "사륜차", "점포 상품", "지역별 2~5개 시간 구간 운영"],
+    ["새벽배송", "새벽 시간대", "사륜차", "네오 취급 상품", "자체 물류센터 '네오' 한정\n(PP센터는 규제로 불가)"],
+    ["트레이더스배송", "예약배송", "사륜차", "트레이더스 상품", "쓱배송의 한 축"],
+    ["바로퀵", "1시간 내외\n(반경 약 3km)", "이륜차", "약 1만 종", "소량 위주 · 1~2인 가구 중심\n6월 매출 1월 대비 197% 증가"],
+    ["2시간 배송 (신규)", "2시간 이내\n(20시 주문 마감)", "사륜차", "약 15만 종 기반", "대용량 즉시배송\n예약배송 병행 선택 가능"],
+]
+tbl = add_fin_table(s, MARGIN_L, BODY_TOP, 25.26, 11.5, data,
+                    col_w=[4.6, 4.7, 3.0, 4.0, 8.96], header_rows=1, font_size=11)
+left_align_body(tbl, [1, 3, 4])
+
+# 5. [도입배경③] 대용량 수요·퀵커머스 세분화 (P)
+s = add_content(prs, "도입배경③", "대용량 장보기 수요와 퀵커머스 세분화", 5, TOTAL, tier="P",
+                unit="(단위 : 종, %)", footnote=SRC)
+bullets(s, [
+    (0, "이륜차 퀵커머스는 적재량 제약으로 소량 배송에 한정 → 대형마트 주력인 3~4인 가족 대용량 장보기 공백"),
+    (0, "바로퀵 6월 매출 '26. 1월 대비 197% 증가 → 온디맨드 장보기 수요 실증 후 서비스 확대"),
+    (0, "1시간(소량·이륜차) / 2시간(대용량·사륜차) 이원화로 퀵커머스 수요 세분화 대응"),
+    (0, "퀵커머스 1위 B마트도 대용량 휴지·계란 30구 등 품목 다변화 및 일부 사륜차 배송 병행"),
+])
+data = [
+    ["구분", "취급 품목 수", "비고"],
+    ["이마트 점포 (2시간 배송 기반)", "약 150,000", "점포당 평균 기준"],
+    ["바로퀵", "약 10,000", "이륜차 적재량 한계"],
+    ["B마트 (배달의민족)", "약 20,000", "퀵커머스 시장 1위"],
+]
+add_fin_table(s, MARGIN_L, 8.4, 25.26, 3.8, data,
+              col_w=[9.0, 6.0, 10.26], header_rows=1,
+              header_fill=TH_SECOND, font_size=12)
+
+# 6. [규제·확대④] 규제 환경·확대 로드맵 (P)
+s = add_content(prs, "규제·확대④", "새벽배송 규제와 확대 로드맵", 6, TOTAL, tier="P",
+                footnote="※ 유통산업발전법('12년 도입) : 대형마트 영업 자정~오전 10시 제한 · 월 2회 의무휴업")
+bullets(s, [
+    (0, "전국 160여 이마트 점포(PP센터)는 유통산업발전법상 새벽 시간대 가동 불가"),
+    (1, "바로퀵 · 2시간 배송으로 낮 시간대 PP센터 가동률 제고 → 규제 하 물류거점 활용 극대화"),
+    (0, "정치권 규제 완화 논의 진행 중 → 개정 시 주간 운영 노하우의 새벽배송 확장 가능"),
+    (0, "이커머스 3위 SSG닷컴의 배송 전략 기반 반등 여부 주목"),
+])
+data = [
+    ["시기", "확대 계획"],
+    ["'26. 7월", "이마트 양재점 · 하남점 시범 운영 개시 (7. 9.)"],
+    ["'26. 8월", "서울 주요 지역 확대"],
+    ["'26. 9월", "전국 서비스 확대"],
+    ["'26. 연말", "50여 개 점포 운영 목표"],
+]
+tbl = add_fin_table(s, MARGIN_L, 8.8, 25.26, 4.4, data,
+                    col_w=[5.0, 20.26], header_rows=1, font_size=12)
+left_align_body(tbl, [1])
+
+# 7. 종료 (Z)
+add_closing(prs)
+
+out = os.path.join(os.path.dirname(__file__), "ssg-delivery-report.pptx")
+prs.save(out)
+print("saved", out, "slides:", len(prs.slides._sldIdLst))
