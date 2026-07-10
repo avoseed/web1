@@ -36,6 +36,8 @@ TH_SECOND  = RGBColor(0xD8, 0xE0, 0xEC)       # 표 헤더 2차
 TH_DARK    = RGBColor(0x00, 0x1E, 0x62)       # 강조 헤더(짙은 네이비)
 GRID       = RGBColor(0xBF, 0xBF, 0xBF)       # 표 격자
 SUB_GRAY   = RGBColor(0x59, 0x59, 0x59)       # 보조 텍스트·시사점 탭 회색
+HL_FILL    = RGBColor(0xDE, 0xEB, 0xF7)       # 표 강조 행 연블루 (v4.1 산출물 실측)
+HL_TEXT    = RGBColor(0x00, 0x20, 0x60)       # 표 강조 행 텍스트 — 파란 글자 금지의 유일 예외
 DIVIDER_BG = RGBColor(0xF2, 0xF2, 0xF2)       # 챕터 간지 회색 풀블리드(bg1 lumMod95%)
 WHITE      = RGBColor(0xFF, 0xFF, 0xFF)
 
@@ -373,14 +375,18 @@ _TBL_ALIGN = {"l": PP_ALIGN.LEFT, "c": PP_ALIGN.CENTER, "r": PP_ALIGN.RIGHT}
 
 def add_fin_table(slide, l, t, w, h, data, col_w=None,
                   header_rows=1, header_fill=TH_PRIMARY,
-                  col_align=None, font_size=None):
+                  col_align=None, font_size=None,
+                  merges=None, hl_rows=None, bold_cols=(0,)):
     """
-    data: 2D list [ [row0col0, ...], ... ]  (문자열)
-    header_rows: 상단 헤더 행 수 (헤더 채움 + 네이비 볼드 + 가운데)
+    data: 2D list [ [row0col0, ...], ... ]  (문자열, None=위 셀과 병합 예정 자리)
+    header_rows: 상단 헤더 행 수 (헤더 채움 + 검정 볼드 + 가운데)
+    merges: [(row_start, row_end, col), ...] — 동일 값·그룹 구분의 세로 병합 (v4.1)
+    hl_rows: 강조 행 인덱스 — 연블루(HL_FILL) 채움 + 네이비(HL_TEXT) 볼드 (신규·핵심 행 한정)
+    bold_cols: 볼드 처리 열 (기본 1열; 서비스명 등 구분성 열 추가 지정 가능)
 
     정렬 표준 (v4.1, 정기협의체 본장 실측): 헤더·본문 전 셀 **가운데** 고정.
     재무 수치열만 col_align 으로 우측 지정 — 예: col_align=["c","r","r"].
-    셀별 임의 정렬 금지. 1열(구분)은 볼드.
+    셀별 임의 정렬 금지.
     """
     rows, cols = len(data), len(data[0])
     gtbl = slide.shapes.add_table(rows, cols, Cm(l), Cm(t), Cm(w), Cm(h))
@@ -398,8 +404,11 @@ def add_fin_table(slide, l, t, w, h, data, col_w=None,
             cell.margin_top = 0; cell.margin_bottom = 0
             _cell_border(cell)                       # 격자 #BFBFBF 0.75pt (v4.1 코드 강제)
             is_head = i < header_rows
+            is_hl = hl_rows and i in hl_rows
             if is_head:
                 cell.fill.solid(); cell.fill.fore_color.rgb = header_fill
+            elif is_hl:
+                cell.fill.solid(); cell.fill.fore_color.rgb = HL_FILL
             else:
                 cell.fill.solid(); cell.fill.fore_color.rgb = WHITE
             tf = cell.text_frame; tf.word_wrap = True
@@ -407,11 +416,15 @@ def add_fin_table(slide, l, t, w, h, data, col_w=None,
                 align = PP_ALIGN.CENTER
             else:
                 align = _TBL_ALIGN[col_align[j] if col_align else "c"]
-            # 다중행 셀도 전 행 동일 정렬 — 줄마다 문단 분리
-            for k, line in enumerate(str(val).split("\n")):
+            # 다중행 셀도 전 행 동일 정렬 — 줄마다 문단 분리 (None = 병합 자리)
+            for k, line in enumerate(str(val).split("\n") if val is not None else []):
                 p = tf.paragraphs[0] if k == 0 else tf.add_paragraph()
                 p.alignment = align
                 r = p.add_run(); r.text = line
-                _set_font(r, font_size or FONT_PT["table"], bold=is_head or j == 0,
-                          color=INK)
+                _set_font(r, font_size or FONT_PT["table"],
+                          bold=is_head or is_hl or j in bold_cols,
+                          color=HL_TEXT if is_hl else INK)
+    if merges:
+        for r0, r1, jc in merges:
+            tbl.cell(r0, jc).merge(tbl.cell(r1, jc))
     return tbl
