@@ -54,6 +54,10 @@ GAP_SECTION   = 0.50                          # 본문 블록(소제목 묶음) 
 GAP_HEAD      = 0.55                          # 소제목 시작 → 첫 본문 요소 시작 (피치)
 LINE_H        = 0.48                          # 개조식 불릿 행간 (피치)
 
+# 개조식 불릿 체계 (정기협의체 실측): ■ 리드(크롬) → • 주항목(볼드) → - 하위 → · 세부
+BULLET_MARKS  = ("•", "-", "·")
+BULLET_INDENT = 0.55                          # 하위 수준당 들여쓰기 (cm)
+
 # 제목 크기 (tier 별) — v4.1 교정: v3 실측(20pt 단일)로 회귀, tier 는 색상만 구분
 TITLE_PT = {"P": 20, "F": 20}                 # P계열 검정 / F계열 네이비, 공통 20pt
 
@@ -152,6 +156,22 @@ def add_lead(slide, text, size=14):
     """제목 하단 리드메시지: `■ ` 접두 볼드 검정 한 줄 (v4.1, 산출물 실측 반영)."""
     l, t, w, h = LEAD
     return _txt(slide, l, t, w, h, "■ " + text, size=size, bold=True, color=INK)
+
+
+def add_bullets(slide, items, l=MARGIN_L, t=BODY_TOP, w=25.26,
+                size=11, line_h=LINE_H, bold_top=True):
+    """표준 개조식 불릿 배치 (v4.1). items: [(level, text), ...] → 종료 y 반환.
+
+    수준별 마크: 0 `•`(볼드) / 1 `-` / 2 `·`. □·○ 등 이형 마크 사용 금지.
+    """
+    y = t
+    for level, text in items:
+        mark = BULLET_MARKS[min(level, len(BULLET_MARKS) - 1)]
+        _txt(slide, l + level * BULLET_INDENT, y, w - level * BULLET_INDENT, line_h,
+             f"{mark} {text}", size=size - level,
+             bold=(level == 0 and bold_top), color=INK)
+        y += line_h
+    return y
 
 
 def add_unit(slide, text="(단위 : 억원, %)"):

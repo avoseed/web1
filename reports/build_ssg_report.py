@@ -20,15 +20,9 @@ SRC = "※ 출처 : 비즈워치 「SSG닷컴, '2시간 실험'에 나선 진짜
 DECK_LINE = 2 * LINE_H          # 13pt 개조식 행간 (표준 LINE_H의 2배 피치)
 
 
-def bullets(slide, items, l=MARGIN_L, t=BODY_TOP_LEAD, w=25.26, size=13, gap=DECK_LINE):
-    """개조식 불릿(□ 주항목 / - 하위항목) 배치. items: [(level, text), ...] → 종료 y 반환."""
-    y = t
-    for level, text in items:
-        mark = "□ " if level == 0 else "- "
-        _txt(slide, l + level * 0.7, y, w - level * 0.7, gap,
-             mark + text, size=size - level, bold=(level == 0), color=INK)
-        y += gap
-    return y
+def bullets(slide, items, t=BODY_TOP_LEAD):
+    """표준 불릿 체계(• 주항목 / - 하위) 배치 — 템플릿 add_bullets 위임."""
+    return add_bullets(slide, items, t=t, size=13, line_h=DECK_LINE)
 
 
 def left_align_body(tbl, cols, header_rows=1):
@@ -74,7 +68,6 @@ left_align_body(tbl, [1])
 # 4. [서비스현황②] 배송 서비스 비교 (P + T)
 s = add_content(prs, "서비스현황②", "이마트·SSG닷컴 배송 서비스 비교", 4, TOTAL, tier="P",
                 lead="신규 2시간 배송으로 소량 퀵배송과 대용량 예약배송 사이 공백 보완",
-                unit="(기준 : '26. 7월)",
                 footnote="※ 취급 품목 : 이마트 점포당 평균 약 15만 종 / 바로퀵 약 1만 종 / B마트 약 2만 종")
 data = [
     ["구분", "배송 속도", "운송 수단", "취급 품목", "특징"],

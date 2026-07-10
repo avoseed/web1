@@ -21,12 +21,14 @@ SECTION_H = 0.55            # 소제목 텍스트박스 높이
 
 
 def section(slide, l, t, w, text):
-    """검정 볼드 소제목 (□ 섹션 라벨)."""
-    return _txt(slide, l, t, w, SECTION_H, "□ " + text, size=13, bold=True, color=BLACK)
+    """검정 볼드 소제목 — 표준 불릿 체계 주항목(•)."""
+    return _txt(slide, l, t, w, SECTION_H, "• " + text, size=13, bold=True, color=BLACK)
 
 
 def bullet(slide, l, t, w, text, size=10.5):
-    return _txt(slide, l + 0.55, t, w - 0.55, LINE_H, "- " + text, size=size, color=INK)
+    """표준 불릿 체계 하위항목(-), 들여쓰기 BULLET_INDENT."""
+    return _txt(slide, l + BULLET_INDENT, t, w - BULLET_INDENT, LINE_H,
+                "- " + text, size=size, color=INK)
 
 
 def left_align_body(tbl, cols, header_rows=1):
@@ -41,7 +43,7 @@ prs = new_deck()
 s = add_content(prs, "이마트 퀵커머스", "SSG닷컴 '2시간 배송' 도입 전략", 1, 1,
                 tier="P",
                 lead="양재·하남점 '2시간 내 배송' 시범 도입 — 대용량 장보기 공략, PP센터 가동률 제고",
-                unit="(기준 : '26. 7월)", footnote=SRC)
+                footnote=SRC)
 
 y = BODY_TOP_LEAD                          # 본문 커서 (리드메시지 사용 시 4.10)
 
