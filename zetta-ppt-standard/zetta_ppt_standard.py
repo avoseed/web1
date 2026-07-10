@@ -35,6 +35,7 @@ TH_PRIMARY = RGBColor(0xEA, 0xEE, 0xF6)       # 표 헤더 1차
 TH_SECOND  = RGBColor(0xD8, 0xE0, 0xEC)       # 표 헤더 2차
 TH_DARK    = RGBColor(0x00, 0x1E, 0x62)       # 강조 헤더(짙은 네이비)
 GRID       = RGBColor(0xBF, 0xBF, 0xBF)       # 표 격자
+SUB_GRAY   = RGBColor(0x59, 0x59, 0x59)       # 보조 텍스트·시사점 탭 회색
 DIVIDER_BG = RGBColor(0xF2, 0xF2, 0xF2)       # 챕터 간지 회색 풀블리드(bg1 lumMod95%)
 WHITE      = RGBColor(0xFF, 0xFF, 0xFF)
 
@@ -56,6 +57,11 @@ LINE_H        = 0.48                          # 개조식 불릿 행간 (피치)
 # 개조식 불릿 체계 (정기협의체 실측): ■ 리드(크롬) → • 주항목(볼드) → - 하위 → · 세부
 BULLET_MARKS  = ("•", "-", "·")
 BULLET_INDENT = 0.55                          # 하위 수준당 들여쓰기 (cm)
+
+# 본장 2단 컬럼 프레임 (정기협의체 8·14/15 실측): 헤더 바 + 중앙 세로선 + 결론 박스
+COL_GAP      = 0.66                           # 컬럼 간 간격
+COL_HEADER_H = 0.75                           # 컬럼 헤더 바 높이
+CONCL_H      = 0.90                           # 컬럼 하단 결론 박스 높이
 
 # 제목 크기 (tier 별) — v4.1 교정: v3 실측(20pt 단일)로 회귀, tier 는 색상만 구분
 TITLE_PT = {"P": 20, "F": 20}                 # P계열 검정 / F계열 네이비, 공통 20pt
@@ -186,6 +192,78 @@ def add_bullets(slide, items, l=MARGIN_L, t=BODY_TOP, w=BODY_W,
              bold=(level == 0 and bold_top), color=INK)
         y += line_h
     return y
+
+
+def add_block_header(slide, l, t, w, text):
+    """[본장 블록 소제목] 【 제목 】 — 12pt 볼드 검정 (5/15·Link 자료 실측)."""
+    return _txt(slide, l, t, w, 0.55, f"【 {text} 】",
+                size=FONT_PT["bullet0"], bold=True, color=INK)
+
+
+def add_hline(slide, l, t, w, color=None, w_pt=0.75):
+    """가로 괘선 — 구분 매트릭스(D형) 행 구분·제목 밑줄 룰."""
+    ln = slide.shapes.add_connector(2, Cm(l), Cm(t), Cm(l + w), Cm(t))
+    ln.line.color.rgb = color if color is not None else GRID
+    ln.line.width = Pt(w_pt)
+    return ln
+
+
+def add_timeline(slide, l, t, w, milestones):
+    """[경과형 E] 가로 타임라인: 굵은 축 + 마일스톤 점, 상단 날짜·하단 라벨.
+
+    milestones: [(날짜, 라벨), ...] → 종료 y 반환. (OSP 경과보고·Coles 협업 실측)
+    """
+    axis_y = t + 0.55
+    ax = slide.shapes.add_connector(2, Cm(l), Cm(axis_y), Cm(l + w), Cm(axis_y))
+    ax.line.color.rgb = INK; ax.line.width = Pt(2.0)
+    step = w / len(milestones)
+    for i, (date, label) in enumerate(milestones):
+        cx = l + step * (i + 0.5)
+        dot = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(cx - 0.11),
+                                     Cm(axis_y - 0.11), Cm(0.22), Cm(0.22))
+        dot.shadow.inherit = False
+        dot.fill.solid(); dot.fill.fore_color.rgb = GRID
+        dot.line.fill.background()
+        _txt(slide, cx - step / 2, t, step, 0.45, date, size=FONT_PT["table"],
+             bold=True, color=SUB_GRAY, align=PP_ALIGN.CENTER)
+        _txt(slide, cx - step / 2, axis_y + 0.15, step, 0.55, label,
+             size=FONT_PT["bullet1"], bold=True, color=INK, align=PP_ALIGN.CENTER)
+    return axis_y + 0.75
+
+
+def add_insight_box(slide, l, t, w, h, items, tab="주요 시사점"):
+    """[시사점 박스] 회색 테두리 박스 + 좌상단 짙은 탭 라벨 (Coles 협업 실측).
+
+    items: [(level, text), ...] — 내부는 표준 불릿 체계.
+    """
+    _rect(slide, l, t + 0.28, w, h, fill=WHITE, line=GRID, line_w=1.0)
+    _rect(slide, l + 0.35, t, 3.0, 0.55, fill=SUB_GRAY)
+    _txt(slide, l + 0.35, t, 3.0, 0.55, tab, size=FONT_PT["table"], bold=True,
+         color=WHITE, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    add_bullets(slide, items, l=l + 0.55, t=t + 0.75, w=w - 1.1, line_h=0.55)
+
+
+def add_col_header(slide, l, t, w, text):
+    """[본장 2단 컬럼] 컬럼 헤더 바 — #EAEEF6 채움 + 네이비 볼드 가운데 (8·14/15 실측)."""
+    _rect(slide, l, t, w, COL_HEADER_H, fill=TH_PRIMARY)
+    _txt(slide, l, t, w, COL_HEADER_H, text, size=FONT_PT["bullet0"], bold=True,
+         color=NAVY, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    return t + COL_HEADER_H
+
+
+def add_conclusion_box(slide, l, t, w, text, h=CONCL_H):
+    """[본장 2단 컬럼] 컬럼 하단 결론 박스 — 네이비 채움 + 백색 볼드 가운데 (So-What)."""
+    _rect(slide, l, t, w, h, fill=NAVY)
+    _txt(slide, l, t, w, h, text, size=FONT_PT["bullet1"], bold=True,
+         color=WHITE, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+
+
+def add_vsep(slide, x, t, h):
+    """[본장 2단 컬럼] 중앙 세로 구분선 (#BFBFBF 0.75pt)."""
+    ln = slide.shapes.add_connector(2, Cm(x), Cm(t), Cm(x), Cm(t + h))
+    ln.line.color.rgb = GRID
+    ln.line.width = Pt(0.75)
+    return ln
 
 
 def add_unit(slide, text="(단위 : 억원, %)"):
