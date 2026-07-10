@@ -47,8 +47,8 @@ Y0 = BODY_TOP_LEAD
 # ══ 좌 컬럼 : 현황 및 도입 배경 (문제 정의) ══
 y = col_title(s, MARGIN_L, Y0, "현황 및 도입 배경")
 y = block(s, MARGIN_L, y, "퀵커머스 수요 급증", [
-    "이륜차 퀵커머스 소량 한정 → 대용량 퀵커머스 서비스 공백",
-    "바로퀵 매출 197%↑(6월) → 수요 실증",
+    "바로퀵 매출 197%↑(6월) → 온디맨드 수요 실증",
+    "B마트 등 경쟁사도 대용량 품목 확대 추세",
 ])
 y += GAP_BLK
 y = block(s, MARGIN_L, y, "현행 배송 체계", [])
@@ -63,7 +63,7 @@ add_fin_table(s, MARGIN_L, y, HALF_W, 4.8, data,
               col_w=[3.2, 4.2, HALF_W - 7.4], header_rows=1)
 y += 4.8 + 0.20
 _txt(s, MARGIN_L + BULLET_INDENT, y, HALF_W - BULLET_INDENT, LINE_H,
-     "→ 즉시배송은 이륜 소량(바로퀵)뿐, 대용량 즉시배송 부재",
+     "→ 즉시배송은 이륜 소량뿐, 대용량 즉시배송 공백",
      size=FONT_PT["bullet1"], bold=False, color=INK)
 y += PITCH + GAP_BLK - 0.20
 block(s, MARGIN_L, y, "규제 제약", [
