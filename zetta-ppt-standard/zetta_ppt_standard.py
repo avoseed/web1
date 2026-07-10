@@ -61,6 +61,18 @@ BULLET_INDENT = 0.55                          # 하위 수준당 들여쓰기 (c
 # 제목 크기 (tier 별) — v4.1 교정: v3 실측(20pt 단일)로 회귀, tier 는 색상만 구분
 TITLE_PT = {"P": 20, "F": 20}                 # P계열 검정 / F계열 네이비, 공통 20pt
 
+# 표준 타이포 스케일 (v4.1, 정기협의체 실측) — 임의 크기 사용 금지
+FONT_PT = {
+    "title":    20,   # 브래킷 헤더 (볼드, P 검정 #222222 / F 네이비 #000066)
+    "lead":     14,   # ■ 리드메시지 (볼드 검정)
+    "bullet0":  12,   # • 주항목 (볼드 검정)
+    "bullet1":  11,   # - 하위 (일반 검정)
+    "bullet2":  10,   # · 세부 (일반 검정)
+    "table":    10,   # 표 본문 (헤더: 네이비 볼드 동일 크기)
+    "unit":     10,   # 우상단 단위 (볼드)
+    "footnote":  9,   # 좌하단 각주
+}
+
 
 # ─────────────────────────────────────────────────────────────
 # 2. 저수준 헬퍼
@@ -152,23 +164,26 @@ def add_header(slide, category, title, tier="P"):
     return tb
 
 
-def add_lead(slide, text, size=14):
+def add_lead(slide, text, size=None):
     """제목 하단 리드메시지: `■ ` 접두 볼드 검정 한 줄 (v4.1, 산출물 실측 반영)."""
     l, t, w, h = LEAD
-    return _txt(slide, l, t, w, h, "■ " + text, size=size, bold=True, color=INK)
+    return _txt(slide, l, t, w, h, "■ " + text,
+                size=size or FONT_PT["lead"], bold=True, color=INK)
 
 
 def add_bullets(slide, items, l=MARGIN_L, t=BODY_TOP, w=25.26,
-                size=11, line_h=LINE_H, bold_top=True):
+                line_h=LINE_H, bold_top=True):
     """표준 개조식 불릿 배치 (v4.1). items: [(level, text), ...] → 종료 y 반환.
 
-    수준별 마크: 0 `•`(볼드) / 1 `-` / 2 `·`. □·○ 등 이형 마크 사용 금지.
+    수준별 마크·크기: 0 `•` 12pt볼드 / 1 `-` 11pt / 2 `·` 10pt (FONT_PT 스케일 고정).
+    □·○ 등 이형 마크, 임의 크기 사용 금지.
     """
+    sizes = (FONT_PT["bullet0"], FONT_PT["bullet1"], FONT_PT["bullet2"])
     y = t
     for level, text in items:
-        mark = BULLET_MARKS[min(level, len(BULLET_MARKS) - 1)]
+        lv = min(level, len(BULLET_MARKS) - 1)
         _txt(slide, l + level * BULLET_INDENT, y, w - level * BULLET_INDENT, line_h,
-             f"{mark} {text}", size=size - level,
+             f"{BULLET_MARKS[lv]} {text}", size=sizes[lv],
              bold=(level == 0 and bold_top), color=INK)
         y += line_h
     return y
@@ -177,21 +192,21 @@ def add_bullets(slide, items, l=MARGIN_L, t=BODY_TOP, w=25.26,
 def add_unit(slide, text="(단위 : 억원, %)"):
     """우상단 단위 표기."""
     l, t, w, h = UNIT
-    return _txt(slide, l, t, w, h, text, size=10, bold=True,
+    return _txt(slide, l, t, w, h, text, size=FONT_PT["unit"], bold=True,
                 align=PP_ALIGN.RIGHT, color=INK)
 
 
 def add_pagenum(slide, n, total):
     """우하단 페이지번호 n/N."""
     l, t, w, h = PAGE
-    return _txt(slide, l, t, w, h, f"{n}/{total}", size=10, bold=False,
+    return _txt(slide, l, t, w, h, f"{n}/{total}", size=FONT_PT["unit"], bold=False,
                 align=PP_ALIGN.RIGHT, color=INK)
 
 
 def add_footnote(slide, text):
     """좌하단 각주 (※ ...)."""
     l, t, w, h = FOOT
-    return _txt(slide, l, t, w, h, text, size=9, bold=False, color=INK)
+    return _txt(slide, l, t, w, h, text, size=FONT_PT["footnote"], bold=False, color=INK)
 
 
 def _blank(prs):
@@ -282,7 +297,7 @@ def add_closing(prs, company="롯데마트 · 롯데슈퍼"):
 # ─────────────────────────────────────────────────────────────
 def add_fin_table(slide, l, t, w, h, data, col_w=None,
                   header_rows=1, header_fill=TH_PRIMARY,
-                  first_col_left=True, font_size=9):
+                  first_col_left=True, font_size=None):
     """
     data: 2D list [ [row0col0, ...], ... ]  (문자열)
     header_rows: 상단 헤더 행 수 (헤더 채움 + 볼드 + 가운데)
@@ -315,6 +330,6 @@ def add_fin_table(slide, l, t, w, h, data, col_w=None,
             else:
                 p.alignment = PP_ALIGN.RIGHT
             r = p.add_run(); r.text = str(val)
-            _set_font(r, font_size, bold=is_head or j == 0,
+            _set_font(r, font_size or FONT_PT["table"], bold=is_head or j == 0,
                       color=NAVY if is_head else INK)
     return tbl

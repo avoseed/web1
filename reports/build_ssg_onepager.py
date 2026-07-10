@@ -22,13 +22,13 @@ SECTION_H = 0.55            # 소제목 텍스트박스 높이
 
 def section(slide, l, t, w, text):
     """검정 볼드 소제목 — 표준 불릿 체계 주항목(•)."""
-    return _txt(slide, l, t, w, SECTION_H, "• " + text, size=13, bold=True, color=BLACK)
+    return _txt(slide, l, t, w, SECTION_H, "• " + text, size=FONT_PT["bullet0"], bold=True, color=BLACK)
 
 
-def bullet(slide, l, t, w, text, size=10.5):
+def bullet(slide, l, t, w, text, size=None):
     """표준 불릿 체계 하위항목(-), 들여쓰기 BULLET_INDENT."""
     return _txt(slide, l + BULLET_INDENT, t, w - BULLET_INDENT, LINE_H,
-                "- " + text, size=size, color=INK)
+                "- " + text, size=size or FONT_PT["bullet1"], color=INK)
 
 
 def left_align_body(tbl, cols, header_rows=1):
@@ -52,7 +52,7 @@ section(s, MARGIN_L, y, 25.26, "도입 배경")
 bullet(s, MARGIN_L, y + GAP_HEAD, 25.26,
        "이륜차 퀵커머스(바로퀵)는 적재량 한계로 소량 배송에 한정 → 대형마트 주력인 3~4인 가구 대용량 장보기 공백")
 bullet(s, MARGIN_L, y + GAP_HEAD + LINE_H, 25.26,
-       "바로퀵 6월 매출 1월 대비 197% 증가로 온디맨드 수요 실증 → 1시간(소량·이륜차) / 2시간(대용량·사륜차) 세분화 대응 (B마트도 대용량 확대 중)")
+       "바로퀵 6월 매출 1월 대비 197% 증가로 온디맨드 수요 실증 → 1시간(소량·이륜차) / 2시간(대용량·사륜차) 세분화 대응")
 y += GAP_HEAD + 2 * LINE_H + GAP_SECTION
 
 # 2. 시범 운영 개요
@@ -75,7 +75,7 @@ data = [
     ["2시간 배송 (신규)", "2시간 이내 (20시 마감)", "사륜차", "약 15만 종 기반", "대용량 즉시배송"],
 ]
 tbl = add_fin_table(s, MARGIN_L, y + GAP_HEAD, 25.26, MAIN_TBL_H, data,
-                    col_w=[3.9, 5.3, 2.5, 3.6, 9.96], header_rows=1, font_size=10)
+                    col_w=[3.9, 5.3, 2.5, 3.6, 9.96], header_rows=1)
 left_align_body(tbl, [1, 3, 4])
 y += GAP_HEAD + MAIN_TBL_H + GAP_SECTION
 
@@ -90,7 +90,7 @@ data = [
 ]
 tbl = add_fin_table(s, MARGIN_L, y + GAP_HEAD, HALF_W, SUB_TBL_H, data,
                     col_w=[3.5, 3.6, 5.2], header_rows=1,
-                    header_fill=TH_SECOND, font_size=10)
+                    header_fill=TH_SECOND)
 left_align_body(tbl, [2])
 
 section(s, COL2_L, y, HALF_W, "확대 로드맵")
@@ -102,14 +102,14 @@ data = [
 ]
 tbl = add_fin_table(s, COL2_L, y + GAP_HEAD, HALF_W, SUB_TBL_H, data,
                     col_w=[3.9, 8.4], header_rows=1,
-                    header_fill=TH_SECOND, font_size=10)
+                    header_fill=TH_SECOND)
 left_align_body(tbl, [1])
 y += GAP_HEAD + SUB_TBL_H + GAP_SECTION
 
 # 규제 참고
 _txt(s, MARGIN_L, y, 25.26, LINE_H,
      "※ 유통산업발전법('12년) : 대형마트 영업 자정~오전 10시 제한·월 2회 의무휴업 → 전국 160여 PP센터 새벽배송 불가, 규제 완화 개정 시 새벽배송 확장 여지",
-     size=9.5, bold=False, color=CRIMSON)
+     size=FONT_PT["table"], bold=False, color=CRIMSON)
 
 out = os.path.join(os.path.dirname(__file__), "ssg-quickcommerce-onepager.pptx")
 prs.save(out)
