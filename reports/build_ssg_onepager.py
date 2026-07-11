@@ -2,8 +2,8 @@
 """이마트 '2시간 배송' 동향 원페이저 — 정기협의체 본장형(6:4 경쟁사 동향, SPEC 3-2).
 
 정밀 기준: ① 객체 끝선 정렬(좌 전 객체 동일 폭 LW) ② 객체간 일정 간격
-③ 표는 중앙 세로선과 좌우 대칭 여백(침범 금지) ④ 표는 작고 조밀하게(밀도)
-⑤ 각주를 콘텐츠 바로 아래로 끌어올려 하단 여백 제거.
+③ 표는 중앙 세로선과 좌우 대칭 여백(침범 금지)
+④ 밀도를 다소 넓히더라도 객체를 하단(≈17cm)까지 끌어내려 페이지를 채운다.
 좌 60% 「현황 및 배경」: ① 수요 급증 → ② 서비스 이원화 → ③ 배송 체계 표(그룹 병합·2시간 강조).
 우 40% 「서비스 세부 내용」: ① 운영 방침 → ② 확산 로드맵(세로 타임라인) → So What 네이비 결론.
 출처: 비즈워치·머니투데이·한국경제('26.7.8~10)
@@ -25,19 +25,20 @@ RW = (BODY_W - GAP) * 0.40
 COL2_L = MARGIN_L + LW + GAP
 VSEP_X = MARGIN_L + LW + GAP / 2
 Y0 = 4.15
-GB = 0.24                              # 객체간 일정 간격
-LN = 0.50                              # 불릿 행 피치
-BOTTOM = 15.55                         # 좌 표 하단 = 우 결론 박스 하단 동일선
-FN_Y = BOTTOM + 0.45                   # 각주를 콘텐츠 바로 아래로(하단 여백 제거)
+GB = 0.32                              # 객체간 일정 간격
+LN = 0.58                              # 불릿 행 피치(하단까지 분산 채움)
+HG = 0.55                              # 소제목 행 피치
+BOTTOM = 17.00                         # 좌 표 하단 = 우 결론 박스 하단 — 하단까지 채움
+FN_Y = BOTTOM + 0.48                   # 각주는 콘텐츠 직하
 
 prs = new_deck()
-# ══ 헤드라인(전폭) = 결론 선치 (각주는 하단 고정 대신 콘텐츠 직하 배치) ══
+# ══ 헤드라인(전폭) = 결론 선치 ══
 s = add_content(prs, "동향", "이마트, 점포 물류거점화로 대용량 즉시배송 선점", tier="P",
                 lead="'2시간 배송' 양재·하남 시범(7.9~) → 연말 50여 점 · 유휴 PP센터 재활용 저비용 모델")
 
 # ══════════ 좌 60% : 「현황 및 배경」 ══════════
 add_col_header(s, MARGIN_L, Y0, LW, "현황 및 배경")
-y = Y0 + COL_HEADER_H + 0.28
+y = Y0 + COL_HEADER_H + GB
 y = add_bullets(s, [
     (0, "① 수요 급증"),
     (1, "바로퀵 매출 197%↑ ('26.6월) (미검증)"),
@@ -50,8 +51,8 @@ y = add_bullets(s, [
     (1, "1시간(소량) / 2시간(대용량) 이원화"),
     (1, "약 15만 종 구색으로 대용량 대응"),
 ], l=MARGIN_L, t=y + GB, w=LW, line_h=LN)
-add_bullets(s, [(0, "③ 이마트 배송 체계")], l=MARGIN_L, t=y + GB, w=LW, line_h=0.50)
-TBL_TOP = y + GB + 0.54
+add_bullets(s, [(0, "③ 이마트 배송 체계")], l=MARGIN_L, t=y + GB, w=LW, line_h=HG)
+TBL_TOP = y + GB + HG + 0.06
 tbl_data = [
     ["구분", "서비스", "시간 · 형태", "운송", "취급"],
     ["예약배송", "주간배송", "구간당 4~5H", "사륜차", "점포 상품"],
@@ -66,25 +67,25 @@ add_fin_table(s, MARGIN_L, TBL_TOP, LW, BOTTOM - TBL_TOP, tbl_data,
 
 # ══════════ 우 40% : 「서비스 세부 내용」 ══════════
 add_col_header(s, COL2_L, Y0, RW, "서비스 세부 내용")
-y = Y0 + COL_HEADER_H + 0.28
+y = Y0 + COL_HEADER_H + GB
 y = add_bullets(s, [
     (0, "① 운영 방침"),
     (1, "20시 마감 → 2시간 내 배송 완료"),
     (1, "쓱배송 사륜차 (대용량·중량 대응)"),
     (1, "기존 예약배송 병행"),
     (1, "유휴 PP센터 재활용형 서비스"),
-], l=COL2_L, t=y, w=RW, line_h=0.52)
-add_bullets(s, [(0, "② 확산 로드맵")], l=COL2_L, t=y + GB, w=RW, line_h=0.50)
-VT_TOP = y + GB + 0.54
-CONCL_TOP = BOTTOM - 1.05
-add_vtimeline(s, COL2_L, VT_TOP, RW, (CONCL_TOP - 0.20) - VT_TOP + 0.30, [
+], l=COL2_L, t=y, w=RW, line_h=LN)
+add_bullets(s, [(0, "② 확산 로드맵")], l=COL2_L, t=y + GB, w=RW, line_h=HG)
+VT_TOP = y + GB + HG + 0.06
+CONCL_TOP = BOTTOM - 1.15
+add_vtimeline(s, COL2_L, VT_TOP, RW, (CONCL_TOP - 0.22) - VT_TOP + 0.30, [
     ("'26.7월", "양재·하남점 도입"),
     ("8월", "서울 확대\n(월계·가든5·신도림)"),
     ("9월", "전국 확대"),
     ("연말", "50여 점포 운영"),
-], max_gap=1.75)
+], max_gap=2.4)
 add_conclusion_box(s, COL2_L, CONCL_TOP, RW,
-                   "유휴 PP센터 재활용 → 신규 투자 최소 · 저비용 급속 확산", h=1.05)
+                   "유휴 PP센터 재활용 → 신규 투자 최소 · 저비용 급속 확산", h=1.15)
 
 # ══ 중앙 세로 구분선 ══
 add_vsep(s, VSEP_X, Y0, BOTTOM - Y0)
