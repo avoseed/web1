@@ -15,6 +15,11 @@ from zetta_ppt_standard import _txt, _set_font, MSO_ANCHOR
 
 FN = "※ 출처 : 비즈워치 · 머니투데이 · 한국경제 · 뉴스핌 · 비즈니스포스트 ('26.7.8~10)"
 
+# 본문 블록 좌우 인셋(표·로드맵이 전폭으로 뻗지 않게) — 제목·리드는 전폭 유지
+INSET = 1.6
+LX = MARGIN_L + INSET
+CW2 = BODY_W - 2 * INSET
+
 prs = new_deck()
 # ══ 제목(■ 제목 전용) ══
 s = add_content(prs, None, "이마트, 점포 기반 '2시간 배송' 도입", tier="P")
@@ -34,12 +39,12 @@ y = add_bullets(s, [
     (0, "① 도입 배경"),
     (1, "'바로퀵'(1시간 배송) 매출 197% 증가('26.6월) → 퀵커머스 대용량 상품 수요 확대"),
     (1, "B마트 등 업계 대용량 품목 취급 확대 → 소량 1시간(이륜차)·대용량 2시간(사륜차) 이원화 대응"),
-], l=MARGIN_L, t=4.02, w=BODY_W, line_h=0.56)
+], l=LX, t=4.02, w=CW2, line_h=0.56)
 
 # ══ ② 서비스 개요 및 상품 차별점 (7행 비교표 — 장표 중심) ══
 y = add_bullets(s, [
     (0, "② 서비스 개요 및 상품 차별점 — 소량 퀵커머스에서 全 상품 장보기로"),
-], l=MARGIN_L, t=y + 0.16, w=BODY_W, line_h=0.54)
+], l=LX, t=y + 0.16, w=CW2, line_h=0.54)
 TBL_TOP = y + 0.06
 H_TBL = 6.9
 tbl = [
@@ -51,18 +56,18 @@ tbl = [
     ["고객·용도", "2030 · 소용량 (그로서리 90%)", "본 장보기 수요 겨냥"],
     ["조건", "별도 배송비 체계", "무료배송 4만 원 이상 (쓱배송 동일)"],
 ]
-add_fin_table(s, MARGIN_L, TBL_TOP, BODY_W, H_TBL, tbl,
-              col_w=[3.4, 9.4, BODY_W - 12.8], header_rows=1,
+add_fin_table(s, LX, TBL_TOP, CW2, H_TBL, tbl,
+              col_w=[2.8, 8.3, CW2 - 11.1], header_rows=1,
               hl_cols=[2], bold_rows=[2], col_align=["c", "l", "l"])
 tfn_y = TBL_TOP + H_TBL + 0.05
-_txt(s, MARGIN_L, tfn_y, BODY_W, 0.40,
+_txt(s, LX, tfn_y, CW2, 0.40,
      "※ 예약배송(주간·새벽·트레이더스) 기존 운영 유지, 병행 이용 가능",
      size=FONT_PT["footnote"], color=SUB_GRAY)
 
 # ══ ③ 확산 로드맵 (가로 타임라인 — 본문 최종 요소, 연말 마디 강조) ══
-y = add_bullets(s, [(0, "③ 확산 로드맵")], l=MARGIN_L, t=tfn_y + 0.44, w=BODY_W, line_h=0.54)
+y = add_bullets(s, [(0, "③ 확산 로드맵")], l=LX, t=tfn_y + 0.44, w=CW2, line_h=0.54)
 TL_TOP = y + 0.06
-tl_bot = add_htimeline(s, MARGIN_L, TL_TOP, BODY_W, [
+tl_bot = add_htimeline(s, LX, TL_TOP, CW2, [
     ("'26.7월", "양재·하남점 시범"),
     ("8월", "서울권 확대(월계·가든5·신도림)"),
     ("9월", "전국 확대"),
@@ -70,13 +75,13 @@ tl_bot = add_htimeline(s, MARGIN_L, TL_TOP, BODY_W, [
 ], when_h=0.45, content_h=0.58, size=FONT_PT["bullet2"])
 # 종착점(연말 마디) 강조 — 크림슨 채움 점
 axis_y = TL_TOP + 0.45 + 0.12
-cx = MARGIN_L + (BODY_W / 4) * 3.5
+cx = LX + (CW2 / 4) * 3.5
 dot = s.shapes.add_shape(MSO_SHAPE.OVAL, Cm(cx - 0.17), Cm(axis_y - 0.17), Cm(0.34), Cm(0.34))
 dot.shadow.inherit = False
 dot.fill.solid(); dot.fill.fore_color.rgb = CRIMSON; dot.line.color.rgb = CRIMSON
 
 # ══ 각주(콘텐츠 직하) ══
-_txt(s, MARGIN_L, tl_bot + 0.28, BODY_W, 0.5, FN, size=FONT_PT["footnote"], color=INK)
+_txt(s, LX, tl_bot + 0.28, CW2, 0.5, FN, size=FONT_PT["footnote"], color=INK)
 
 out = os.path.join(os.path.dirname(__file__), "ssg-quickcommerce-onepager.pptx")
 prs.save(out)
