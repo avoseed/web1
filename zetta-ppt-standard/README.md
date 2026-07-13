@@ -50,7 +50,7 @@ python examples/build_demo.py   # demo.pptx 생성
 ## 다른 보고서에 재사용
 
 - **`docs/BUILDER_GUIDE.md`** — 재사용 실무 가이드: 함수 카탈로그 · 레이아웃 레시피 · **정밀 기하 기준**(끝선 정렬·일정 간격·중앙선 침범 금지·하단 채움) · QA 체크리스트.
-- **`reports/_template_onepager.py`** — 복사용 스타터(6:4 본장형). `cp` 후 «채우기» 부분만 수정하면 새 보고서 완성.
+- **`reports/_template_onepager.py`** — 복사용 스타터(전폭 상하 구조). `cp` 후 «채우기» 부분만 수정하면 새 보고서 완성.
 
 ```bash
 cp reports/_template_onepager.py reports/build_<주제>.py   # 복사
@@ -64,7 +64,7 @@ python3 reports/build_<주제>.py
 zetta_ppt_standard.py     # 빌더 모듈 (토큰·크롬·원형·재무표·타임라인·컬럼 프레임)
 docs/SPEC_v4.md           # 표준 명세서 (토큰·원형·프레임워크·정밀 기하 기준 3-4·문구 원칙)
 docs/BUILDER_GUIDE.md     # 재사용 가이드 (함수 카탈로그·레시피·기하 기준·QA)
-reports/_template_onepager.py  # 복사용 스타터 템플릿 (6:4 본장형)
+reports/_template_onepager.py  # 복사용 스타터 템플릿 (전폭 상하 구조)
 examples/build_demo.py    # 전체 데모
 requirements.txt
 ```
