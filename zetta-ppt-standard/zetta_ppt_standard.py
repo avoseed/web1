@@ -333,12 +333,14 @@ def add_vtimeline(slide, l, t, w, h, steps, max_gap=1.55):
     return axis_bot + 0.30
 
 
-def add_htimeline(slide, l, t, w, steps, when_h=0.45, content_h=1.15):
+def add_htimeline(slide, l, t, w, steps, when_h=0.45, content_h=1.15, size=None):
     """[가로 타임라인] 굵은 축 + 노드 점, 노드 위 [시점](볼드)·아래 [내용] — 전폭 밴드용.
 
     steps: [(시점, 내용), ...] — 밴드 폭 w 에 노드 균등 분포(세로 늘어짐 없음, v4.1 §4). → 종료 y 반환.
     내용은 여러 줄(\\n) 허용, 노드끼리 겹치지 않게 세그먼트 폭 안에서 가운데 줄바꿈.
+    size: 시점·내용 폰트 크기(기본 bullet1=11pt) — 1줄 압축 시 축소해 잘림 방지.
     """
+    fs = size or FONT_PT["bullet1"]
     n = len(steps)
     axis_y = t + when_h + 0.12
     ax = _line(slide, l, axis_y, l + w, axis_y, color=INK, w_pt=2.0)
@@ -353,11 +355,10 @@ def add_htimeline(slide, l, t, w, steps, when_h=0.45, content_h=1.15):
         dot.shadow.inherit = False
         dot.fill.solid(); dot.fill.fore_color.rgb = WHITE
         dot.line.color.rgb = INK; dot.line.width = Pt(1.25)
-        _txt(slide, cx - step / 2, t, step, when_h, when, size=FONT_PT["bullet1"],
+        _txt(slide, cx - step / 2, t, step, when_h, when, size=fs,
              bold=True, color=INK, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.BOTTOM)
         _txt(slide, cx - step / 2, axis_y + 0.18, step, content_h, content,
-             size=FONT_PT["bullet1"], color=INK, align=PP_ALIGN.CENTER,
-             anchor=MSO_ANCHOR.TOP)
+             size=fs, color=INK, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.TOP)
     return axis_y + 0.18 + content_h
 
 
@@ -552,13 +553,14 @@ def add_fin_table(slide, l, t, w, h, data, col_w=None,
                   header_rows=1, header_fill=TH_PRIMARY,
                   col_align=None, font_size=None,
                   merges=None, hl_rows=None, hl_cols=None, hl_cells=None,
-                  dim_cells=None, header_cols=0, bold_cols=(0,)):
+                  dim_cells=None, header_cols=0, bold_cols=(0,), bold_rows=None):
     """
     data: 2D list [ [row0col0, ...], ... ]  (문자열, None=위 셀과 병합 예정 자리)
     header_rows: 상단 헤더 행 수 (헤더 채움 + 검정 볼드 + 가운데)
     merges: [(row_start, row_end, col), ...] — 동일 값·그룹 구분의 세로 병합 (v4.1)
     hl_rows: 강조 행 인덱스 — 연블루(HL_FILL) 채움 + 네이비(HL_TEXT) 볼드 (신규·핵심 행)
     hl_cols: 강조 열 인덱스 — 신·구 비교표에서 신규 서비스 열 음영 (헤더 포함, v4.1)
+    bold_rows: 볼드만 적용할 행 인덱스 (음영 없이 텍스트 볼드 — 핵심 대비 행 강조 역할 분리)
     dim_cells: 의도된 공백 셀 [(i,j),...] — 옅은 회색(SUB_GRAY)·볼드 해제 (v4.1 §0.7)
     bold_cols: 볼드 처리 열 (기본 1열; 서비스명 등 구분성 열 추가 지정 가능)
 
@@ -601,7 +603,8 @@ def add_fin_table(slide, l, t, w, h, data, col_w=None,
                 p = tf.paragraphs[0] if k == 0 else tf.add_paragraph()
                 p.alignment = align
                 _emit_runs(p, line, font_size or FONT_PT["table"],
-                           (not is_dim) and (is_head or is_hl or j in bold_cols),
+                           (not is_dim) and (is_head or is_hl or j in bold_cols
+                                             or (bold_rows and i in bold_rows)),
                            SUB_GRAY if is_dim else (HL_TEXT if is_hl else INK))
     if merges:
         for r0, r1, jc in merges:
