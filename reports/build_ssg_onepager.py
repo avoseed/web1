@@ -20,9 +20,9 @@ prs = new_deck()
 # ══ 제목(■ 은 제목 전용) ══
 s = add_content(prs, None, "이마트, 점포 기반 '2시간 배송' 도입 — 퀵커머스의 장보기 채널化",
                 tier="P")
-# 리드(기호 없는 볼드 1줄) — ■ 제거
+# 리드(기호 없는 볼드 1줄·검정 — 파란 글자 금지) — v3 문구 반영
 _txt(s, LEAD[0], LEAD[1], 24.6, LEAD[3],
-     "취급 상품 소량 1만 종 → 마트 全 상품 15만 종 확대, 연말 50여 개 점포 전개",
+     "취급 상품 소량 1만 종 → 마트 全 상품 15만 종 확대 — 점포(PP센터) 온라인 가동률 제고 목적",
      size=FONT_PT["lead"], bold=True, color=INK)
 
 # ══ ① 도입 배경 ══
@@ -51,32 +51,28 @@ _txt(s, MARGIN_L, tfn_y, BODY_W, 0.40,
      "※ 예약배송(주간·새벽·트레이더스) 기존 운영 유지, 병행 이용 가능",
      size=FONT_PT["footnote"], color=SUB_GRAY)
 
-# ══ ③ 취급 상품 차별점 (핵심) — 좌측 개조식 헤더(음영 밴드 제거) ══
+# ══ ③ 취급 상품 차별점 (핵심) — 좌측 개조식 헤더(검정·음영 밴드 없음) ══
 y = add_bullets(s, [
     (0, "③ 취급 상품 차별점 — 소량 퀵커머스에서 全 상품 장보기로"),
-], l=MARGIN_L, t=tfn_y + 0.48, w=BODY_W, line_h=0.50)
+], l=MARGIN_L, t=tfn_y + 0.55, w=BODY_W, line_h=0.54)
 y = add_bullets(s, [
     (1, "마트 全 상품 대상 : 기존 퀵커머스 미취급 대용량·신선 카테고리 전면 개방"),
     (1, "신선식품(육류·생선·과일) 중심 소구 — 매장 재고 직접 집품으로 선도 유지"),
     (1, "냉장·냉동 전용 보냉 파우치 포장 후 매장 즉시 출고 — 콜드체인 체계 적용"),
     (1, "기존 '바로퀵' 고객층(2030·소용량·그로서리 90%)과 구분되는 본 장보기 수요 겨냥"),
-], l=MARGIN_L, t=y + 0.04, w=BODY_W, line_h=0.56)
+], l=MARGIN_L, t=y + 0.10, w=BODY_W, line_h=0.70)
 
-# ══ ④ 확산 로드맵 (가로 타임라인, 1줄 라벨·높이 최소화) ══
-y = add_bullets(s, [(0, "④ 확산 로드맵")], l=MARGIN_L, t=y + 0.10, w=BODY_W, line_h=0.50)
-tl_bot = add_htimeline(s, MARGIN_L, y + 0.04, BODY_W, [
+# ══ ④ 확산 로드맵 (가로 타임라인, 1줄 라벨) — v3 구조: 하단 박스 없음 ══
+y = add_bullets(s, [(0, "④ 확산 로드맵")], l=MARGIN_L, t=y + 0.24, w=BODY_W, line_h=0.54)
+tl_bot = add_htimeline(s, MARGIN_L, y + 0.16, BODY_W, [
     ("'26.7월", "양재·하남점 시범"),
     ("8월", "서울권 확대(월계·가든5·신도림)"),
     ("9월", "전국 확대"),
     ("연말", "50여 점포 운영"),
-], when_h=0.40, content_h=0.52, size=FONT_PT["bullet2"])
+], when_h=0.45, content_h=0.55, size=FONT_PT["bullet2"])
 
-# ══ 하단 강조 박스(전폭 네이비) + 각주 ══
-BOX_TOP = tl_bot + 0.22
-add_conclusion_box(s, MARGIN_L, BOX_TOP, BODY_W,
-                   "소량 즉시배송 → 全 상품 장보기 배송 전환, 점포(PP센터) 온라인 가동률 제고",
-                   h=0.85)
-_txt(s, MARGIN_L, BOX_TOP + 0.85 + 0.20, BODY_W, 0.5, FN,
+# ══ 각주(콘텐츠 직하) ══
+_txt(s, MARGIN_L, tl_bot + 0.30, BODY_W, 0.5, FN,
      size=FONT_PT["footnote"], color=INK)
 
 out = os.path.join(os.path.dirname(__file__), "ssg-quickcommerce-onepager.pptx")
