@@ -64,7 +64,7 @@ prs.save("out.pptx")
 |---|---|
 | `add_col_header(slide, l, t, w, text)` | 컬럼 헤더 바(#EAEEF6, 검정 볼드). **종료 y = t + COL_HEADER_H** |
 | `add_vsep(slide, x, t, h)` | 중앙 세로 구분선(#BFBFBF 0.75pt 실선) |
-| `add_conclusion_box(slide, l, t, w, text, h)` | 네이비 결론 박스(백색 볼드) — So What |
+| `add_conclusion_box(slide, l, t, w, text, h)` | 네이비 박스(백색 볼드) — **요약 스트립 전용**(예: 캄보디아 관리원칙). ⚠ So-What 은 리드에 두고 이 박스로 반복 금지 |
 | `add_specbox(slide, l, t, w, h, rows, header)` | 스펙 패널(프레임+헤더+라벨:값 균등) — 표 아닌 패널. 맵과 쌍둥이용 |
 | `add_frame(slide, l, t, w, h)` | 얇은 테두리 박스(타임라인 등 감싸기) |
 | `add_insight_box(slide, l, t, w, h, items, tab)` | 회색 테두리 시사점 박스 + 짙은 탭 |
@@ -78,7 +78,7 @@ prs.save("out.pptx")
 > ⚠ **6:4 좌우 2단 폐기(v4.1)**: 좌우 폭 배분·바닥선 정렬 부담과 한쪽 성김 탓에 제거. 경쟁사 동향·현황형의 **정본은 전폭 상하 구조(A)**.
 
 ### A. 전폭 상하 구조 (근거 표 중심) — 기본값·정본
-전폭 밴드 적층(좌우 2단 아님): ① 도입 배경(불릿) → ② **전폭 근거 표**(`add_fin_table`, 그룹 병합 + 신규 행 강조 — 장표 중심) → ③ **가로 타임라인**(`add_htimeline`) → **전폭 네이비 결론**(`add_conclusion_box`). 전 객체 동일 폭 `BODY_W` 끝선 정렬, 하단까지 채움. → `reports/_template_onepager.py`
+전폭 밴드 적층(좌우 2단 아님): **결론(So-What)은 리드메시지에 선치** → ① 도입 배경(불릿) → ② **전폭 근거 표**(`add_fin_table`, 그룹 병합 + 신규 열/행 강조 — 장표 중심) → ③ **가로 타임라인**(`add_htimeline`, 본문 최종 요소). **하단 네이비 결론 박스는 비권장**(결론은 리드에 있음 — 반복 금지). 전 객체 동일 폭 `BODY_W` 끝선 정렬, 요소 높이·간격으로 하단까지 채움. → `reports/_template_onepager.py`
 
 ### B. 재무 전폭 표 / 근거 표 + 해설
 상단 전폭 `add_fin_table`(손익·KPI·비교) → 하단 2~3단 분해(【 】 + 불릿).

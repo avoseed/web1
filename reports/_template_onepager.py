@@ -3,7 +3,7 @@
 
 사용법:  cp _template_onepager.py build_<주제>.py  →  «채우기» 부분만 수정  →  python3 build_<주제>.py
 프레임워크: 전폭 상하 구조(SPEC 3-2 정본, 근거 표 중심). 6:4 좌우 2단은 폐기.
-전폭 밴드 적층: ① 도입 배경 → ② 전폭 근거 표(중심) → ③ 가로 타임라인 → 전폭 네이비 결론.
+전폭 밴드 적층: 결론(So-What)은 리드에 선치 → ① 도입 배경 → ② 전폭 근거 표(중심) → ③ 가로 타임라인(최종 요소). 하단 결론 박스 비권장.
 정밀 기하(내장): 전 객체 동일 폭 BODY_W 끝선 정렬 · 일정 간격 GB · 하단까지 채움 · 각주 직하.
 가드레일: 순한글만 · 파란 글자 금지 · 부호 앞 공백 금지 · 오버플로 금지.
 빌드 후 docs/BUILDER_GUIDE.md §5 QA 필수.
@@ -53,17 +53,17 @@ add_fin_table(s, MARGIN_L, TBL_TOP, BODY_W, TBL_BOT - TBL_TOP, tbl_data,
 
 # ══ ③ 확산 로드맵 (전폭 가로 타임라인) ══   «채우기 5»
 add_bullets(s, [(0, "③ 로드맵")], l=MARGIN_L, t=TBL_BOT + GB, w=BODY_W, line_h=HG)
-add_htimeline(s, MARGIN_L, TBL_BOT + GB + HG + 0.05, BODY_W, [
+tl_bot = add_htimeline(s, MARGIN_L, TBL_BOT + GB + HG + 0.05, BODY_W, [
     ("시점1", "내용1"),
     ("시점2", "내용2\n(부가)"),
     ("시점3", "내용3"),
     ("시점4", "내용4"),
 ])
+# ※ 결론(So-What)은 리드메시지에 선치 — 하단 네이비 결론 박스는 비권장(반복 금지).
+#   로드맵이 본문 최종 요소. 하단은 요소 높이·간격으로 채운다.
 
-# ══ So What (전폭 네이비 결론) + 각주 직하 ══   «채우기 6»
-CONCL_TOP = 16.00
-add_conclusion_box(s, MARGIN_L, CONCL_TOP, BODY_W, "«So What 결론 한 줄»", h=0.95)
-_txt(s, MARGIN_L, CONCL_TOP + 0.95 + 0.30, BODY_W, 0.55, SRC,
+# ══ 각주(콘텐츠 직하) ══   «채우기 6»
+_txt(s, MARGIN_L, tl_bot + 0.30, BODY_W, 0.55, SRC,
      size=FONT_PT["footnote"], color=INK)
 
 out = os.path.join(os.path.dirname(__file__), "out_onepager.pptx")
