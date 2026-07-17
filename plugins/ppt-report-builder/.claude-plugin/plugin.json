@@ -1,0 +1,8 @@
+{
+  "name": "ppt-report-builder",
+  "version": "1.0.0",
+  "description": "python-pptx 로 임원 보고용 한국어 PPT(장표·원페이저·덱)를 생성하는 스킬 번들. ZETTA v4 표준 톤 + v0.2 임원 톤(네이비 번호박스·빨강 강조·차트), 재무형 표·타임라인·피라미드·플로우 도식, 정밀 기하·결론=리드·데이터 정직성(〔조사〕 공란) 규칙 내장. LibreOffice 렌더 QA 포함.",
+  "author": { "name": "avoseed" },
+  "keywords": ["pptx", "powerpoint", "report", "one-pager", "korean", "executive", "python-pptx", "장표", "보고서"],
+  "license": "UNLICENSED"
+}
