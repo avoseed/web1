@@ -10,7 +10,7 @@ skills/ppt-report-builder/
   SKILL.md                     # 진입점(워크플로·규칙·QA)
   scripts/zetta_ppt_standard.py  # ZETTA v4 표준 톤 빌더
   scripts/tone_v02.py            # v0.2 임원 톤(헤더·리딩·빨강강조·표·박스·플로우·차트·피라미드)
-  references/SPEC_v4.md · BUILDER_GUIDE.md · template_onepager.py
+  references/SPEC_v4.md · BUILDER_GUIDE.md · mockup_template.html · template_onepager.py
 ```
 두 디자인 톤(담백한 표준 / 네이비·빨강 임원), 재무형 표·가로/세로 타임라인·2×2 맵·피라미드·
 돈흐름 플로우·막대/컬럼 차트를 지원한다.
