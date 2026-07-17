@@ -38,6 +38,24 @@ skills/ppt-report-builder/
 설치 후에는 별도 호출 없이 PPT 보고서 요청 시 스킬이 자동 트리거되며, `/ppt-report-builder`
 로 명시 호출도 가능합니다.
 
+## 업데이트 (새 버전이 안 잡힐 때)
+`/plugin marketplace add` 는 **추가 시점의 master 를 로컬에 캐시**한다. 이후 커밋은 마켓플레이스
+캐시를 **명시적으로 갱신**해야 반영된다. 최신 버전이 안 보이면 순서대로:
+
+```
+/plugin marketplace update avoseed-ppt-marketplace     # ① 캐시를 master 최신으로 재동기화
+/plugin install ppt-report-builder@avoseed-ppt-marketplace   # ② 재설치(업데이트)
+```
+그래도 옛 버전이면 캐시를 완전히 비우고 다시 추가:
+```
+/plugin marketplace remove avoseed-ppt-marketplace
+/plugin marketplace add avoseed/web1
+/plugin install ppt-report-builder@avoseed-ppt-marketplace
+```
+- 갱신 후 **Claude Code 를 재시작(또는 세션 리로드)** 해야 스킬 내용이 다시 로드된다.
+- 현재 버전 확인: `/plugin` 메뉴에서 `ppt-report-builder` 의 버전이 `plugin.json` 과 같은지 본다(현재 1.3.0).
+- 참고: `/plugin` 계열 명령은 **Cowork 앱 / Claude Code CLI 전용**(웹 세션에선 실행 안 됨).
+
 ## 소스 정본 / 갱신
 편집 정본은 리포의 **`zetta-ppt-standard/`**(빌더 `zetta_ppt_standard.py`·`tone_v02.py`·`docs/`)
 와 **`reports/_template_onepager.py`** 입니다. 이 플러그인의 `skills/…/scripts`·`references`
