@@ -36,6 +36,18 @@ skills/ppt-report-builder/
 설치 후에는 별도 호출 없이 PPT 보고서 요청 시 스킬이 자동 트리거되며, `/ppt-report-builder`
 로 명시 호출도 가능합니다.
 
+## 소스 정본 / 갱신
+편집 정본은 리포의 **`zetta-ppt-standard/`**(빌더 `zetta_ppt_standard.py`·`tone_v02.py`·`docs/`)
+와 **`reports/_template_onepager.py`** 입니다. 이 플러그인의 `skills/…/scripts`·`references`
+는 그 정본에서 **생성된 번들**(자체 완결·배포용)이며, `SKILL.md` 만 플러그인 고유 문서입니다.
+
+정본을 수정하면 번들을 재생성하세요:
+```bash
+bash plugins/ppt-report-builder/sync.sh
+```
+(중복 방지를 위해 별도 `.claude/skills/` 복사본은 두지 않습니다 — 이 워크스페이스에서 쓰려면
+플러그인을 설치합니다.)
+
 ## 요구 사항
 - `python-pptx` (빌드) · LibreOffice + poppler(`pdftoppm`) (렌더 QA) · 맑은 고딕(없으면 렌더 시
   Noto 대체 — 판정은 PPTX 소스 문자열 기준).
