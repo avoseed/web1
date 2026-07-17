@@ -10,13 +10,14 @@ skills/ppt-report-builder/
   SKILL.md                     # 진입점(워크플로·규칙·QA)
   scripts/zetta_ppt_standard.py  # ZETTA v4 표준 톤 빌더
   scripts/tone_v02.py            # v0.2 임원 톤(헤더·리딩·빨강강조·표·박스·플로우·차트·피라미드)
-  references/SPEC_v4.md · BUILDER_GUIDE.md · mockup_template.html · template_onepager.py
+  references/SPEC_v4.md · BUILDER_GUIDE.md · FRAMEWORKS.md · mockup_template.html · template_onepager.py
 ```
 두 디자인 톤(담백한 표준 / 네이비·빨강 임원), 재무형 표·가로/세로 타임라인·2×2 맵·피라미드·
 돈흐름 플로우·막대/컬럼 차트를 지원한다.
 
 ## 내장 규칙(요약)
-- **목업 선(先)승인**: 실제 pptx 빌드·렌더 전에 저비용 텍스트 목업으로 구조·내용 확정 → 승인 후 빌드(토큰 절약)
+- **목업 선(先)승인**: 실제 pptx 빌드·렌더 전에 저비용 목업으로 구조·내용 확정 → 승인 후 빌드(토큰 절약)
+- **프레임 다양성**: 논리 관계가 프레임을 정함(비교표·추이·2×2·피라미드·플로우·워터폴·카드·브릿지). 표+타임라인 스택·상단 4-KPI 스트립 반복 금지 — 단 톤·정렬 규정은 유지
 - 결론(So-What)은 **리드메시지에 선치**, 하단 결론 박스 반복 금지
 - **파란 글자 금지**(강조 셀 예외) · 크림슨/빨강은 경고·핵심 수치 전용
 - 정밀 기하: 끝선 정렬 · 일정 간격 · 중앙선 침범 금지 · 본문 70%+ 충전

@@ -60,6 +60,49 @@
   .bar-chart .lab{width:120px;text-align:right}
   .bar-chart .b{height:15px;background:var(--navy)}
   .bar-chart .b.red{background:var(--red)}
+
+  /* ── 프레임 원형(archetypes) — 톤·정렬 규정 준수(동일 폭·일정 간격·중앙 정렬) ── */
+  /* ③ 2×2 매트릭스 */
+  .mtx-wrap{position:relative;padding-left:26px;width:560px;margin:10px auto}
+  .mtx{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;width:100%;height:290px;border:1px solid var(--grid)}
+  .mtx .q{border:1px solid var(--grid);padding:10px;font-size:12px;display:flex;flex-direction:column;
+          justify-content:center;align-items:center;text-align:center;line-height:1.4}
+  .mtx .q.star{background:var(--redbg);font-weight:700}
+  .mtx .q.dim{color:var(--gray)}
+  .mtx-y{position:absolute;left:-2px;top:50%;transform:translateY(-50%) rotate(-90deg);
+         transform-origin:left;font-size:11px;color:var(--gray);white-space:nowrap}
+  .mtx-x{text-align:center;font-size:11px;color:var(--gray);margin-top:5px}
+  /* ④ 피라미드(계층) */
+  .pyr{margin:16px auto;width:62%}
+  .pyr .tier{margin:4px auto;color:#fff;font-weight:700;text-align:center;padding:9px 0;font-size:12.5px}
+  .pyr .t1{width:46%;background:var(--navy)}.pyr .t2{width:73%;background:#2E4E7E}.pyr .t3{width:100%;background:#3C6099}
+  /* ⑤ 프로세스·게이트 플로우 */
+  .flow{display:flex;align-items:stretch;margin:18px 0}
+  .flow .node{flex:1;border:1px solid var(--grid);border-top:3px solid var(--navy);padding:11px 9px;font-size:12px;text-align:center;line-height:1.4}
+  .flow .node .nh{font-weight:700;color:var(--navy);margin-bottom:4px}
+  .flow .arw{display:flex;align-items:center;color:var(--navy);font-size:20px;padding:0 7px}
+  /* ⑦ 3분할 카드(병렬 축) — 동일 구조·동일 높이 */
+  .cards{display:flex;gap:16px;margin:16px 0}
+  .cards .card{flex:1;border:1px solid var(--grid)}
+  .cards .card .ch{background:var(--strip);border-bottom:1px solid var(--grid);padding:8px 11px;font-weight:700;font-size:13px;color:#000;text-align:center}
+  .cards .card .cb{padding:10px 11px;font-size:12px;line-height:1.55}
+  /* ⑥ 워터폴·브릿지(인과·기여) */
+  .wf{display:flex;align-items:flex-end;gap:12px;height:150px;border-bottom:1px solid #bbb;padding:0 8px;margin:10px 0}
+  .wf .col{width:46px;text-align:center;position:relative;font-size:11px}
+  .wf .col .bar{background:var(--navy)}.wf .col .bar.up{background:#3C6099}.wf .col .bar.dn{background:var(--red)}
+  .wf .col span{position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-weight:700;white-space:nowrap}
+  /* ⑥ 드라이버 트리 */
+  .tree{display:flex;align-items:center;margin:18px 0}
+  .tree .root{border:1px solid var(--grid);border-left:4px solid var(--navy);padding:16px 13px;font-weight:700;font-size:13px}
+  .tree .lnk{color:var(--navy);font-size:20px;padding:0 10px}
+  .tree .kids{display:flex;flex-direction:column;gap:9px}
+  .tree .kids .k{border:1px solid var(--grid);padding:9px 13px;font-size:12px}
+  /* ⑧ 갭·브릿지(격차·이행) */
+  .gap{display:flex;align-items:center;justify-content:center;gap:0;margin:20px 0}
+  .gap .end{border:1px solid var(--grid);padding:16px 20px;text-align:center;font-size:12.5px;min-width:150px}
+  .gap .end.now{border-top:3px solid var(--gray)}.gap .end.goal{border-top:3px solid var(--navy);font-weight:700}
+  .gap .mid{padding:0 16px;text-align:center;color:var(--navy);font-size:12px}
+  .gap .mid .arw{font-size:24px}
 </style>
 
 <!-- ══════════ 예시 1: v0.2 임원 톤 (차트 2단) ══════════ -->
@@ -106,4 +149,112 @@
   </table>
   <div class="capt">※ 각주는 콘텐츠 직하에 — 하단 방치 금지 · Source: 〔조사〕</div>
   <div class="pageno">3</div>
+</div>
+
+<!-- ══════════ 프레임 원형 라이브러리 (논리별로 골라 쓴다 · FRAMEWORKS.md) ══════════ -->
+
+<!-- ③ 2×2 매트릭스 — 위치·우선순위 -->
+<div class="slide tone-v02">
+  <div class="hd"><div class="num">3</div><div class="ttl">〔포지셔닝〕 — 위치·우선순위 논리</div></div>
+  <div class="uline"></div>
+  <div class="lead">〔결론 리드〕 우상단 사분면에 자원 집중</div>
+  <div class="mtx-wrap">
+    <div class="mtx-y">〔세로축: 높음 → 낮음〕</div>
+    <div class="mtx">
+      <div class="q">〔2사분면〕</div>
+      <div class="q star">〔1사분면〕 집중 영역<br><span class="em-red">우선</span></div>
+      <div class="q dim">해당 없음</div>
+      <div class="q">〔4사분면〕</div>
+    </div>
+    <div class="mtx-x">〔가로축: 낮음 → 높음〕</div>
+  </div>
+  <div class="pageno">4</div>
+</div>
+
+<!-- ④ 피라미드 — 구성·계층(MECE) -->
+<div class="slide tone-v02">
+  <div class="hd"><div class="num">4</div><div class="ttl">〔전략 체계〕 — 구성·계층 논리</div></div>
+  <div class="uline"></div>
+  <div class="lead">〔결론 리드〕 비전 → 전략 → 실행의 정합</div>
+  <div class="pyr">
+    <div class="tier t1">〔비전 / 목표〕</div>
+    <div class="tier t2">〔핵심 전략 2~3〕</div>
+    <div class="tier t3">〔실행 과제 · 지표 __〕</div>
+  </div>
+  <div class="foot">※ 상위=소수·하위=다수 · Source: 〔조사〕</div>
+  <div class="pageno">5</div>
+</div>
+
+<!-- ⑤ 프로세스·게이트 플로우 — 흐름·단계 -->
+<div class="slide tone-v02">
+  <div class="hd"><div class="num">5</div><div class="ttl">〔진입 단계 / 밸류체인〕 — 흐름·단계 논리</div></div>
+  <div class="uline"></div>
+  <div class="lead">〔결론 리드〕 게이트별 조건 충족 시 다음 단계 이행</div>
+  <div class="flow">
+    <div class="node"><div class="nh">STEP 1</div>〔진단 · __〕</div>
+    <div class="arw">→</div>
+    <div class="node"><div class="nh">STEP 2</div>〔설계 · __〕</div>
+    <div class="arw">→</div>
+    <div class="node"><div class="nh">STEP 3</div>〔실행 · __〕</div>
+    <div class="arw">→</div>
+    <div class="node"><div class="nh">STEP 4</div>〔안착 · __〕</div>
+  </div>
+  <div class="foot">※ 각 게이트 통과 기준 명시 · Source: 〔조사〕</div>
+  <div class="pageno">6</div>
+</div>
+
+<!-- ⑦ 3분할 카드 — 병렬 축 -->
+<div class="slide tone-v02">
+  <div class="hd"><div class="num">6</div><div class="ttl">〔3대 축〕 — 병렬 축 논리</div></div>
+  <div class="uline"></div>
+  <div class="lead">〔결론 리드〕 독립적 3개 기둥의 동시 추진</div>
+  <div class="cards">
+    <div class="card"><div class="ch">〔축 1〕</div><div class="cb">• 〔내용〕<br>• 지표 __</div></div>
+    <div class="card"><div class="ch">〔축 2〕</div><div class="cb">• 〔내용〕<br>• 지표 __</div></div>
+    <div class="card"><div class="ch">〔축 3〕</div><div class="cb">• 〔내용〕<br>• 지표 __</div></div>
+  </div>
+  <div class="foot">※ 카드 동일 구조·동일 높이 · Source: 〔조사〕</div>
+  <div class="pageno">7</div>
+</div>
+
+<!-- ⑥ 워터폴·브릿지 + 드라이버 트리 — 인과·기여 -->
+<div class="slide tone-v02">
+  <div class="hd"><div class="num">7</div><div class="ttl">〔증감 요인 분해〕 — 인과·기여 논리</div></div>
+  <div class="uline"></div>
+  <div class="lead">〔결론 리드〕 감소 요인 A가 전체 하락의 대부분</div>
+  <div class="cols">
+    <div>
+      <div class="capt">워터폴(증감 분해)</div>
+      <div class="wf">
+        <div class="col"><span>100</span><div class="bar" style="height:70%"></div>기초</div>
+        <div class="col"><span class="em-red">-30</span><div class="bar dn" style="height:20%"></div>요인A</div>
+        <div class="col"><span>+15</span><div class="bar up" style="height:10%;margin-bottom:50%"></div>요인B</div>
+        <div class="col"><span>85</span><div class="bar" style="height:60%"></div>기말</div>
+      </div>
+    </div>
+    <div>
+      <div class="capt">드라이버 트리(KPI 분해)</div>
+      <div class="tree">
+        <div class="root">매출<br>__</div>
+        <div class="lnk">=</div>
+        <div class="kids"><div class="k">객수 __</div><div class="k">× 객단가 __</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">※ 수치 미확정은 __ 유지 · Source: 〔조사〕</div>
+  <div class="pageno">8</div>
+</div>
+
+<!-- ⑧ 갭·브릿지 — 격차·이행 -->
+<div class="slide tone-v02">
+  <div class="hd"><div class="num">8</div><div class="ttl">〔현재→목표 격차〕 — 격차·이행 논리</div></div>
+  <div class="uline"></div>
+  <div class="lead">〔결론 리드〕 격차 __ 를 3개 수단으로 메움</div>
+  <div class="gap">
+    <div class="end now">현재<br><b>__</b></div>
+    <div class="mid"><div class="arw">→</div>〔수단 3개〕<br>격차 <span class="em-red">__</span></div>
+    <div class="end goal">목표<br><b>__</b></div>
+  </div>
+  <div class="foot">※ 격차·수단 정량화 · Source: 〔조사〕</div>
+  <div class="pageno">9</div>
 </div>
