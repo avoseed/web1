@@ -1,0 +1,109 @@
+<!doctype html>
+<!--
+  ZETTA PPT — 목업(승인용) 템플릿.  A단계에서 이 HTML 을 복제·채워 사용자에게 보여주고
+  승인받은 뒤에만 실제 python-pptx 빌드(B단계)로 넘어간다.  ※ python-pptx·soffice 실행 없음.
+  · 슬라이드 1장 = .slide 카드 1개 (A4 가로 비율 고정 27.52:19.05 ≈ 1.445:1)
+  · 톤 클래스: .tone-v02(네이비/빨강 임원) · .tone-std(담백한 표준)
+  · 차트는 CSS 막대로 "형태만" 흉내 — 실제 수치·계열·색만 맞으면 됨(정밀 렌더 아님)
+  · 규칙은 목업에서부터: 결론=리드(하단 빨강 이탤릭은 요약 강조 1줄), 파란 글자 금지,
+    미확정 수치는 〔조사〕/__ 공란, 부호 앞 공백 금지, 순한글.
+-->
+<meta charset="utf-8">
+<title>PPT 목업(승인용)</title>
+<style>
+  :root{
+    --navy:#1F3864; --red:#C00000; --gray:#808080; --redbg:#FDE9E9; --strip:#EEF1F7;
+    --crimson:#C30C3E; --ink:#222; --hlfill:#DEEBF7; --hltext:#002060;
+    --thstd:#EAEEF6; --grid:#BFBFBF;
+  }
+  body{background:#54585c;margin:0;padding:24px;font-family:"Malgun Gothic","맑은 고딕",sans-serif;color:var(--ink)}
+  .slide{width:960px;height:664px;background:#fff;margin:0 auto 22px;position:relative;
+         box-shadow:0 3px 14px rgba(0,0,0,.4);padding:34px 40px;box-sizing:border-box;overflow:hidden}
+  .pageno{position:absolute;right:22px;bottom:14px;font-size:12px;color:var(--gray)}
+  .foot{position:absolute;left:40px;right:40px;bottom:16px;font-size:11px;color:var(--gray)}
+
+  /* ── v0.2 임원 톤 ── */
+  .tone-v02 .hd{display:flex;align-items:center;gap:10px}
+  .tone-v02 .num{background:var(--navy);color:#fff;font-weight:700;width:26px;height:26px;
+                 display:flex;align-items:center;justify-content:center;font-size:15px}
+  .tone-v02 .ttl{font-size:20px;font-weight:700;color:#000}
+  .tone-v02 .uline{border-bottom:2.5px solid var(--navy);margin:8px 0 14px}
+  .tone-v02 .lead{font-size:15px;font-weight:700;color:#000;margin-bottom:16px}
+  .tone-v02 .concl{position:absolute;left:0;right:0;bottom:44px;text-align:center;
+                   color:var(--red);font-style:italic;font-weight:700;font-size:14px}
+  .tone-v02 th{background:var(--navy);color:#fff}
+
+  /* ── 표준(ZETTA) 톤 ── */
+  .tone-std .cat{font-size:12px;color:var(--crimson);font-weight:700;letter-spacing:1px}
+  .tone-std .ttl{font-size:20px;font-weight:700;color:#000;margin:2px 0 4px}
+  .tone-std .lead{font-size:14px;font-weight:700;color:#000;border-left:4px solid var(--crimson);
+                  padding-left:10px;margin:10px 0 16px;line-height:1.4}
+  .tone-std th{background:var(--thstd);color:#000}
+  .tone-std .hl{background:var(--hlfill);color:var(--hltext);font-weight:700}
+
+  /* 공통 요소 */
+  table{border-collapse:collapse;width:100%;font-size:12.5px;margin:6px 0}
+  th,td{border:1px solid var(--grid);padding:6px 9px;text-align:left}
+  th{font-weight:700}
+  .em-red{color:var(--red);font-weight:700}
+  .em-crimson{color:var(--crimson);font-weight:700}
+  .cols{display:flex;gap:26px}.cols>div{flex:1}
+  .capt{font-size:11px;color:var(--gray);margin:2px 0 6px}
+
+  /* CSS 막대 차트(형태만) */
+  .col-chart{display:flex;align-items:flex-end;gap:16px;height:150px;border-left:1px solid #bbb;
+             border-bottom:1px solid #bbb;padding:0 8px 0 4px}
+  .col-chart .bar{width:34px;background:var(--navy);position:relative;text-align:center}
+  .col-chart .bar span{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700}
+  .col-chart .bar.neg{background:var(--red)}
+  .bar-chart .row{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:11px}
+  .bar-chart .lab{width:120px;text-align:right}
+  .bar-chart .b{height:15px;background:var(--navy)}
+  .bar-chart .b.red{background:var(--red)}
+</style>
+
+<!-- ══════════ 예시 1: v0.2 임원 톤 (차트 2단) ══════════ -->
+<div class="slide tone-v02">
+  <div class="hd"><div class="num">1</div><div class="ttl">〔소제목〕 현황 · 실적 및 M/S</div></div>
+  <div class="uline"></div>
+  <div class="lead">〔핵심 결론 한 줄 = 리드메시지〕 — 현 구조만으로는 잠식 우려</div>
+  <div class="cols">
+    <div>
+      <div class="capt">〔좌측 도표 제목〕 (단위: 억 원)</div>
+      <div class="col-chart">
+        <div class="bar neg" style="height:8%"><span class="em-red">▲11</span></div>
+        <div class="bar" style="height:48%"><span>180</span></div>
+        <div class="bar" style="height:62%"><span>231</span></div>
+        <div class="bar" style="height:80%"><span>300</span></div>
+        <div class="bar" style="height:100%"><span>371</span></div>
+      </div>
+      <div class="capt">〔조사〕 각 수치의 해당 연도 확인 후 기입</div>
+    </div>
+    <div>
+      <div class="capt">〔우측 도표 제목〕 경쟁사 비교</div>
+      <div class="bar-chart">
+        <div class="row"><div class="lab">A사</div><div class="b" style="width:80%"></div><div>+56.0%</div></div>
+        <div class="row"><div class="lab">B사</div><div class="b" style="width:22%"></div><div>+14.1%</div></div>
+        <div class="row"><div class="lab">C사</div><div class="b" style="width:21%"></div><div>+13.9%</div></div>
+        <div class="row"><div class="lab">Lotte</div><div class="b red" style="width:5%"></div><div class="em-red">+2.2%</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">※ 기준: 〔조사〕 기준연도 · Source: 각사 공시</div>
+  <div class="pageno">2</div>
+</div>
+
+<!-- ══════════ 예시 2: 표준(ZETTA) 톤 (근거 표) ══════════ -->
+<div class="slide tone-std">
+  <div class="cat">경쟁사 동향</div>
+  <div class="ttl">〔장표 제목〕</div>
+  <div class="lead">〔결론 리드〕 소량 즉시배송 → <span class="em-crimson">全 상품 장보기 배송 확대</span></div>
+  <table>
+    <tr><th>구분</th><th>기존</th><th class="hl">신규(강조 열)</th></tr>
+    <tr><td>취급 범위</td><td>소량 1만 종</td><td class="hl">마트 全 상품 15만 종</td></tr>
+    <tr><td>배송 시간</td><td>__</td><td class="hl">2시간</td></tr>
+    <tr><td>거점</td><td>__</td><td class="hl">점포 기반</td></tr>
+  </table>
+  <div class="capt">※ 각주는 콘텐츠 직하에 — 하단 방치 금지 · Source: 〔조사〕</div>
+  <div class="pageno">3</div>
+</div>

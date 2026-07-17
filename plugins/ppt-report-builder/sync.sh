@@ -11,6 +11,7 @@ cp "$src/zetta_ppt_standard.py"       "$dst/scripts/zetta_ppt_standard.py"
 cp "$src/tone_v02.py"                 "$dst/scripts/tone_v02.py"
 cp "$src/docs/SPEC_v4.md"             "$dst/references/SPEC_v4.md"
 cp "$src/docs/BUILDER_GUIDE.md"       "$dst/references/BUILDER_GUIDE.md"
+cp "$src/docs/mockup_template.html"   "$dst/references/mockup_template.html"
 cp "$root/reports/_template_onepager.py" "$dst/references/template_onepager.py"
 
 echo "synced plugin bundle from 정본 (zetta-ppt-standard/ + template)"
