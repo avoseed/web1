@@ -1,0 +1,15 @@
+{
+  "name": "avoseed-ppt-marketplace",
+  "owner": { "name": "avoseed" },
+  "metadata": {
+    "description": "임원 보고용 PPT 생성 스킬 마켓플레이스 (Claude Cowork/Code)",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "ppt-report-builder",
+      "source": "./plugins/ppt-report-builder",
+      "description": "python-pptx 임원 PPT 빌더 — ZETTA 표준 톤 + v0.2 임원 톤(차트·표·피라미드·플로우), 정밀 기하·결론=리드·데이터 정직성 규칙 내장, 렌더 QA 포함."
+    }
+  ]
+}
