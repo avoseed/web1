@@ -24,19 +24,30 @@ skills/ppt-report-builder/
 - **데이터 정직성**: 미확정 값은 `〔조사〕`/`__` 공란 — 임의 수치 생성 금지, 시장 지표 Source 각주
 - 문장부호 앞 공백 금지 · 기본 순한글(요청 시 한자 예외) · 오버플로 금지
 
-## 설치 (Claude Cowork / Code)
-이 리포(`avoseed/web1`)가 마켓플레이스입니다(`.claude-plugin/marketplace.json`).
+## 두 가지 사용 경로 (환경에 맞게)
 
+| 실행 환경 | `/plugin` 사용 | 권장 방식 |
+|---|---|---|
+| **Claude Code 웹**(claude.ai/code) | ❌ 미지원(`/plugin isn't available`) | **프로젝트 스킬**(아래) — 설치 불필요 |
+| **Cowork 데스크톱 앱 / CLI** | ✅ 지원 | 플러그인 설치 **또는** 프로젝트 스킬 |
+
+> ⚠ **웹 세션에는 플러그인/마켓플레이스 시스템이 없다.** 웹에서 `/plugin ...` 은 아무 일도
+> 하지 않는다(그래서 버전이 안 오르고 스킬도 안 뜬다). 웹에서는 **프로젝트 스킬**을 쓴다.
+
+### A. 프로젝트 스킬 (이 리포에서 `/plugin` 없이 — 웹 포함 어디서나)
+이 리포에는 **`.claude/skills/ppt-report-builder/`** 프로젝트 스킬이 포함되어 있다(정본에서
+`sync.sh` 로 생성된 미러). **이 리포에서 작업하면 설치 없이 자동 로드**되며, PPT 보고서 요청 시
+트리거되고 `/ppt-report-builder` 로 명시 호출도 된다. (다른 리포에서 쓰려면 이 폴더를 그 리포의
+`.claude/skills/` 로 복사하면 된다.)
+
+### B. 플러그인 (Cowork 앱 / CLI — 여러 프로젝트에 공통 배포)
+이 리포(`avoseed/web1`)가 마켓플레이스입니다(`.claude-plugin/marketplace.json`).
 ```
 /plugin marketplace add avoseed/web1
 /plugin install ppt-report-builder@avoseed-ppt-marketplace
 ```
-
-- Cowork 앱: 플러그인/마켓플레이스 설정에서 위 마켓플레이스를 추가 후 설치.
-- 로컬 개발: `/plugin marketplace add /path/to/web1` 로 로컬 경로 추가 가능.
-
-설치 후에는 별도 호출 없이 PPT 보고서 요청 시 스킬이 자동 트리거되며, `/ppt-report-builder`
-로 명시 호출도 가능합니다.
+설치 후 PPT 보고서 요청 시 자동 트리거, `/ppt-report-builder` 명시 호출 가능.
+(로컬 개발: `/plugin marketplace add /path/to/web1` 로 로컬 경로 추가 가능.)
 
 ## 업데이트 (새 버전이 안 잡힐 때)
 `/plugin marketplace add` 는 **추가 시점의 master 를 로컬에 캐시**한다. 이후 커밋은 마켓플레이스
@@ -58,15 +69,18 @@ skills/ppt-report-builder/
 
 ## 소스 정본 / 갱신
 편집 정본은 리포의 **`zetta-ppt-standard/`**(빌더 `zetta_ppt_standard.py`·`tone_v02.py`·`docs/`)
-와 **`reports/_template_onepager.py`** 입니다. 이 플러그인의 `skills/…/scripts`·`references`
-는 그 정본에서 **생성된 번들**(자체 완결·배포용)이며, `SKILL.md` 만 플러그인 고유 문서입니다.
+와 **`reports/_template_onepager.py`** 하나뿐입니다. `SKILL.md` 만 번들 고유 문서입니다.
 
-정본을 수정하면 번들을 재생성하세요:
+`sync.sh` 는 정본에서 **두 산출물**을 생성합니다(둘 다 손으로 고치지 말 것 — 정본만 고치고 재실행):
+1. **플러그인 번들** `plugins/ppt-report-builder/skills/…` — Cowork/CLI 마켓플레이스 설치용.
+2. **프로젝트 스킬** `.claude/skills/ppt-report-builder/` — 이 리포 세션(웹 포함)에서 `/plugin` 없이 자동 로드. (번들의 미러)
+
+정본을 수정하면 재생성:
 ```bash
 bash plugins/ppt-report-builder/sync.sh
 ```
-(중복 방지를 위해 별도 `.claude/skills/` 복사본은 두지 않습니다 — 이 워크스페이스에서 쓰려면
-플러그인을 설치합니다.)
+정본은 여전히 `zetta-ppt-standard/` **하나** — 프로젝트 스킬·플러그인 번들은 모두 거기서 파생된
+생성물이라 단일 소스 원칙은 유지됩니다.
 
 ## 요구 사항
 - `python-pptx` (빌드) · LibreOffice + poppler(`pdftoppm`) (렌더 QA) · 맑은 고딕(없으면 렌더 시
