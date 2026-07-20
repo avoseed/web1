@@ -1,0 +1,411 @@
+<!doctype html>
+<!--
+  ZETTA PPT — 목업(승인용) 템플릿.  A단계에서 이 HTML 을 복제·채워 사용자에게 보여주고
+  승인받은 뒤에만 실제 python-pptx 빌드(B단계)로 넘어간다.  ※ python-pptx·soffice 실행 없음.
+  · 슬라이드 1장 = .slide 카드 1개 (A4 가로 비율 고정 27.52:19.05 ≈ 1.445:1)
+  · 톤 클래스: .tone-v02(네이비/빨강 임원) · .tone-std(담백한 표준)
+  · 차트는 CSS 막대로 "형태만" 흉내 — 실제 수치·계열·색만 맞으면 됨(정밀 렌더 아님)
+  · 규칙은 목업에서부터: 결론=리드(하단 빨강 이탤릭은 요약 강조 1줄), 파란 글자 금지,
+    미확정 수치는 〔조사〕/__ 공란, 부호 앞 공백 금지, 순한글.
+-->
+<meta charset="utf-8">
+<title>PPT 목업(승인용)</title>
+<style>
+  :root{
+    --navy:#1F3864; --red:#C00000; --gray:#808080; --redbg:#FDE9E9; --strip:#EEF1F7;
+    --crimson:#C30C3E; --ink:#222; --hlfill:#DEEBF7; --hltext:#002060;
+    --thstd:#EAEEF6; --grid:#BFBFBF;
+  }
+  body{background:#54585c;margin:0;padding:24px;font-family:"Malgun Gothic","맑은 고딕",sans-serif;color:var(--ink)}
+  .slide{width:960px;height:664px;background:#fff;margin:0 auto 22px;position:relative;
+         box-shadow:0 3px 14px rgba(0,0,0,.4);padding:34px 40px;box-sizing:border-box;overflow:hidden}
+  .pageno{position:absolute;right:22px;bottom:14px;font-size:12px;color:var(--gray)}
+  .foot{position:absolute;left:40px;right:40px;bottom:16px;font-size:11px;color:var(--gray)}
+
+  /* ── v0.2 임원 톤 ── */
+  .tone-v02 .hd{display:flex;align-items:center;gap:10px}
+  .tone-v02 .num{background:var(--navy);color:#fff;font-weight:700;width:26px;height:26px;
+                 display:flex;align-items:center;justify-content:center;font-size:15px}
+  .tone-v02 .ttl{font-size:20px;font-weight:700;color:#000}
+  .tone-v02 .uline{border-bottom:2.5px solid var(--navy);margin:8px 0 14px}
+  .tone-v02 .lead{font-size:15px;font-weight:700;color:#000;margin-bottom:16px}
+  .tone-v02 .concl{position:absolute;left:0;right:0;bottom:44px;text-align:center;
+                   color:var(--red);font-style:italic;font-weight:700;font-size:14px}
+  .tone-v02 th{background:var(--navy);color:#fff}
+
+  /* ── 표준(ZETTA) 톤 ── */
+  .tone-std .cat{font-size:12px;color:var(--crimson);font-weight:700;letter-spacing:1px}
+  .tone-std .ttl{font-size:20px;font-weight:700;color:#000;margin:2px 0 4px}
+  .tone-std .lead{font-size:14px;font-weight:700;color:#000;border-left:4px solid var(--crimson);
+                  padding-left:10px;margin:10px 0 16px;line-height:1.4}
+  .tone-std th{background:var(--thstd);color:#000}
+  .tone-std .hl{background:var(--hlfill);color:var(--hltext);font-weight:700}
+
+  /* 공통 요소 */
+  table{border-collapse:collapse;width:100%;font-size:12.5px;margin:6px 0}
+  th,td{border:1px solid var(--grid);padding:6px 9px;text-align:left}
+  th{font-weight:700}
+  .em-red{color:var(--red);font-weight:700}
+  .em-crimson{color:var(--crimson);font-weight:700}
+  .cols{display:flex;gap:26px}.cols>div{flex:1}
+  .capt{font-size:11px;color:var(--gray);margin:2px 0 6px}
+
+  /* CSS 막대 차트(형태만) */
+  .col-chart{display:flex;align-items:flex-end;gap:16px;height:150px;border-left:1px solid #bbb;
+             border-bottom:1px solid #bbb;padding:0 8px 0 4px}
+  .col-chart .bar{width:34px;background:var(--navy);position:relative;text-align:center}
+  .col-chart .bar span{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700}
+  .col-chart .bar.neg{background:var(--red)}
+  .bar-chart .row{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:11px}
+  .bar-chart .lab{width:120px;text-align:right}
+  .bar-chart .b{height:15px;background:var(--navy)}
+  .bar-chart .b.red{background:var(--red)}
+
+  /* ── 프레임 원형(archetypes) — 톤·정렬 규정 준수(동일 폭·일정 간격·중앙 정렬) ── */
+  /* ③ 2×2 매트릭스 */
+  .mtx-wrap{position:relative;padding-left:26px;width:560px;margin:10px auto}
+  .mtx{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;width:100%;height:290px;border:1px solid var(--grid)}
+  .mtx .q{border:1px solid var(--grid);padding:10px;font-size:12px;display:flex;flex-direction:column;
+          justify-content:center;align-items:center;text-align:center;line-height:1.4}
+  .mtx .q.star{background:var(--redbg);font-weight:700}
+  .mtx .q.dim{color:var(--gray)}
+  .mtx-y{position:absolute;left:-2px;top:50%;transform:translateY(-50%) rotate(-90deg);
+         transform-origin:left;font-size:11px;color:var(--gray);white-space:nowrap}
+  .mtx-x{text-align:center;font-size:11px;color:var(--gray);margin-top:5px}
+  /* ④ 피라미드(계층) */
+  .pyr{margin:16px auto;width:62%}
+  .pyr .tier{margin:4px auto;color:#fff;font-weight:700;text-align:center;padding:9px 0;font-size:12.5px}
+  .pyr .t1{width:46%;background:var(--navy)}.pyr .t2{width:73%;background:#2E4E7E}.pyr .t3{width:100%;background:#3C6099}
+  /* ⑤ 프로세스·게이트 플로우 */
+  .flow{display:flex;align-items:stretch;margin:18px 0}
+  .flow .node{flex:1;border:1px solid var(--grid);border-top:3px solid var(--navy);padding:11px 9px;font-size:12px;text-align:center;line-height:1.4}
+  .flow .node .nh{font-weight:700;color:var(--navy);margin-bottom:4px}
+  .flow .arw{display:flex;align-items:center;color:var(--navy);font-size:20px;padding:0 7px}
+  /* ⑦ 3분할 카드(병렬 축) — 동일 구조·동일 높이 */
+  .cards{display:flex;gap:16px;margin:16px 0}
+  .cards .card{flex:1;border:1px solid var(--grid)}
+  .cards .card .ch{background:var(--strip);border-bottom:1px solid var(--grid);padding:8px 11px;font-weight:700;font-size:13px;color:#000;text-align:center}
+  .cards .card .cb{padding:10px 11px;font-size:12px;line-height:1.55}
+  /* ⑥ 워터폴·브릿지(인과·기여) */
+  .wf{display:flex;align-items:flex-end;gap:12px;height:150px;border-bottom:1px solid #bbb;padding:0 8px;margin:10px 0}
+  .wf .col{width:46px;text-align:center;position:relative;font-size:11px}
+  .wf .col .bar{background:var(--navy)}.wf .col .bar.up{background:#3C6099}.wf .col .bar.dn{background:var(--red)}
+  .wf .col span{position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-weight:700;white-space:nowrap}
+  /* ⑥ 드라이버 트리 */
+  .tree{display:flex;align-items:center;margin:18px 0}
+  .tree .root{border:1px solid var(--grid);border-left:4px solid var(--navy);padding:16px 13px;font-weight:700;font-size:13px}
+  .tree .lnk{color:var(--navy);font-size:20px;padding:0 10px}
+  .tree .kids{display:flex;flex-direction:column;gap:9px}
+  .tree .kids .k{border:1px solid var(--grid);padding:9px 13px;font-size:12px}
+  /* ⑧ 갭·브릿지(격차·이행) */
+  .gap{display:flex;align-items:center;justify-content:center;gap:0;margin:20px 0}
+  .gap .end{border:1px solid var(--grid);padding:16px 20px;text-align:center;font-size:12.5px;min-width:150px}
+  .gap .end.now{border-top:3px solid var(--gray)}.gap .end.goal{border-top:3px solid var(--navy);font-weight:700}
+  .gap .mid{padding:0 16px;text-align:center;color:var(--navy);font-size:12px}
+  .gap .mid .arw{font-size:24px}
+  /* ⑧ As-Is → To-Be (상태 전환·전후) — 대형 동일 크기 2박스 + 화살표 */
+  .a2b{display:flex;align-items:stretch;margin:12px 0}
+  .a2b .side{flex:1}
+  .a2b .side .lab{text-align:center;font-weight:700;font-size:15px;padding-bottom:6px;margin-bottom:8px}
+  .a2b .side.now .lab{border-bottom:2px solid var(--gray)}
+  .a2b .side.next .lab{border-bottom:2px solid var(--navy)}
+  .a2b .side .bd{border:1px solid var(--grid);min-height:320px;padding:14px 16px;font-size:13px;line-height:1.7}
+  .a2b .chev{display:flex;align-items:center;padding:0 14px}
+  .a2b .chev .tri{width:0;height:0;border-top:22px solid transparent;border-bottom:22px solid transparent;border-left:26px solid #D2D2D2}
+  /* A4 SWOT (2축 정성 4분면) */
+  .swot{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+  .swot .q{border:1px solid var(--grid);padding:10px 12px;font-size:12px;line-height:1.55;min-height:118px}
+  .swot .q .qh{font-weight:700;margin-bottom:5px}
+  .swot .pos{border-top:3px solid var(--navy)}.swot .pos .qh{color:var(--navy)}
+  .swot .neg{border-top:3px solid var(--red)}.swot .neg .qh{color:var(--red)}
+  /* A5 평가 매트릭스(하비볼) */
+  .hb td .ball{font-size:15px;letter-spacing:1px}
+  .hb tr.best{background:var(--redbg)}.hb tr.best td{font-weight:700}
+  /* B3 멀티트랙 로드맵(간트) */
+  .gantt{margin:14px 0;font-size:11px}
+  .gantt .qhead{display:flex;margin-left:140px;margin-bottom:4px}
+  .gantt .qhead div{flex:1;text-align:center;font-weight:700;border-bottom:1px solid var(--grid);padding-bottom:3px}
+  .gantt .track{display:flex;align-items:center;margin:7px 0}
+  .gantt .track .tl{width:140px;font-weight:700;font-size:11.5px}
+  .gantt .track .lane{flex:1;position:relative;height:15px;background:#F4F6FA}
+  .gantt .bar{position:absolute;height:15px;background:var(--navy)}
+  .gantt .bar.alt{background:#3C6099}
+  /* D5 퍼널 / TAM-SAM-SOM (좁아지는 단계) */
+  .funnel{width:62%;margin:14px auto}
+  .funnel .lvl{margin:4px auto;color:#fff;text-align:center;padding:9px 0;font-size:12.5px;font-weight:700}
+  .funnel .f1{width:100%;background:#3C6099}.funnel .f2{width:72%;background:#2E4E7E}.funnel .f3{width:44%;background:var(--navy)}
+  /* B5 순환·플라이휠 */
+  .cycle{position:relative;width:330px;height:236px;margin:8px auto}
+  .cycle .n{position:absolute;border:1px solid var(--navy);background:#fff;padding:8px 6px;font-size:11px;font-weight:700;text-align:center;width:104px;box-sizing:border-box}
+  .cycle .n1{top:0;left:113px}.cycle .n2{top:88px;right:0}.cycle .n3{bottom:0;left:113px}.cycle .n4{top:88px;left:0}
+  .cycle .hub{position:absolute;top:96px;left:115px;width:100px;text-align:center;color:var(--navy);font-weight:700;font-size:22px}
+  /* F1 허브앤스포크(중심-위성) */
+  .hs{position:relative;width:380px;height:216px;margin:6px auto}
+  .hs .core{position:absolute;top:78px;left:140px;width:100px;height:60px;background:var(--navy);color:#fff;
+            display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;text-align:center;box-sizing:border-box}
+  .hs .sat{position:absolute;border:1px solid var(--grid);padding:6px 4px;font-size:10.5px;width:92px;text-align:center;box-sizing:border-box}
+  .hs .s1{top:0;left:24px}.hs .s2{top:0;right:24px}.hs .s3{bottom:0;left:24px}.hs .s4{bottom:0;right:24px}
+</style>
+
+<!-- ══════════ 예시 1: v0.2 임원 톤 (차트 2단) ══════════ -->
+<div class="slide tone-v02">
+  <div class="hd"><div class="num">1</div><div class="ttl">〔소제목〕 현황 · 실적 및 M/S</div></div>
+  <div class="uline"></div>
+  <div class="lead">〔핵심 결론 한 줄 = 리드메시지〕 — 현 구조만으로는 잠식 우려</div>
+  <div class="cols">
+    <div>
+      <div class="capt">〔좌측 도표 제목〕 (단위: 억 원)</div>
+      <div class="col-chart">
+        <div class="bar neg" style="height:8%"><span class="em-red">▲11</span></div>
+        <div class="bar" style="height:48%"><span>180</span></div>
+        <div class="bar" style="height:62%"><span>231</span></div>
+        <div class="bar" style="height:80%"><span>300</span></div>
+        <div class="bar" style="height:100%"><span>371</span></div>
+      </div>
+      <div class="capt">〔조사〕 각 수치의 해당 연도 확인 후 기입</div>
+    </div>
+    <div>
+      <div class="capt">〔우측 도표 제목〕 경쟁사 비교</div>
+      <div class="bar-chart">
+        <div class="row"><div class="lab">A사</div><div class="b" style="width:80%"></div><div>+56.0%</div></div>
+        <div class="row"><div class="lab">B사</div><div class="b" style="width:22%"></div><div>+14.1%</div></div>
+        <div class="row"><div class="lab">C사</div><div class="b" style="width:21%"></div><div>+13.9%</div></div>
+        <div class="row"><div class="lab">Lotte</div><div class="b red" style="width:5%"></div><div class="em-red">+2.2%</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">※ 기준: 〔조사〕 기준연도 · Source: 각사 공시</div>
+  <div class="pageno">2</div>
+</div>
+
+<!-- ══════════ 예시 2: 표준(ZETTA) 톤 (근거 표) ══════════ -->
+<div class="slide tone-std">
+  <div class="cat">경쟁사 동향</div>
+  <div class="ttl">〔장표 제목〕</div>
+  <div class="lead">〔결론 리드〕 소량 즉시배송 → <span class="em-crimson">全 상품 장보기 배송 확대</span></div>
+  <table>
+    <tr><th>구분</th><th>기존</th><th class="hl">신규(강조 열)</th></tr>
+    <tr><td>취급 범위</td><td>소량 1만 종</td><td class="hl">마트 全 상품 15만 종</td></tr>
+    <tr><td>배송 시간</td><td>__</td><td class="hl">2시간</td></tr>
+    <tr><td>거점</td><td>__</td><td class="hl">점포 기반</td></tr>
+  </table>
+  <div class="capt">※ 각주는 콘텐츠 직하에 — 하단 방치 금지 · Source: 〔조사〕</div>
+  <div class="pageno">3</div>
+</div>
+
+<!-- ══════════ 프레임 원형 라이브러리 (논리별로 골라 쓴다 · FRAMEWORKS.md) ══════════ -->
+
+<!-- ③ 2×2 매트릭스 — 위치·우선순위 -->
+<div class="slide tone-v02">
+  <div class="hd"><div class="num">3</div><div class="ttl">〔포지셔닝〕 — 위치·우선순위 논리</div></div>
+  <div class="uline"></div>
+  <div class="lead">〔결론 리드〕 우상단 사분면에 자원 집중</div>
+  <div class="mtx-wrap">
+    <div class="mtx-y">〔세로축: 높음 → 낮음〕</div>
+    <div class="mtx">
+      <div class="q">〔2사분면〕</div>
+      <div class="q star">〔1사분면〕 집중 영역<br><span class="em-red">우선</span></div>
+      <div class="q dim">해당 없음</div>
+      <div class="q">〔4사분면〕</div>
+    </div>
+    <div class="mtx-x">〔가로축: 낮음 → 높음〕</div>
+  </div>
+  <div class="pageno">4</div>
+</div>
+
+<!-- ④ 피라미드 — 구성·계층(MECE) -->
+<div class="slide tone-v02">
+  <div class="hd"><div class="num">4</div><div class="ttl">〔전략 체계〕 — 구성·계층 논리</div></div>
+  <div class="uline"></div>
+  <div class="lead">〔결론 리드〕 비전 → 전략 → 실행의 정합</div>
+  <div class="pyr">
+    <div class="tier t1">〔비전 / 목표〕</div>
+    <div class="tier t2">〔핵심 전략 2~3〕</div>
+    <div class="tier t3">〔실행 과제 · 지표 __〕</div>
+  </div>
+  <div class="foot">※ 상위=소수·하위=다수 · Source: 〔조사〕</div>
+  <div class="pageno">5</div>
+</div>
+
+<!-- ⑤ 프로세스·게이트 플로우 — 흐름·단계 -->
+<div class="slide tone-v02">
+  <div class="hd"><div class="num">5</div><div class="ttl">〔진입 단계 / 밸류체인〕 — 흐름·단계 논리</div></div>
+  <div class="uline"></div>
+  <div class="lead">〔결론 리드〕 게이트별 조건 충족 시 다음 단계 이행</div>
+  <div class="flow">
+    <div class="node"><div class="nh">STEP 1</div>〔진단 · __〕</div>
+    <div class="arw">→</div>
+    <div class="node"><div class="nh">STEP 2</div>〔설계 · __〕</div>
+    <div class="arw">→</div>
+    <div class="node"><div class="nh">STEP 3</div>〔실행 · __〕</div>
+    <div class="arw">→</div>
+    <div class="node"><div class="nh">STEP 4</div>〔안착 · __〕</div>
+  </div>
+  <div class="foot">※ 각 게이트 통과 기준 명시 · Source: 〔조사〕</div>
+  <div class="pageno">6</div>
+</div>
+
+<!-- ⑦ 3분할 카드 — 병렬 축 -->
+<div class="slide tone-v02">
+  <div class="hd"><div class="num">6</div><div class="ttl">〔3대 축〕 — 병렬 축 논리</div></div>
+  <div class="uline"></div>
+  <div class="lead">〔결론 리드〕 독립적 3개 기둥의 동시 추진</div>
+  <div class="cards">
+    <div class="card"><div class="ch">〔축 1〕</div><div class="cb">• 〔내용〕<br>• 지표 __</div></div>
+    <div class="card"><div class="ch">〔축 2〕</div><div class="cb">• 〔내용〕<br>• 지표 __</div></div>
+    <div class="card"><div class="ch">〔축 3〕</div><div class="cb">• 〔내용〕<br>• 지표 __</div></div>
+  </div>
+  <div class="foot">※ 카드 동일 구조·동일 높이 · Source: 〔조사〕</div>
+  <div class="pageno">7</div>
+</div>
+
+<!-- ⑥ 워터폴·브릿지 + 드라이버 트리 — 인과·기여 -->
+<div class="slide tone-v02">
+  <div class="hd"><div class="num">7</div><div class="ttl">〔증감 요인 분해〕 — 인과·기여 논리</div></div>
+  <div class="uline"></div>
+  <div class="lead">〔결론 리드〕 감소 요인 A가 전체 하락의 대부분</div>
+  <div class="cols">
+    <div>
+      <div class="capt">워터폴(증감 분해)</div>
+      <div class="wf">
+        <div class="col"><span>100</span><div class="bar" style="height:70%"></div>기초</div>
+        <div class="col"><span class="em-red">-30</span><div class="bar dn" style="height:20%"></div>요인A</div>
+        <div class="col"><span>+15</span><div class="bar up" style="height:10%;margin-bottom:50%"></div>요인B</div>
+        <div class="col"><span>85</span><div class="bar" style="height:60%"></div>기말</div>
+      </div>
+    </div>
+    <div>
+      <div class="capt">드라이버 트리(KPI 분해)</div>
+      <div class="tree">
+        <div class="root">매출<br>__</div>
+        <div class="lnk">=</div>
+        <div class="kids"><div class="k">객수 __</div><div class="k">× 객단가 __</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">※ 수치 미확정은 __ 유지 · Source: 〔조사〕</div>
+  <div class="pageno">8</div>
+</div>
+
+<!-- ⑧ As-Is → To-Be — 상태 전환·전후 (대형 2박스) -->
+<div class="slide tone-v02">
+  <div class="hd"><div class="num">8</div><div class="ttl">〔개편/오픈 전후〕 — 상태 전환 논리</div></div>
+  <div class="uline"></div>
+  <div class="lead">〔결론 리드〕 〔무엇〕이 〔어떻게〕 바뀐다 — 전환의 요점 한 줄</div>
+  <div class="a2b">
+    <div class="side now">
+      <div class="lab">As-Is 〔오픈 전〕</div>
+      <div class="bd">• 〔현재 상태 서술〕<br>• 〔한계·문제 1〕<br>• 〔한계·문제 2〕<br>• 지표 __</div>
+    </div>
+    <div class="chev"><div class="tri"></div></div>
+    <div class="side next">
+      <div class="lab">To-Be 〔오픈 후〕</div>
+      <div class="bd">• 〔전환 후 상태〕<br>• 〔개선점 1〕<br>• 〔개선점 2〕<br>• 지표 __</div>
+    </div>
+  </div>
+  <div class="foot">※ 두 박스 동일 크기·라벨 서식 · 미확정 수치 __ 유지 · Source: 〔조사〕</div>
+  <div class="pageno">9</div>
+</div>
+
+<!-- ⑨ 갭·브릿지 — 격차·이행(정량) -->
+<div class="slide tone-v02">
+  <div class="hd"><div class="num">9</div><div class="ttl">〔현재→목표 격차〕 — 격차·이행 논리</div></div>
+  <div class="uline"></div>
+  <div class="lead">〔결론 리드〕 격차 __ 를 3개 수단으로 메움</div>
+  <div class="gap">
+    <div class="end now">현재<br><b>__</b></div>
+    <div class="mid"><div class="arw">→</div>〔수단 3개〕<br>격차 <span class="em-red">__</span></div>
+    <div class="end goal">목표<br><b>__</b></div>
+  </div>
+  <div class="foot">※ 격차·수단 정량화 · Source: 〔조사〕</div>
+  <div class="pageno">10</div>
+</div>
+
+<!-- A4 SWOT — 2축 정성 4분면 -->
+<div class="slide tone-v02">
+  <div class="hd"><div class="num">10</div><div class="ttl">〔SWOT / 4요인〕 — 정성 대비 논리</div></div>
+  <div class="uline"></div>
+  <div class="lead">〔결론 리드〕 강점 S로 기회 O를 선점, 위협 T는 약점 W 보완으로 방어</div>
+  <div class="swot">
+    <div class="q pos"><div class="qh">S 강점(내부·긍정)</div>• 〔__〕<br>• 〔__〕</div>
+    <div class="q pos"><div class="qh">O 기회(외부·긍정)</div>• 〔__〕<br>• 〔__〕</div>
+    <div class="q neg"><div class="qh">W 약점(내부·부정)</div>• 〔__〕<br>• 〔__〕</div>
+    <div class="q neg"><div class="qh">T 위협(외부·부정)</div>• 〔__〕<br>• 〔__〕</div>
+  </div>
+  <div class="pageno">11</div>
+</div>
+
+<!-- A5 평가 매트릭스(하비볼) — 옵션×기준 -->
+<div class="slide tone-std">
+  <div class="cat">대안 평가</div>
+  <div class="ttl">〔옵션 비교 평가〕 — 선택 근거 논리</div>
+  <div class="lead">〔결론 리드〕 종합 최우수 <span class="em-crimson">옵션 B</span> 채택</div>
+  <table class="hb">
+    <tr><th>옵션</th><th>비용</th><th>속도</th><th>리스크</th><th>확장성</th><th>종합</th></tr>
+    <tr><td>옵션 A</td><td class="ball">◐</td><td class="ball">●</td><td class="ball">○</td><td class="ball">◐</td><td>중</td></tr>
+    <tr class="best"><td>옵션 B</td><td class="ball">●</td><td class="ball">●</td><td class="ball">◐</td><td class="ball">●</td><td>최우수</td></tr>
+    <tr><td>옵션 C</td><td class="ball">○</td><td class="ball">◐</td><td class="ball">●</td><td class="ball">○</td><td>하</td></tr>
+  </table>
+  <div class="capt">※ ●충족 ◐부분 ○미흡 · 기준 가중치 〔조사〕 · Source: 〔조사〕</div>
+  <div class="pageno">12</div>
+</div>
+
+<!-- B3 멀티트랙 로드맵(간트) — 과제×기간 -->
+<div class="slide tone-v02">
+  <div class="hd"><div class="num">11</div><div class="ttl">〔실행 로드맵〕 — 다과제·기간 논리</div></div>
+  <div class="uline"></div>
+  <div class="lead">〔결론 리드〕 3개 워크스트림 병행, 〔분기〕 안착 목표</div>
+  <div class="gantt">
+    <div class="qhead"><div>1Q</div><div>2Q</div><div>3Q</div><div>4Q</div></div>
+    <div class="track"><div class="tl">WS1 〔기반〕</div><div class="lane"><div class="bar" style="left:0;width:45%"></div></div></div>
+    <div class="track"><div class="tl">WS2 〔확장〕</div><div class="lane"><div class="bar alt" style="left:25%;width:50%"></div></div></div>
+    <div class="track"><div class="tl">WS3 〔안착〕</div><div class="lane"><div class="bar" style="left:60%;width:40%"></div></div></div>
+  </div>
+  <div class="foot">※ 마일스톤·의존관계 표기 · Source: 〔조사〕</div>
+  <div class="pageno">13</div>
+</div>
+
+<!-- D5 퍼널 / TAM-SAM-SOM — 좁아지는 단계 -->
+<div class="slide tone-v02">
+  <div class="hd"><div class="num">12</div><div class="ttl">〔시장 규모 / 전환 퍼널〕 — 분해·축소 논리</div></div>
+  <div class="uline"></div>
+  <div class="lead">〔결론 리드〕 획득가능시장(SOM) __ 가 실질 목표</div>
+  <div class="funnel">
+    <div class="lvl f1">TAM 전체시장 __</div>
+    <div class="lvl f2">SAM 유효시장 __</div>
+    <div class="lvl f3">SOM 획득가능 __</div>
+  </div>
+  <div class="foot">※ 각 단계 산정 근거·가정 명시 · Source: 〔조사〕</div>
+  <div class="pageno">14</div>
+</div>
+
+<!-- B5 순환·플라이휠 / F1 허브앤스포크 -->
+<div class="slide tone-v02">
+  <div class="hd"><div class="num">13</div><div class="ttl">〔선순환 / 생태계〕 — 반복·관계 논리</div></div>
+  <div class="uline"></div>
+  <div class="lead">〔결론 리드〕 4단계 선순환이 성장을 자기강화</div>
+  <div class="cols">
+    <div>
+      <div class="capt">순환·플라이휠(반복 강화)</div>
+      <div class="cycle">
+        <div class="hub">↻</div>
+        <div class="n n1">① 〔__〕</div>
+        <div class="n n2">② 〔__〕</div>
+        <div class="n n3">③ 〔__〕</div>
+        <div class="n n4">④ 〔__〕</div>
+      </div>
+    </div>
+    <div>
+      <div class="capt">허브앤스포크(중심-위성 관계)</div>
+      <div class="hs">
+        <div class="core">〔플랫폼<br>중심〕</div>
+        <div class="sat s1">〔파트너 A〕</div>
+        <div class="sat s2">〔파트너 B〕</div>
+        <div class="sat s3">〔파트너 C〕</div>
+        <div class="sat s4">〔파트너 D〕</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">※ 노드·관계 방향성 명시 · Source: 〔조사〕</div>
+  <div class="pageno">15</div>
+</div>
