@@ -3,7 +3,7 @@
   "owner": { "name": "avoseed" },
   "metadata": {
     "description": "임원 보고용 PPT 생성 스킬 마켓플레이스 (Claude Cowork/Code)",
-    "version": "1.3.0"
+    "version": "1.4.0"
   },
   "plugins": [
     {
