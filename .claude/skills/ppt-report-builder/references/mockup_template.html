@@ -17,8 +17,9 @@
     --thstd:#EAEEF6; --grid:#BFBFBF;
   }
   body{background:#54585c;margin:0;padding:24px;font-family:"Malgun Gothic","맑은 고딕",sans-serif;color:var(--ink)}
+  /* 여백·충전 액자(SPEC §3-4-0): 좌·우·하단 1.5cm ≈ 52px, 상단은 제목 영역. 안쪽은 빈 곳 없이 충전. */
   .slide{width:960px;height:664px;background:#fff;margin:0 auto 22px;position:relative;
-         box-shadow:0 3px 14px rgba(0,0,0,.4);padding:34px 40px;box-sizing:border-box;overflow:hidden}
+         box-shadow:0 3px 14px rgba(0,0,0,.4);padding:40px 52px 52px;box-sizing:border-box;overflow:hidden}
   .pageno{position:absolute;right:22px;bottom:14px;font-size:12px;color:var(--gray)}
   .foot{position:absolute;left:40px;right:40px;bottom:16px;font-size:11px;color:var(--gray)}
 
