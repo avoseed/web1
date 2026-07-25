@@ -19,6 +19,8 @@ cp "$src/docs/SPEC_v4.md"             "$dst/references/SPEC_v4.md"
 cp "$src/docs/BUILDER_GUIDE.md"       "$dst/references/BUILDER_GUIDE.md"
 cp "$src/docs/FRAMEWORKS.md"          "$dst/references/FRAMEWORKS.md"
 cp "$src/docs/BODY_FRAMES.md"         "$dst/references/BODY_FRAMES.md"
+cp "$src/docs/TEMPLATE_INDEX.md"      "$dst/references/TEMPLATE_INDEX.md"
+cp "$src/vendor/CATALOG.md"           "$dst/references/MCK_CATALOG.md"
 cp "$src/docs/mockup_template.html"   "$dst/references/mockup_template.html"
 cp "$root/reports/_template_onepager.py" "$dst/references/template_onepager.py"
 
