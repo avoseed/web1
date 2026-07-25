@@ -11,7 +11,7 @@ from pptx.util import Inches, Pt
 
 from ..base import (
     blank_slide, add_chrome, add_rect, add_oval, add_line, add_textbox,
-    write_paragraph,
+    write_paragraph, hbox, hx, hw,
 )
 from ..theme import Theme, DEFAULT_THEME
 from .column_chart import (
@@ -104,11 +104,11 @@ def add_stacked_column_chart(prs, *,
                section_marker=section_marker, source=source, footnote=footnote)
     pal, typo = theme.palette, theme.typography
 
-    _draw_description_header(slide, theme, left=DEFAULT_CHART_BOX[0],
+    _draw_description_header(slide, theme, left=hx(theme, DEFAULT_CHART_BOX[0]),
                               top=DEFAULT_DESCRIPTION_TOP,
-                              width=DEFAULT_CHART_BOX[2],
+                              width=hw(theme, DEFAULT_CHART_BOX[2]),
                               label=description)
-    chart_box = DEFAULT_CHART_BOX
+    chart_box = hbox(theme, DEFAULT_CHART_BOX)
 
     # totals per category
     totals = [sum(s["values"][i] if i < len(s["values"]) else 0
@@ -196,11 +196,11 @@ def add_grouped_column_chart(prs, *,
                section_marker=section_marker, source=source, footnote=footnote)
     pal, typo = theme.palette, theme.typography
 
-    _draw_description_header(slide, theme, left=DEFAULT_CHART_BOX[0],
+    _draw_description_header(slide, theme, left=hx(theme, DEFAULT_CHART_BOX[0]),
                               top=DEFAULT_DESCRIPTION_TOP,
-                              width=DEFAULT_CHART_BOX[2],
+                              width=hw(theme, DEFAULT_CHART_BOX[2]),
                               label=description)
-    chart_box = DEFAULT_CHART_BOX
+    chart_box = hbox(theme, DEFAULT_CHART_BOX)
 
     max_val = 0
     for s in series:
@@ -278,11 +278,11 @@ def add_line_chart(prs, *,
                section_marker=section_marker, source=source, footnote=footnote)
     pal, typo = theme.palette, theme.typography
 
-    _draw_description_header(slide, theme, left=DEFAULT_CHART_BOX[0],
+    _draw_description_header(slide, theme, left=hx(theme, DEFAULT_CHART_BOX[0]),
                               top=DEFAULT_DESCRIPTION_TOP,
-                              width=DEFAULT_CHART_BOX[2],
+                              width=hw(theme, DEFAULT_CHART_BOX[2]),
                               label=description)
-    chart_box = DEFAULT_CHART_BOX
+    chart_box = hbox(theme, DEFAULT_CHART_BOX)
 
     color_map = {
         "navy": pal.deep_navy, "blue": pal.bright_blue,

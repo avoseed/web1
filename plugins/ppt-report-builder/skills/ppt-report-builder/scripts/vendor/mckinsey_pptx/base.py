@@ -160,6 +160,34 @@ def add_line(slide, x1_in, y1_in, x2_in, y2_in, *, color, width_pt=0.75,
     return line
 
 
+# ---------- A4 대응: 수평 스케일 헬퍼 (avoseed 패치) ----------
+# 원본 템플릿 일부는 13.333in 캔버스 기준 x/폭을 상수로 갖는다.
+# 아래 헬퍼로 theme.layout 의 실제 본문 폭에 비례 매핑해 A4 가로에서도 정합한다.
+DESIGN_W_IN, DESIGN_M_IN = 13.333, 0.45
+
+
+def _hk(theme):
+    lay = theme.layout
+    cw = lay.slide_width_in - lay.margin_left_in - lay.margin_right_in
+    return cw / (DESIGN_W_IN - 2 * DESIGN_M_IN)
+
+
+def hx(theme, x):
+    """설계 캔버스 x 좌표 → 현재 판형 x 좌표"""
+    return theme.layout.margin_left_in + (x - DESIGN_M_IN) * _hk(theme)
+
+
+def hw(theme, w):
+    """설계 캔버스 폭 → 현재 판형 폭"""
+    return w * _hk(theme)
+
+
+def hbox(theme, box):
+    """(left, top, width, height) 중 수평 성분만 변환"""
+    l, t, w, h = box
+    return (hx(theme, l), t, hw(theme, w), h)
+
+
 # ---------- slide chrome ----------
 
 def add_title(slide, text, theme: Theme = DEFAULT_THEME, *, with_underline=True):

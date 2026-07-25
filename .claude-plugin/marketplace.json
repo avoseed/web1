@@ -5,13 +5,13 @@
   },
   "metadata": {
     "description": "임원 보고용 PPT 생성 스킬 마켓플레이스 (Claude Cowork/Code)",
-    "version": "1.7.0"
+    "version": "1.8.0"
   },
   "plugins": [
     {
       "name": "ppt-report-builder",
       "source": "./plugins/ppt-report-builder",
-      "description": "python-pptx 임원 PPT 빌더 — 하우스 완성 템플릿 17종 + 맥킨지 템플릿 40종(MIT), 목업 선승인·실측 프레임 카탈로그·1.5cm 액자, 렌더 QA 포함."
+      "description": "python-pptx 임원 PPT 빌더 — 템플릿 57종(하우스 17 + 맥킨지 40), 모두 A4 가로·1.5cm 액자 통일. 목업 선승인·렌더 QA 포함."
     }
   ]
 }

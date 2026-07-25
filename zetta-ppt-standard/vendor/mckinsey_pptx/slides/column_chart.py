@@ -13,7 +13,7 @@ from pptx.util import Inches, Pt, Emu
 
 from ..base import (
     blank_slide, add_chrome, add_rect, add_oval, add_line, add_textbox,
-    write_paragraph,
+    write_paragraph, hbox, hx, hw,
 )
 from ..theme import Theme, DEFAULT_THEME
 
@@ -51,9 +51,13 @@ def _y_ticks(max_val, target_ticks=9):
 
 def _draw_takeaway(slide, theme, *, top=None, takeaways: Sequence[str],
                    header="Key takeaways/main conclusion",
-                   box=DEFAULT_TAKEAWAY_BOX,
-                   divider_x=TAKEAWAY_DIVIDER_X):
+                   box=None,
+                   divider_x=None):
     pal, typo = theme.palette, theme.typography
+    if box is None:
+        box = hbox(theme, DEFAULT_TAKEAWAY_BOX)          # A4 대응(avoseed)
+    if divider_x is None:
+        divider_x = hx(theme, TAKEAWAY_DIVIDER_X)
     left, ttop, w, h = box
     if top is not None:
         ttop = top
@@ -282,11 +286,11 @@ def add_column_comparison(prs, *,
     slide = _common(prs, title=title, page_number=page_number,
                     section_marker=section_marker, source=source,
                     footnote=footnote, theme=theme,
-                    description_left=DEFAULT_CHART_BOX[0],
+                    description_left=hx(theme, DEFAULT_CHART_BOX[0]),
                     description_top=DEFAULT_DESCRIPTION_TOP,
-                    description_w=DEFAULT_CHART_BOX[2],
+                    description_w=hw(theme, DEFAULT_CHART_BOX[2]),
                     description=description)
-    _draw_axis_and_bars(slide, theme, chart_box=DEFAULT_CHART_BOX,
+    _draw_axis_and_bars(slide, theme, chart_box=hbox(theme, DEFAULT_CHART_BOX),
                         data_label=data_label, data_unit=data_unit,
                         categories=categories, values=values,
                         focus_index=focus_index)
@@ -308,13 +312,13 @@ def add_column_simple_growth(prs, *,
     slide = _common(prs, title=title, page_number=page_number,
                     section_marker=section_marker, source=source,
                     footnote=footnote, theme=theme,
-                    description_left=DEFAULT_CHART_BOX[0],
+                    description_left=hx(theme, DEFAULT_CHART_BOX[0]),
                     description_top=DEFAULT_DESCRIPTION_TOP,
-                    description_w=DEFAULT_CHART_BOX[2],
+                    description_w=hw(theme, DEFAULT_CHART_BOX[2]),
                     description=description)
     legend = [(theme.palette.dark_navy, "Actuals")]
     centers, baseline, bw, plot_top, axis_top = _draw_axis_and_bars(
-        slide, theme, chart_box=DEFAULT_CHART_BOX,
+        slide, theme, chart_box=hbox(theme, DEFAULT_CHART_BOX),
         data_label=data_label, data_unit=data_unit,
         categories=categories, values=values, legend=legend,
     )
@@ -346,13 +350,13 @@ def add_column_split_growth(prs, *,
     slide = _common(prs, title=title, page_number=page_number,
                     section_marker=section_marker, source=source,
                     footnote=footnote, theme=theme,
-                    description_left=DEFAULT_CHART_BOX[0],
+                    description_left=hx(theme, DEFAULT_CHART_BOX[0]),
                     description_top=DEFAULT_DESCRIPTION_TOP,
-                    description_w=DEFAULT_CHART_BOX[2],
+                    description_w=hw(theme, DEFAULT_CHART_BOX[2]),
                     description=description)
     legend = [(theme.palette.dark_navy, "Actuals")]
     centers, baseline, bw, plot_top, axis_top = _draw_axis_and_bars(
-        slide, theme, chart_box=DEFAULT_CHART_BOX,
+        slide, theme, chart_box=hbox(theme, DEFAULT_CHART_BOX),
         data_label=data_label, data_unit=data_unit,
         categories=categories, values=values, legend=legend,
     )
@@ -394,14 +398,14 @@ def add_column_historic_forecast(prs, *,
     slide = _common(prs, title=title, page_number=page_number,
                     section_marker=section_marker, source=source,
                     footnote=footnote, theme=theme,
-                    description_left=DEFAULT_CHART_BOX[0],
+                    description_left=hx(theme, DEFAULT_CHART_BOX[0]),
                     description_top=DEFAULT_DESCRIPTION_TOP,
-                    description_w=DEFAULT_CHART_BOX[2],
+                    description_w=hw(theme, DEFAULT_CHART_BOX[2]),
                     description=description)
     legend = [(theme.palette.dark_navy, "Actuals"),
               (theme.palette.bright_blue, "Forecast")]
     centers, baseline, bw, plot_top, axis_top = _draw_axis_and_bars(
-        slide, theme, chart_box=DEFAULT_CHART_BOX,
+        slide, theme, chart_box=hbox(theme, DEFAULT_CHART_BOX),
         data_label=data_label, data_unit=data_unit,
         categories=categories, values=values, legend=legend,
         forecast_from_index=forecast_from_index,

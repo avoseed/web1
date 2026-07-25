@@ -14,7 +14,7 @@ from pptx.util import Inches, Pt
 
 from ..base import (
     blank_slide, add_chrome, add_rect, add_oval, add_line, add_textbox,
-    write_paragraph,
+    write_paragraph, hbox, hx, hw,
 )
 from ..theme import Theme, DEFAULT_THEME
 from .column_chart import _draw_takeaway, _draw_description_header
@@ -193,7 +193,7 @@ def add_bubble_chart(prs, *, title="[Bubble chart / Insert action title]",
     # Legend top
     _draw_legend_groups(slide, theme, top_left=(3.4, 1.55), groups=groups)
 
-    plot_box = (1.05, 2.05, 11.7, 4.6)
+    plot_box = hbox(theme, (1.05, 2.05, 11.7, 4.6))
     _draw_xy_axis(slide, theme, plot_box=plot_box, x_max=x_max, y_max=y_max,
                   x_label=x_label, x_unit=x_unit,
                   y_label=y_label, y_unit=y_unit)
@@ -249,7 +249,7 @@ def add_bubble_chart_with_takeaways(prs, *,
     _draw_description_header(slide, theme, left=0.45, top=1.45, width=8.5,
                               label=description)
 
-    plot_box = (1.05, 2.30, 7.9, 3.55)
+    plot_box = hbox(theme, (1.05, 2.30, 7.9, 3.55))
     _draw_xy_axis(slide, theme, plot_box=plot_box, x_max=x_max, y_max=y_max,
                   x_label=x_label, x_unit=x_unit,
                   y_label=y_label, y_unit=y_unit)
@@ -260,7 +260,7 @@ def add_bubble_chart_with_takeaways(prs, *,
     # Takeaway right side
     _draw_takeaway(slide, theme, takeaways=takeaways,
                    header=takeaway_header,
-                   box=(9.45, 1.45, 3.45, 5.0))
+                   box=hbox(theme, (9.45, 1.45, 3.45, 5.0)))
     return slide
 
 
@@ -277,7 +277,7 @@ def add_growth_share_matrix(prs, *,
                section_marker=section_marker, source=source, footnote=footnote)
     pal, typo = theme.palette, theme.typography
 
-    plot_box = (1.05, 1.65, 11.7, 5.0)
+    plot_box = hbox(theme, (1.05, 1.65, 11.7, 5.0))
     pl, pt, pw, ph = plot_box
 
     # Quadrant fills (split at 50% / 25)
@@ -391,7 +391,7 @@ def add_prioritization_matrix(prs, *,
         ("amber", "Insert status/group"),
         ("red", "Insert status/group"),
     ]
-    leg_x = 5.4
+    leg_x = hx(theme, 5.4)                                # A4 대응(avoseed)
     leg_y = 1.5
     color_map = {
         "green": pal.status_green,
@@ -401,15 +401,15 @@ def add_prioritization_matrix(prs, *,
     for k, label in leg_items:
         d = 0.28
         add_oval(slide, leg_x, leg_y, d, d, fill=color_map[k])
-        tb = add_textbox(slide, leg_x + d + 0.08, leg_y - 0.02, 2.5, 0.32,
+        tb = add_textbox(slide, leg_x + d + 0.08, leg_y - 0.02, hw(theme, 1.95), 0.32,
                          anchor=MSO_ANCHOR.MIDDLE)
         write_paragraph(tb.text_frame, f"= [{label}]",
                         size=typo.chart_label_size, color=pal.text_dark,
                         family=typo.family, first=True)
-        leg_x += 2.5
+        leg_x += hw(theme, 2.6)
 
     # Plot grid box (kept short of footer to leave room for axis title)
-    plot_box = (1.55, 2.05, 11.30, 4.40)
+    plot_box = hbox(theme, (1.55, 2.05, 11.30, 4.40))
     pl, pt, pw, ph = plot_box
 
     # Highlight top-right cell (Short × High)

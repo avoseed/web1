@@ -32,7 +32,7 @@ KO_FONT = "맑은 고딕"
 
 
 def ko_theme(family=KO_FONT, copyright_text="ⓒ 롯데마트 · 롯데슈퍼 온라인사업단"):
-    """한국어 폰트·푸터로 교체한 테마 (팔레트·레이아웃은 맥킨지 원본 유지)."""
+    """한국어 폰트·푸터로 교체한 테마 (판형·팔레트는 맥킨지 원본 16:9 유지)."""
     return replace(
         DEFAULT_THEME,
         typography=replace(DEFAULT_THEME.typography, family=family),
@@ -40,10 +40,35 @@ def ko_theme(family=KO_FONT, copyright_text="ⓒ 롯데마트 · 롯데슈퍼 �
     )
 
 
-def deck(marker=None, theme=None, **kw):
-    """한국어 프리셋이 적용된 PresentationBuilder 반환."""
-    return PresentationBuilder(theme=theme or ko_theme(),
-                               default_section_marker=marker, **kw)
+# ── A4 가로 프리셋 — 우리 표준 판형·여백에 맞춘 맥킨지 템플릿 ─────────
+#   A4 가로 27.52 × 19.05cm = 10.8346 × 7.5000 in  (높이는 원본 7.5in 과 동일)
+#   좌·우·하단 여백 1.5cm(0.5906in) = SPEC §3-4-0 액자 규칙
+#   세로 좌표는 하우스 실측(제목 0.82 / 밑줄 1.96 / 본문 4.20 / 하단선 17.55cm)
+A4_LAYOUT = dict(
+    slide_width_in=10.8346, slide_height_in=7.5000,
+    margin_left_in=0.5906, margin_right_in=0.5906, margin_bottom_in=0.5906,
+    title_top_in=0.3228, title_underline_top_in=0.7717,
+    body_top_in=1.6535, footer_top_in=6.9094,
+)
+
+
+def a4_theme(family=KO_FONT, copyright_text="ⓒ 롯데마트 · 롯데슈퍼 온라인사업단"):
+    """맥킨지 템플릿을 **우리 A4 가로 양식**으로 조정한 테마.
+    템플릿 내부 수평 좌표는 `base.hx/hw/hbox` 가 본문 폭에 비례 매핑한다."""
+    return replace(
+        DEFAULT_THEME,
+        typography=replace(DEFAULT_THEME.typography, family=family),
+        layout=replace(DEFAULT_THEME.layout, **A4_LAYOUT),
+        copyright_text=copyright_text,
+    )
+
+
+def deck(marker=None, theme=None, a4=True, **kw):
+    """PresentationBuilder 반환.
+    a4=True(기본) → 우리 A4 가로 양식 / a4=False → 맥킨지 원본 16:9."""
+    if theme is None:
+        theme = a4_theme() if a4 else ko_theme()
+    return PresentationBuilder(theme=theme, default_section_marker=marker, **kw)
 
 
 # ── 템플릿 키 (registry) ─────────────────────────────────────

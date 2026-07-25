@@ -22,3 +22,35 @@
 
 ## 갱신
 원본 리포에서 `mckinsey_pptx/` 를 다시 복사하면 된다(로컬 수정 없음이 전제).
+
+---
+
+## A4 가로 대응 패치 (avoseed)
+원본은 16:9(13.333×7.5in) 캔버스 기준이라 일부 템플릿이 **수평 좌표를 상수로** 갖는다.
+우리 표준 판형(A4 가로 27.52×19.05cm = 10.8346×7.5in — **높이는 원본과 동일**)에서도
+정합하도록 아래를 패치했다. **세로 좌표·팔레트·타이포는 원본 그대로.**
+
+### 추가 (base.py)
+```python
+DESIGN_W_IN, DESIGN_M_IN = 13.333, 0.45
+hx(theme, x)     # 설계 x  → 현재 판형 x
+hw(theme, w)     # 설계 폭 → 현재 판형 폭
+hbox(theme, box) # (l,t,w,h) 중 수평 성분만 변환
+```
+본문 폭 비율 `k = (현재 본문폭) / (13.333 - 2×0.45)` 로 비례 매핑한다.
+
+### 적용 지점
+| 파일 | 대상 |
+|---|---|
+| `column_chart.py` | `DEFAULT_CHART_BOX` · `DEFAULT_TAKEAWAY_BOX` · `TAKEAWAY_DIVIDER_X` (호출 시 `hbox/hx` 적용) |
+| `extra_charts.py` | `DEFAULT_CHART_BOX` 파생 좌표 |
+| `bubble_chart.py` | 인라인 `plot_box` 4곳 · 우측 패널 · 우선순위 매트릭스 범례(`leg_x`·텍스트 폭) |
+
+그 외 템플릿은 이미 `theme.layout` 에서 폭을 계산하므로 **수정 불필요**.
+
+### 검증
+10종 대표 템플릿 A4 빌드 → 전 슬라이드 **가로 넘침 0** (좌 0.59in / 우 ≤10.83in),
+LibreOffice 렌더 육안 확인 완료.
+
+### 원본 갱신 시
+`mckinsey_pptx/` 재복사 후 위 3개 파일에 동일 패치를 다시 적용할 것.
