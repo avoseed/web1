@@ -8,10 +8,15 @@ description: Build polished Korean executive PPT reports and one-pagers (임원 
 python-pptx 로 임원 보고용 PPT(장표·원페이저·덱)를 생성하는 스킬. 검증된 빌더 모듈·디자인 토큰·레이아웃 원형·정밀 기하 규칙을 번들로 제공한다. 새 보고서는 **아래 워크플로**를 따른다.
 
 ## 무엇이 들어있나
-- `scripts/zetta_ppt_standard.py` — **ZETTA v4 표준 톤** 빌더. A4 가로, 맑은고딕 3중지정, 크롬(브래킷 헤더·리드·각주), 재무형 표(`add_fin_table`), 컬럼 헤더/결론 박스, 타임라인(가로 `add_htimeline`/세로 `add_vtimeline`), 2×2 맵, 불릿 등.
+- `scripts/frames.py` — ★ **완성 슬라이드 템플릿 17종**(호출 1번 = 장표 1장). 크롬(가운데 제목+밑줄·■리드·각주·페이지번호)·**1.5cm 액자·하단 충전을 코드로 강제** — 좌표를 손으로 계산하지 말고 **이 레이어를 최우선 사용**한다. `f_spec_overview`(현황 정본)·`f_compare_table`(동향·비교)·`f_waterfall`·`f_before_after`·`f_matrix`·`f_gantt`·`f_process`·`f_cards`·`f_timeline`·`f_funnel`·`f_pyramid`·`f_assessment`·`f_issue_tree`·`f_kpi_tiles`·`f_exec_summary`·`f_two_col`·`f_bigstat` (카탈로그: `frames.CATALOG`).
+- `scripts/mck.py` + `scripts/vendor/mckinsey_pptx/` — ★ **맥킨지 템플릿 40종**(MIT · AX Labs). `from mck import deck` → `b=deck(marker="…"); b.add("comparison_table", …); b.save(...)`. 하비볼 비교표·BCG/우선순위 매트릭스·간트·체브론 3단계·이슈트리·조직도·퍼널·KPI 대시보드·버블/누적/그룹/라인 차트·커버/간지/인용/대형숫자 등. **인자 스키마는 `mck.SCHEMA` 를 반드시 확인**(키가 틀리면 플레이스홀더가 남는다). 카탈로그 `mck.catalog()` · 용도 분류는 `references/TEMPLATE_INDEX.md`, 원본 상세는 `references/MCK_CATALOG.md`.
+  ✅ **A4 가로로 조정 완료** — `deck()` 기본값이 `a4=True` 라 **우리 표준 판형(27.52×19.05cm)·1.5cm 액자**로 나온다(맥킨지 원본 16:9 가 필요하면 `deck(a4=False)`). 따라서 `frames.py` 와 **같은 판형**이므로 한 덱에 함께 써도 된다. 톤은 다르므로(맥킨지 블루 vs 하우스 네이비) 문서 단위로 일관성만 유지할 것.
+- `scripts/zetta_ppt_standard.py` — **ZETTA v4 표준 톤** 빌더(프리미티브 — frames 로 안 되는 예외 배치에만). A4 가로, 맑은고딕 3중지정, 크롬(브래킷 헤더·리드·각주), 재무형 표(`add_fin_table`), 컬럼 헤더/결론 박스, 타임라인(가로 `add_htimeline`/세로 `add_vtimeline`), 2×2 맵, 불릿 등.
 - `scripts/tone_v02.py` — **v0.2 임원 톤** 헬퍼. 네이비 번호박스 헤더(`hdr`)·리딩(`lead`)·하단 중앙 빨강 이탤릭 강조(`redconcl`)·네이비 헤더 표(`tbl`)·카드 박스(`box`)·플로우 노드(`flownode`)·화살표(`arrow`)·**차트**(`column_chart`/`bar_chart`)·피라미드(사다리꼴)·페이지번호.
 - `references/SPEC_v4.md` — 표준 명세(토큰·프레임워크·정밀 기하 §3-4·문구 원칙).
 - `references/BUILDER_GUIDE.md` — 함수 카탈로그·레시피·QA 체크리스트.
+- `references/TEMPLATE_INDEX.md` — ★ **템플릿 용도 분류 색인(57종)**. 논리 관계→템플릿 1순위/대안 표, 문서 유형별 덱 골격, **혼동 짝 오선택 방지표**, 하우스 vs 맥킨지 선택 기준. **템플릿을 고를 때 여기부터 본다.**
+- `references/MCK_CATALOG.md` — 맥킨지 40종 원본 카탈로그(Use when / Don't use when / 인자·예제).
 - `references/BODY_FRAMES.md` — **본문 프레임 정본(실측)**. 실제 임원 보고 덱(제타 스마트센터 OPEN 보고) 본문 12장에서 추출한 **크롬 규격 + 12종 원형(F1~F12)**. 본장 장표는 **이 카탈로그를 우선** 적용한다(하우스 스타일 실물).
 - `references/FRAMEWORKS.md` — **프레임워크 플레이북**. 논리 계열(A~G)별 프레임 카탈로그(~25종: 비교표·바차트·As-Is/To-Be·SWOT·평가매트릭스·추이·타임라인·멀티트랙 로드맵·3-지평선·순환·2×2·퍼셉추얼맵·레이더·피라미드·이슈트리·구성비·레이어드·퍼널·프로세스·밸류체인·머니플로우·워터폴·드라이버트리·허브앤스포크·RACI·브릿지) + 각 언제/언제 아님·빌더 매핑, 반패턴 체크. 닫힌 목록 아님 — 없으면 조합·신설.
 - `references/mockup_template.html` — **A단계 목업(승인용) HTML 스캐폴드**. 주요 프레임 원형을 톤·정렬 규정대로 담은 카드(차트·표·매트릭스·피라미드·플로우·워터폴·트리·As-Is/To-Be·브릿지·SWOT·하비볼·간트·퍼널·순환·허브앤스포크). 복제해 실제 장표처럼 채워 보여준다(빌드·렌더 없음).
@@ -34,7 +39,7 @@ python-pptx 로 임원 보고용 PPT(장표·원페이저·덱)를 생성하는 
    ① 덱의 **한 줄 결론**(Governing thought) 확정 → ② **스토리라인 골격 택1**(SCQA / Pyramid(Minto) / 문제-원인-해법-계획 / 현황-목표-격차-실행) → ③ **각 마디 = 1~2 슬라이드**로 분해(마디가 슬라이드의 존재 이유).
    **A단계의 첫 산출물은 이 골격**(마디 목록 + 마디별 논리 라벨) — 슬라이드 목업 이전에 먼저 제시·승인받는다(큰 덱일수록 필수).
 2. **톤 선택 + 마디별 프레임 판정** — 톤: 담백한 표준이면 `zetta_ppt_standard`, 네이비/빨강 임원 덱이면 `tone_v02`.
-   **프레임은 마디(슬라이드)마다 논리 관계로 정한다** — 본장 장표는 **`BODY_FRAMES.md` 실측 원형(F1~F12) 우선**, 없으면 `FRAMEWORKS.md` §2~§3 선택표·카탈로그: 대비→비교표/바차트, 시간→추이/타임라인 스파인, 위치→2×2 매트릭스, 구성→피라미드/트리, 흐름→프로세스/플로우, 인과→드라이버/워터폴, 병렬→분할 카드, **전환(전/후)→As-Is/To-Be 대형 2박스+화살표**, 격차→브릿지.
+   **프레임은 마디(슬라이드)마다 논리 관계로 정한다** — **`TEMPLATE_INDEX.md` 색인에서 1순위 템플릿을 고르고**(혼동 짝 표로 오선택 점검), 본장 장표는 **`BODY_FRAMES.md` 실측 원형(F1~F12) 우선**, 없으면 `FRAMEWORKS.md` §2~§3 선택표·카탈로그: 대비→비교표/바차트, 시간→추이/타임라인 스파인, 위치→2×2 매트릭스, 구성→피라미드/트리, 흐름→프로세스/플로우, 인과→드라이버/워터폴, 병렬→분할 카드, **전환(전/후)→As-Is/To-Be 대형 2박스+화살표**, 격차→브릿지.
    ⚠ **"리드+불릿+표+가로타임라인" 스택 반복 금지**(같은 프레임 3연속 재검토). **관계가 있으면 불릿 대신 도형으로 구조화**(구조 우선, SPEC §3-0). **도형 채움색은 선택** — 무채색 외곽선으로 충분하면 칠하지 않고, 색은 강조에만.
 3. **시각 목업 제시(기본) — HTML** : `references/mockup_template.html` 을 복제해 슬라이드마다 `.slide`
    카드 1개로 **실제 장표처럼** 배치·문구·표·차트(형태)·강조를 채워 보여준다. A4 가로 비율·톤 색
@@ -55,7 +60,8 @@ python-pptx 로 임원 보고용 PPT(장표·원페이저·덱)를 생성하는 
    import os, sys
    SK = os.path.join(os.path.dirname(__file__), ".claude", "skills", "ppt-report-builder", "scripts")
    sys.path.insert(0, SK)                 # 경로는 실제 스킬 위치에 맞게
-   from zetta_ppt_standard import *       # 표준 톤
+   from frames import *                   # ★ 완성 템플릿(권장)
+   from zetta_ppt_standard import *       # 프리미티브(예외 배치용)
    from tone_v02 import *                 # (선택) v0.2 임원 톤
    prs = new_deck()
    # ... 슬라이드 배치 ...
@@ -101,6 +107,14 @@ for sl in prs.slides:
         if sh.has_text_frame: t.append(sh.text_frame.text)
 a="\n".join(t)
 print("표:",tbl,"| 한자:",re.findall(r'[一-鿿]',a),"| 쉼표앞공백:",re.findall(r'\S [,，]',a))
+
+# 1.5cm 액자·하단 충전 자동 검증 (frames 사용 시 전부 OK 여야 함)
+E=360000.0
+for i,sl in enumerate(prs.slides,1):
+    xs=[sh for sh in sl.shapes if sh.left is not None]
+    b=max((sh.top+sh.height)/E for sh in xs); l=min(sh.left/E for sh in xs); r=max((sh.left+sh.width)/E for sh in xs)
+    ok = b<=17.56 and b>=16.9 and abs(l-1.50)<0.02 and abs(r-26.02)<0.02
+    print("p%d 하단%.2f 좌%.2f 우%.2f %s"%(i,b,l,r,"OK" if ok else "← 여백/충전 위반"))
 ```
 
 ## 세부는 references 참조
