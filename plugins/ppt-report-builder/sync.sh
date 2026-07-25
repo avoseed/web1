@@ -12,6 +12,7 @@ dst="$here/skills/ppt-report-builder"
 
 cp "$src/zetta_ppt_standard.py"       "$dst/scripts/zetta_ppt_standard.py"
 cp "$src/tone_v02.py"                 "$dst/scripts/tone_v02.py"
+cp "$src/frames.py"                   "$dst/scripts/frames.py"
 cp "$src/docs/SPEC_v4.md"             "$dst/references/SPEC_v4.md"
 cp "$src/docs/BUILDER_GUIDE.md"       "$dst/references/BUILDER_GUIDE.md"
 cp "$src/docs/FRAMEWORKS.md"          "$dst/references/FRAMEWORKS.md"

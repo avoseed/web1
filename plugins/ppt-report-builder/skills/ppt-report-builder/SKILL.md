@@ -8,7 +8,8 @@ description: Build polished Korean executive PPT reports and one-pagers (임원 
 python-pptx 로 임원 보고용 PPT(장표·원페이저·덱)를 생성하는 스킬. 검증된 빌더 모듈·디자인 토큰·레이아웃 원형·정밀 기하 규칙을 번들로 제공한다. 새 보고서는 **아래 워크플로**를 따른다.
 
 ## 무엇이 들어있나
-- `scripts/zetta_ppt_standard.py` — **ZETTA v4 표준 톤** 빌더. A4 가로, 맑은고딕 3중지정, 크롬(브래킷 헤더·리드·각주), 재무형 표(`add_fin_table`), 컬럼 헤더/결론 박스, 타임라인(가로 `add_htimeline`/세로 `add_vtimeline`), 2×2 맵, 불릿 등.
+- `scripts/frames.py` — ★ **완성 슬라이드 템플릿 17종**(호출 1번 = 장표 1장). 크롬(가운데 제목+밑줄·■리드·각주·페이지번호)·**1.5cm 액자·하단 충전을 코드로 강제** — 좌표를 손으로 계산하지 말고 **이 레이어를 최우선 사용**한다. `f_spec_overview`(현황 정본)·`f_compare_table`(동향·비교)·`f_waterfall`·`f_before_after`·`f_matrix`·`f_gantt`·`f_process`·`f_cards`·`f_timeline`·`f_funnel`·`f_pyramid`·`f_assessment`·`f_issue_tree`·`f_kpi_tiles`·`f_exec_summary`·`f_two_col`·`f_bigstat` (카탈로그: `frames.CATALOG`).
+- `scripts/zetta_ppt_standard.py` — **ZETTA v4 표준 톤** 빌더(프리미티브 — frames 로 안 되는 예외 배치에만). A4 가로, 맑은고딕 3중지정, 크롬(브래킷 헤더·리드·각주), 재무형 표(`add_fin_table`), 컬럼 헤더/결론 박스, 타임라인(가로 `add_htimeline`/세로 `add_vtimeline`), 2×2 맵, 불릿 등.
 - `scripts/tone_v02.py` — **v0.2 임원 톤** 헬퍼. 네이비 번호박스 헤더(`hdr`)·리딩(`lead`)·하단 중앙 빨강 이탤릭 강조(`redconcl`)·네이비 헤더 표(`tbl`)·카드 박스(`box`)·플로우 노드(`flownode`)·화살표(`arrow`)·**차트**(`column_chart`/`bar_chart`)·피라미드(사다리꼴)·페이지번호.
 - `references/SPEC_v4.md` — 표준 명세(토큰·프레임워크·정밀 기하 §3-4·문구 원칙).
 - `references/BUILDER_GUIDE.md` — 함수 카탈로그·레시피·QA 체크리스트.
@@ -55,7 +56,8 @@ python-pptx 로 임원 보고용 PPT(장표·원페이저·덱)를 생성하는 
    import os, sys
    SK = os.path.join(os.path.dirname(__file__), ".claude", "skills", "ppt-report-builder", "scripts")
    sys.path.insert(0, SK)                 # 경로는 실제 스킬 위치에 맞게
-   from zetta_ppt_standard import *       # 표준 톤
+   from frames import *                   # ★ 완성 템플릿(권장)
+   from zetta_ppt_standard import *       # 프리미티브(예외 배치용)
    from tone_v02 import *                 # (선택) v0.2 임원 톤
    prs = new_deck()
    # ... 슬라이드 배치 ...
@@ -101,6 +103,14 @@ for sl in prs.slides:
         if sh.has_text_frame: t.append(sh.text_frame.text)
 a="\n".join(t)
 print("표:",tbl,"| 한자:",re.findall(r'[一-鿿]',a),"| 쉼표앞공백:",re.findall(r'\S [,，]',a))
+
+# 1.5cm 액자·하단 충전 자동 검증 (frames 사용 시 전부 OK 여야 함)
+E=360000.0
+for i,sl in enumerate(prs.slides,1):
+    xs=[sh for sh in sl.shapes if sh.left is not None]
+    b=max((sh.top+sh.height)/E for sh in xs); l=min(sh.left/E for sh in xs); r=max((sh.left+sh.width)/E for sh in xs)
+    ok = b<=17.56 and b>=16.9 and abs(l-1.50)<0.02 and abs(r-26.02)<0.02
+    print("p%d 하단%.2f 좌%.2f 우%.2f %s"%(i,b,l,r,"OK" if ok else "← 여백/충전 위반"))
 ```
 
 ## 세부는 references 참조

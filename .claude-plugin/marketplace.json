@@ -5,13 +5,13 @@
   },
   "metadata": {
     "description": "임원 보고용 PPT 생성 스킬 마켓플레이스 (Claude Cowork/Code)",
-    "version": "1.5.0"
+    "version": "1.6.0"
   },
   "plugins": [
     {
       "name": "ppt-report-builder",
       "source": "./plugins/ppt-report-builder",
-      "description": "python-pptx 임원 PPT 빌더 — 목업 선승인 + 실측 본문 프레임 카탈로그(F1~F12) + 문서 유형별 작법, 1.5cm 액자·위계 불릿·정보 밀도 규칙 내장, 렌더 QA 포함."
+      "description": "python-pptx 임원 PPT 빌더 — 완성 슬라이드 템플릿 17종(frames.py) + 목업 선승인 + 실측 프레임 카탈로그, 1.5cm 액자·하단 충전 코드 강제, 렌더 QA 포함."
     }
   ]
 }
