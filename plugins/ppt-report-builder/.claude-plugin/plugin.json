@@ -1,7 +1,7 @@
 {
   "name": "ppt-report-builder",
-  "version": "1.6.0",
-  "description": "python-pptx 로 임원 보고용 한국어 PPT를 생성하는 스킬 번들. ★ 완성 슬라이드 템플릿 17종(frames.py — 호출 1번 = 장표 1장, 1.5cm 액자·하단 충전·크롬을 코드로 강제) + 목업 선승인 게이트 + 실측 본문 프레임 카탈로그(F1~F12) + 문서 유형 판별 + 논리 골격. 위계 불릿·정보 밀도·구조 우선·결론=리드·데이터 정직성 규칙 내장. LibreOffice 렌더 QA 포함.",
+  "version": "1.7.0",
+  "description": "python-pptx 로 임원 보고용 PPT를 생성하는 스킬 번들. ★ 두 템플릿 엔진 — (1) 하우스 완성 템플릿 17종(frames.py, A4 가로·1.5cm 액자·하단 충전 코드 강제) (2) 맥킨지 템플릿 40종(vendor/mckinsey_pptx, 16:9·MIT — 하비볼 비교표·BCG/우선순위 매트릭스·간트·체브론·이슈트리·조직도·퍼널·KPI·버블/라인 차트). 목업 선승인 게이트 + 실측 프레임 카탈로그(F1~F12) + 문서 유형 판별 + 논리 골격. LibreOffice 렌더 QA 포함.",
   "author": {
     "name": "avoseed"
   },

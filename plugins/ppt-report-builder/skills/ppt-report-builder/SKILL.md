@@ -9,6 +9,8 @@ python-pptx 로 임원 보고용 PPT(장표·원페이저·덱)를 생성하는 
 
 ## 무엇이 들어있나
 - `scripts/frames.py` — ★ **완성 슬라이드 템플릿 17종**(호출 1번 = 장표 1장). 크롬(가운데 제목+밑줄·■리드·각주·페이지번호)·**1.5cm 액자·하단 충전을 코드로 강제** — 좌표를 손으로 계산하지 말고 **이 레이어를 최우선 사용**한다. `f_spec_overview`(현황 정본)·`f_compare_table`(동향·비교)·`f_waterfall`·`f_before_after`·`f_matrix`·`f_gantt`·`f_process`·`f_cards`·`f_timeline`·`f_funnel`·`f_pyramid`·`f_assessment`·`f_issue_tree`·`f_kpi_tiles`·`f_exec_summary`·`f_two_col`·`f_bigstat` (카탈로그: `frames.CATALOG`).
+- `scripts/mck.py` + `scripts/vendor/mckinsey_pptx/` — ★ **맥킨지 템플릿 44종**(16:9, MIT · AX Labs). `from mck import deck` → `b=deck(marker="…"); b.add("comparison_table", …); b.save(...)`. 하비볼 비교표·BCG/우선순위 매트릭스·간트·체브론 3단계·이슈트리·조직도·퍼널·KPI 대시보드·버블/누적/그룹/라인 차트·커버/간지/인용/대형숫자 등. **인자 스키마는 `mck.SCHEMA` 를 반드시 확인**(키가 틀리면 플레이스홀더가 남는다). 카탈로그 `mck.catalog()` · `scripts/vendor/CATALOG.md`.
+  ⚠ **판형이 다르므로(16:9 vs A4 가로) `frames.py` 와 한 덱에 섞지 않는다** — 문서 성격으로 택1: 국내 정기협의체·현황 보고=`frames`, 컨설팅 제안·전략 리뷰·영문 혼용=`mck`.
 - `scripts/zetta_ppt_standard.py` — **ZETTA v4 표준 톤** 빌더(프리미티브 — frames 로 안 되는 예외 배치에만). A4 가로, 맑은고딕 3중지정, 크롬(브래킷 헤더·리드·각주), 재무형 표(`add_fin_table`), 컬럼 헤더/결론 박스, 타임라인(가로 `add_htimeline`/세로 `add_vtimeline`), 2×2 맵, 불릿 등.
 - `scripts/tone_v02.py` — **v0.2 임원 톤** 헬퍼. 네이비 번호박스 헤더(`hdr`)·리딩(`lead`)·하단 중앙 빨강 이탤릭 강조(`redconcl`)·네이비 헤더 표(`tbl`)·카드 박스(`box`)·플로우 노드(`flownode`)·화살표(`arrow`)·**차트**(`column_chart`/`bar_chart`)·피라미드(사다리꼴)·페이지번호.
 - `references/SPEC_v4.md` — 표준 명세(토큰·프레임워크·정밀 기하 §3-4·문구 원칙).
