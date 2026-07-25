@@ -1,7 +1,7 @@
 {
   "name": "ppt-report-builder",
-  "version": "1.8.0",
-  "description": "python-pptx 로 임원 보고용 PPT를 생성하는 스킬 번들. ★ 템플릿 57종 — 하우스 완성 템플릿 17종(frames.py) + 맥킨지 템플릿 40종(mck.py, MIT), **모두 A4 가로(27.52×19.05cm)·1.5cm 액자로 통일**. 하비볼 비교표·BCG/우선순위 매트릭스·간트·체브론·이슈트리·조직도·퍼널·KPI·버블/라인 차트 등. 목업 선승인 게이트 + 실측 프레임 카탈로그(F1~F12) + 문서 유형 판별 + 논리 골격. LibreOffice 렌더 QA 포함.",
+  "version": "1.9.0",
+  "description": "python-pptx 로 임원 보고용 PPT를 생성하는 스킬 번들. ★ 템플릿 57종(하우스 17 + 맥킨지 40, MIT) — 모두 A4 가로 27.52×19.05cm·1.5cm 액자 통일. ★ 용도 분류 색인(TEMPLATE_INDEX): 논리 관계→템플릿 1순위/대안, 문서 유형별 덱 골격, 혼동 짝 오선택 방지표(Zelazny 차트 선택법·Minto Pyramid 근거). 목업 선승인 게이트 + 실측 프레임 카탈로그(F1~F12) + 논리 골격(SCQA). LibreOffice 렌더 QA 포함.",
   "author": {
     "name": "avoseed"
   },
