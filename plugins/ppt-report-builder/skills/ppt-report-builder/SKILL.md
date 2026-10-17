@@ -1,13 +1,27 @@
 ---
 name: ppt-report-builder
-description: Build polished Korean executive PPT reports and one-pagers (임원 보고 장표·원페이저·deck) with python-pptx. Use whenever the user asks to create or edit a .pptx report, 장표, 원페이저, deck, or slide from supplied content — including tables, timelines, pyramids, money-flow/flow diagrams, and bar/column charts. Two built-in design tones (ZETTA v4 standard, v0.2 executive). Produces the .pptx plus a LibreOffice PNG render for visual QA.
+description: Build polished Korean executive PPT report slides (지주 보고 본장표·임원 보고 장표·원페이저) with python-pptx, one 본장표 at a time following the 지주 보고 표준 지침 (references/HOLDING_REPORT_GUIDE.md, highest priority) and a storyboard-first workflow (2~3 storyboard drafts merged into one dense 본장표). Use whenever the user asks to create or edit a .pptx report, 장표, 원페이저, deck, or slide from supplied content — including tables, timelines, pyramids, money-flow/flow diagrams, and bar/column charts. Two built-in design tones (ZETTA v4 standard, v0.2 executive). Produces the .pptx plus a LibreOffice PNG render for visual QA.
 ---
 
 # PPT Report Builder
 
-python-pptx 로 임원 보고용 PPT(장표·원페이저·덱)를 생성하는 스킬. 검증된 빌더 모듈·디자인 토큰·레이아웃 원형·정밀 기하 규칙을 번들로 제공한다. 새 보고서는 **아래 워크플로**를 따른다.
+python-pptx 로 임원 보고용 PPT 본장표를 생성하는 스킬. 검증된 빌더 모듈·디자인 토큰·레이아웃 원형·정밀 기하 규칙을 번들로 제공한다. 새 장표는 **아래 워크플로**를 따른다.
+
+## ★ 최우선: 지주 보고 표준 지침 (`references/HOLDING_REPORT_GUIDE.md`)
+장표 작업을 시작하기 전에 **이 지침 전문을 먼저 읽는다.** SPEC_v4·BUILDER_GUIDE 등 다른 문서와 충돌하면 이 지침이 우선한다.
+
+| 항목 | 지침 |
+|---|---|
+| 산출 범위 | **본장표 한 장씩.** 전체 덱, 표지, Agenda(목차), 섹션 라벨, 페이지번호, 연결 탭, 덱 통합은 만들지 않는다(사용자 담당). frames 함수는 `page=None` 으로 호출 |
+| 크롬 | 제목 가운데 20pt 볼드(y 0.82) + 제목 폭 밑줄 1.2pt(y 1.96), ■ 리드 14pt 볼드(x 1.50, y 3.09), 좌·우·하단 1.5cm, 각주 좌하단. 좌측 브래킷 헤더(SPEC_v4 P계열)는 지주 보고에 쓰지 않음 |
+| 밀도 | 평소 만드는 슬라이드 1장 = 스토리보드 1장 분량. **스토리보드 2~3장을 합쳐야 지주 보고 본장표 1장** |
+| 표 | 흰 셀 + #BFBFBF 0.75pt 격자, 헤더는 볼드 + 연회색 #F2F2F2까지 (빌더 기본 #EAEEF6 헤더는 지침 값으로 덮어씀) |
+| 강조 | 검정 볼드 → 볼드+빨간 밑줄(장당 2~4곳). 형광펜·빨간 테두리 박스·빨간 개수 배지·그림자·은유형 도형 금지 |
+| 문구 | 제목 짧은 주제어(결론 금지), 리드 한 줄(사실 → 귀결), 개조식 명사형, 주어 생략·줄표·한자·번역투 금지 |
+| 자체 점검 | 지침 9장 **반복 지적 사항** 표(사실·근거 / 문구 / 시각·레이아웃 / 작업 방식)로 스토리보드와 본장표를 제출 전 점검 |
 
 ## 무엇이 들어있나
+- `references/HOLDING_REPORT_GUIDE.md` — ★ **지주 보고 표준 지침(최우선)**. 판형·크롬 좌표·토큰·표/도식·문구 원칙·독자 기준·스토리보드 절차·반복 지적 사항 점검표.
 - `scripts/frames.py` — ★ **완성 슬라이드 템플릿 17종**(호출 1번 = 장표 1장). 크롬(가운데 제목+밑줄·■리드·각주·페이지번호)·**1.5cm 액자·하단 충전을 코드로 강제** — 좌표를 손으로 계산하지 말고 **이 레이어를 최우선 사용**한다. `f_spec_overview`(현황 정본)·`f_compare_table`(동향·비교)·`f_waterfall`·`f_before_after`·`f_matrix`·`f_gantt`·`f_process`·`f_cards`·`f_timeline`·`f_funnel`·`f_pyramid`·`f_assessment`·`f_issue_tree`·`f_kpi_tiles`·`f_exec_summary`·`f_two_col`·`f_bigstat` (카탈로그: `frames.CATALOG`).
 - `scripts/mck.py` + `scripts/vendor/mckinsey_pptx/` — ★ **맥킨지 템플릿 40종**(MIT · AX Labs). `from mck import deck` → `b=deck(marker="…"); b.add("comparison_table", …); b.save(...)`. 하비볼 비교표·BCG/우선순위 매트릭스·간트·체브론 3단계·이슈트리·조직도·퍼널·KPI 대시보드·버블/누적/그룹/라인 차트·커버/간지/인용/대형숫자 등. **인자 스키마는 `mck.SCHEMA` 를 반드시 확인**(키가 틀리면 플레이스홀더가 남는다). 카탈로그 `mck.catalog()` · 용도 분류는 `references/TEMPLATE_INDEX.md`, 원본 상세는 `references/MCK_CATALOG.md`.
   ✅ **A4 가로로 조정 완료** — `deck()` 기본값이 `a4=True` 라 **우리 표준 판형(27.52×19.05cm)·1.5cm 액자**로 나온다(맥킨지 원본 16:9 가 필요하면 `deck(a4=False)`). 따라서 `frames.py` 와 **같은 판형**이므로 한 덱에 함께 써도 된다. 톤은 다르므로(맥킨지 블루 vs 하우스 네이비) 문서 단위로 일관성만 유지할 것.
@@ -22,9 +36,17 @@ python-pptx 로 임원 보고용 PPT(장표·원페이저·덱)를 생성하는 
 - `references/mockup_template.html` — **A단계 목업(승인용) HTML 스캐폴드**. 주요 프레임 원형을 톤·정렬 규정대로 담은 카드(차트·표·매트릭스·피라미드·플로우·워터폴·트리·As-Is/To-Be·브릿지·SWOT·하비볼·간트·퍼널·순환·허브앤스포크). 복제해 실제 장표처럼 채워 보여준다(빌드·렌더 없음).
 - `references/template_onepager.py` — 복사용 전폭 상하 구조 스켈레톤.
 
-## 워크플로 (2단계 — 목업 승인 후 빌드)
+## 워크플로 (스토리보드 → 본장표 구성 → 목업 승인 → 빌드)
 
-**기본 산출물은 원페이저(A4 가로 1장)** — 요청이 덱을 명시하지 않으면 원페이저. 프레임 이전에
+**산출 단위는 본장표 1장(A4 가로).** 덱 요청이어도 본장표를 한 장씩 만든다(표지·Agenda·페이지번호는 만들지 않음).
+
+### 0단계 — 스토리보드 먼저 (필수, 장표를 먼저 정해 놓고 채우지 않는다)
+1. **장표 목적 확인**: 이 장이 답할 질문, 보고 대상, 활용 자료.
+2. **스토리보드 초안 2~3장(SB-1~3)** 작성: 평소 밀도의 슬라이드 한 장 분량, 장마다 초안 리드(사실 → 귀결)·본문(프레임 1개)·근거(파일명·시트·행열, 미확인은 확인 필요)를 갖춘 완결형. 텍스트 와이어프레임으로 제시(빌드하지 않음).
+3. **본장표 구성안**: 초안 리드를 묶는 상위 장 리드를 새로 쓰고(나열 금지) → 장 리드를 뒷받침하는 순서로 초안 본문 결합 → 같은 결론·지표 병합 → 기여하지 않는 블록 삭제, 세부 표는 첨부 후보로 분리 → **매핑표**(초안 블록 → 결합 / 병합 / 삭제 / 첨부 후보 + 사유).
+4. 지침 9장 반복 지적 사항으로 자체 점검 후 A단계 목업으로 넘어간다.
+
+아래 A·B단계는 이렇게 구성된 본장표 1장에 적용한다. 프레임 이전에
 **문서 유형**부터 판별한다(`FRAMEWORKS.md` §2-1): **설득·제안형**(하나의 So-What 관철)이면 **지배
 프레임 1개(hero) + 정성 보조**; **현황·대시보드형**(보유·상태+관리체계 공유)이면 **영역 구획(좌우
 2단 등) + 영역별 프레임 1개씩**(표+리스트+플로우 공존 정상). 여러 도식을 **구획 없이 세로로 쌓는 몽타주는
@@ -35,10 +57,8 @@ python-pptx 로 임원 보고용 PPT(장표·원페이저·덱)를 생성하는 
 (실제 pptx 빌드·렌더 QA)로 넘어간다. 목업 단계에서는 python-pptx·soffice 를 실행하지 않는다.
 
 ### A단계 — 목업 선제시(승인 게이트, 필수)
-1. **논리 골격(스토리라인) 설계 — 슬라이드·프레임 이전에**(`references/FRAMEWORKS.md` §1). 덱 단위 논리 구조화:
-   ① 덱의 **한 줄 결론**(Governing thought) 확정 → ② **스토리라인 골격 택1**(SCQA / Pyramid(Minto) / 문제-원인-해법-계획 / 현황-목표-격차-실행) → ③ **각 마디 = 1~2 슬라이드**로 분해(마디가 슬라이드의 존재 이유).
-   **A단계의 첫 산출물은 이 골격**(마디 목록 + 마디별 논리 라벨) — 슬라이드 목업 이전에 먼저 제시·승인받는다(큰 덱일수록 필수).
-2. **톤 선택 + 마디별 프레임 판정** — 톤: 담백한 표준이면 `zetta_ppt_standard`, 네이비/빨강 임원 덱이면 `tone_v02`.
+1. **0단계 결과 확인**: 스토리보드 초안 2~3장과 본장표 구성안(장 리드·매핑표)이 승인된 상태에서 목업으로 넘어간다. 장 리드 → 근거 블록의 피라미드(`references/FRAMEWORKS.md` §1)가 한 장 안에서 성립하는지 확인한다.
+2. **톤 선택 + 프레임 판정** — 지주 보고는 지침 4장 토큰(흰 바탕·검정 글자·회색 선, 네이비 면·빨강은 소수)을 따르고 `frames`/`zetta_ppt_standard` 를 기본으로 쓴다(`tone_v02` 는 사용자가 지정할 때만).
    **프레임은 마디(슬라이드)마다 논리 관계로 정한다** — **`TEMPLATE_INDEX.md` 색인에서 1순위 템플릿을 고르고**(혼동 짝 표로 오선택 점검), 본장 장표는 **`BODY_FRAMES.md` 실측 원형(F1~F12) 우선**, 없으면 `FRAMEWORKS.md` §2~§3 선택표·카탈로그: 대비→비교표/바차트, 시간→추이/타임라인 스파인, 위치→2×2 매트릭스, 구성→피라미드/트리, 흐름→프로세스/플로우, 인과→드라이버/워터폴, 병렬→분할 카드, **전환(전/후)→As-Is/To-Be 대형 2박스+화살표**, 격차→브릿지.
    ⚠ **"리드+불릿+표+가로타임라인" 스택 반복 금지**(같은 프레임 3연속 재검토). **관계가 있으면 불릿 대신 도형으로 구조화**(구조 우선, SPEC §3-0). **도형 채움색은 선택** — 무채색 외곽선으로 충분하면 칠하지 않고, 색은 강조에만.
 3. **시각 목업 제시(기본) — HTML** : `references/mockup_template.html` 을 복제해 슬라이드마다 `.slide`
@@ -79,9 +99,13 @@ python-pptx 로 임원 보고용 PPT(장표·원페이저·덱)를 생성하는 
 > 달라지면 목업을 갱신해 재승인받는다 — 렌더 QA 는 잘림·오버플로 등 **구현 품질** 검수용이다.
 
 ## 반드시 지킬 규칙
+- **지주 보고 표준 지침 최우선**(`references/HOLDING_REPORT_GUIDE.md`): 작업 시작 시 전문을 읽고, 다른 문서와 충돌하면 지침을 따른다.
+- **본장표 한 장 단위**: 표지·Agenda·페이지번호·섹션 라벨·덱 통합은 만들지 않는다. frames 함수는 `page=None`.
+- **스토리보드 우선**: 본장표 1장 = 스토리보드 초안 2~3장의 결합. 장표를 먼저 정해 놓고 스토리보드를 채우지 않는다. 매핑표로 빠진 내용을 추적한다.
+- **반복 지적 사항 자체 점검**: 지침 9장 점검표(사실·근거 / 문구 / 시각·레이아웃 / 작업 방식)를 스토리보드와 본장표 제출 전에 통과시킨다.
 - **목업 선(先)승인**: 실제 pptx 빌드·soffice 렌더 전에 **목업으로 구조·내용을 승인**받는다(A단계). 토큰 절약을 위해 승인 전 빌드 금지.
 - **문서 유형 → 작법**(`FRAMEWORKS.md` §2-1): **설득·제안형**=지배 프레임 1개+정성 보조 / **현황·대시보드형**=영역 구획(좌우 2단 등)+영역별 프레임 1개씩. **몽타주(구획 없이 도식 쌓기) 금지**, 여러 프레임은 영역·소제목으로 **구획**해 담는다.
-- **논리 골격 먼저**: 프레임 선택 이전에 **스토리라인**(SCQA/Pyramid/문제-원인-해법/현황-목표-격차-실행)을 세운다(`FRAMEWORKS.md` §1). 덱은 마디를 슬라이드로, 원페이저는 리드+배경 불릿+hero+실행 리본으로 압축.
+- **논리 골격**: 본장표 안에서 장 리드 → 근거 블록의 피라미드를 세운다(`FRAMEWORKS.md` §1). 장 구성·순서는 스토리보드에서 도출한다.
 - **프레임 다양성**: 논리 관계가 프레임을 정한다(`FRAMEWORKS.md`). 한 스택(표+타임라인) 반복 금지 — 마디별로 매트릭스·피라미드·플로우·차트·카드·브릿지를 논리에 맞게 쓴다. **단, 프레임이 달라도 톤·정밀 기하(끝선 정렬·일정 간격·중앙선·70% 충전)는 그대로 지킨다.**
 - **구조 우선·색 최소(SPEC §3-0)**: 슬라이드 1차 목표는 *형태만 봐도* 논리가 드러나는 것. 관계 있는 항목은 불릿 대신 **도형으로 구조화**. **도형 채움색은 선택** — 무채색 외곽선으로 충분하면 칠하지 않고, 색(네이비 면·크림슨)은 강조에만 아껴 쓴다.
 - **색·글자**: 파란 글자 전면 금지(표준 톤). 강조 셀(연블루) 안의 네이비 글자만 예외. 크림슨/빨강 = 경고·핵심 수치 강조 전용.
