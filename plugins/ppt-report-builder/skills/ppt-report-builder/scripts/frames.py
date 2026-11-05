@@ -6,7 +6,7 @@ frames.py — 완성 슬라이드 템플릿 레이어 (호출 1번 = 장표 1장
   기존 `zetta_ppt_standard.py` 는 프리미티브(표·타임라인·맵…) 조립 방식이라
   매번 좌표를 손으로 계산해야 했고, 그 탓에 여백·하단 충전·정렬 규칙이 반복 재발했다.
   이 모듈은 **규칙을 코드로 강제**한다 — 함수 하나가 크롬(제목·밑줄·리드·각주·페이지번호)과
-  1.5cm 액자, 하단 충전(CONTENT_BOTTOM)까지 자동 처리한 완성 장표를 만든다.
+  좌우 1.16cm·하단 1.5cm 액자, 하단 충전(CONTENT_BOTTOM)까지 자동 처리한 완성 장표를 만든다.
 
 원형 출처
   F계열 = `docs/BODY_FRAMES.md` 실측 카탈로그(임원 보고 덱 원본 PPTX 측정).
@@ -14,7 +14,7 @@ frames.py — 완성 슬라이드 템플릿 레이어 (호출 1번 = 장표 1장
 
 공통 규약
   - 모든 함수 시그니처: f_xxx(prs, title, lead, ..., footnote=None, page=None) -> slide
-  - 좌표 cm. 본문은 BODY_L(1.50) ~ BODY_L+BODY_W(26.02), BODY_TOP_F(4.20) ~ CONTENT_BOTTOM(17.55).
+  - 좌표 cm. 본문은 BODY_L(1.16) ~ BODY_R(26.36), BODY_TOP_F(4.20) ~ CONTENT_BOTTOM(17.55). 좌우 1.16cm = 261012 지주 보고 v6.0 실측.
   - 각주가 있으면 콘텐츠 하한이 각주 높이만큼 올라간다(각주는 항상 하단선에 붙음).
   - 결론은 리드에 선치(하단 결론 박스 없음), 파란 글자 금지(강조 셀 예외).
 """
@@ -41,12 +41,14 @@ LIGHTBLU = RGBColor(0xEA, 0xF2, 0xFA)   # 연블루 배경
 GRAY_L   = RGBColor(0xB7, 0xBD, 0xC6)   # 격자·보조선
 REDBG    = RGBColor(0xFD, 0xF3, 0xF3)   # 강조 열 연빨강 채움
 
-# ── 크롬 좌표 (실측 → 1.5cm 액자 환산) ───────────────────────
-BODY_L      = MARGIN_L                  # 1.50
-BODY_R      = PAGE_W_CM - MARGIN_R      # 26.02
+# ── 크롬 좌표 (지주 보고 정본 실측, 2026-11-06 261012 기준 확정) ─────
+HOLD_MARGIN_LR = 1.16                   # 좌·우 여백 (261012 v6.0 실측). 하단은 MARGIN_B 1.5 유지
+BODY_L      = HOLD_MARGIN_LR            # 1.16
+BODY_R      = PAGE_W_CM - HOLD_MARGIN_LR  # 26.36
+BODY_W      = BODY_R - BODY_L           # 25.20 (zetta_ppt_standard.BODY_W 24.52 를 지주 계열에서 덮어씀)
 TITLE_T     = 0.82
 TITLE_H     = 1.05
-ULINE_T     = 1.96
+ULINE_T     = 2.05                      # 261012 v6.0 실측
 LEAD_T      = 3.09                      # 지주 보고 정본 실측(260731)
 LEAD_H      = 0.82
 BODY_TOP_F  = 4.20                      # 본문 시작
