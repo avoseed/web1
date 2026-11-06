@@ -72,6 +72,7 @@ tl_bot = add_htimeline(s, MARGIN_L, TBL_BOT + GB + HG + 0.05, BODY_W, [
 _txt(s, MARGIN_L, tl_bot + 0.30, BODY_W, 0.55, SRC,
      size=FONT_PT["footnote"], color=INK)
 
-out = os.path.join(os.path.dirname(__file__), "out_onepager.pptx")
-prs.save(out)
+# 파일명 원칙: yymmdd_파일 이름_v.x.x.pptx (미보고 초안 v.0.x)
+out = os.path.join(os.path.dirname(__file__), report_filename("원페이저", "0.1"))
+save_deck(prs, out)                               # 정수 pt·그림자 제거·만든 이 지정 후 저장
 print("saved", out)

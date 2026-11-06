@@ -6,7 +6,7 @@ frames.py — 완성 슬라이드 템플릿 레이어 (호출 1번 = 장표 1장
   기존 `zetta_ppt_standard.py` 는 프리미티브(표·타임라인·맵…) 조립 방식이라
   매번 좌표를 손으로 계산해야 했고, 그 탓에 여백·하단 충전·정렬 규칙이 반복 재발했다.
   이 모듈은 **규칙을 코드로 강제**한다 — 함수 하나가 크롬(제목·밑줄·리드·각주·페이지번호)과
-  좌우 1.16cm·하단 1.5cm 액자, 하단 충전(CONTENT_BOTTOM)까지 자동 처리한 완성 장표를 만든다.
+  좌우 1.16·하단 1.5cm 액자, 하단 충전(CONTENT_BOTTOM)까지 자동 처리한 완성 장표를 만든다.
 
 원형 출처
   F계열 = `docs/BODY_FRAMES.md` 실측 카탈로그(임원 보고 덱 원본 PPTX 측정).
@@ -14,7 +14,7 @@ frames.py — 완성 슬라이드 템플릿 레이어 (호출 1번 = 장표 1장
 
 공통 규약
   - 모든 함수 시그니처: f_xxx(prs, title, lead, ..., footnote=None, page=None) -> slide
-  - 좌표 cm. 본문은 BODY_L(1.16) ~ BODY_R(26.36), BODY_TOP_F(4.20) ~ CONTENT_BOTTOM(17.55). 좌우 1.16cm = 261012 지주 보고 v6.0 실측.
+  - 좌표 cm. 본문은 BODY_L(1.16) ~ BODY_L+BODY_W(26.36), BODY_TOP_F(4.20) ~ CONTENT_BOTTOM(17.55).
   - 각주가 있으면 콘텐츠 하한이 각주 높이만큼 올라간다(각주는 항상 하단선에 붙음).
   - 결론은 리드에 선치(하단 결론 박스 없음), 파란 글자 금지(강조 셀 예외).
 """
@@ -41,14 +41,14 @@ LIGHTBLU = RGBColor(0xEA, 0xF2, 0xFA)   # 연블루 배경
 GRAY_L   = RGBColor(0xB7, 0xBD, 0xC6)   # 격자·보조선
 REDBG    = RGBColor(0xFD, 0xF3, 0xF3)   # 강조 열 연빨강 채움
 
-# ── 크롬 좌표 (지주 보고 정본 실측, 2026-11-06 261012 기준 확정) ─────
+# ── 크롬 좌표 (지주 보고 정본 실측, 2026-11-06 261012 기준 확정) ───────────────────────
 HOLD_MARGIN_LR = 1.16                   # 좌·우 여백 (261012 v6.0 실측). 하단은 MARGIN_B 1.5 유지
 BODY_L      = HOLD_MARGIN_LR            # 1.16
 BODY_R      = PAGE_W_CM - HOLD_MARGIN_LR  # 26.36
 BODY_W      = BODY_R - BODY_L           # 25.20 (zetta_ppt_standard.BODY_W 24.52 를 지주 계열에서 덮어씀)
 TITLE_T     = 0.82
 TITLE_H     = 1.05
-ULINE_T     = 2.05                      # 261012 v6.0 실측
+ULINE_T     = 2.05                      # 261012 실측 (2026-11-06 확정)
 LEAD_T      = 3.09                      # 지주 보고 정본 실측(260731)
 LEAD_H      = 0.82
 BODY_TOP_F  = 4.20                      # 본문 시작
@@ -56,7 +56,9 @@ FOOT_H      = 0.52
 GAP         = 0.34                      # 블록 간 표준 간격
 TL_H        = 2.48                      # 【블록헤더】+가로타임라인 총 높이(예약분)
 
-PT = {"title": 20, "lead": 14, "sec": 12, "body": 11, "small": 10, "foot": 8.5}
+# 글자 크기는 정수 pt만 사용 (소수 pt 금지, 예: 9.5·8.5·10.5 불가)
+PT = {"title": 20, "lead": 14, "sec": 12, "body": 11, "small": 10, "unit": 10,
+      "sub": 9, "foot": 9}
 
 
 # ═══════════════════════════════════════════════════════════
@@ -77,7 +79,7 @@ def chrome(prs, title, lead=None, footnote=None, page=None, title_align="center"
          bold=True, color=BLACK, align=align, anchor=MSO_ANCHOR.MIDDLE)
     uw = min(_text_w(title, PT["title"]) + 0.5, BODY_W)
     ux = (PAGE_W_CM - uw) / 2 if title_align == "center" else BODY_L
-    _line(s, ux, ULINE_T, ux + uw, ULINE_T, color=BLACK, w_pt=2.0)
+    _line(s, ux, ULINE_T, ux + uw, ULINE_T, color=BLACK, w_pt=1.2)
 
     top = BODY_TOP_F
     if lead:
@@ -210,7 +212,7 @@ def f_spec_overview(prs, title, lead, spec_rows, ops_title=None, ops_items=None,
             _txt(s, rx + 0.84, iy, rw - 1.1, 0.46, head, size=PT["small"],
                  bold=True, color=INK)
             _txt(s, rx + 0.84, iy + 0.48, rw - 1.1, ih - 0.62, sub,
-                 size=9.5, color=SUB_GRAY)
+                 size=PT["sub"], color=SUB_GRAY)
 
     y = main_bot + GAP
     if timeline:
@@ -300,7 +302,7 @@ def f_cards(prs, title, lead, cards, footnote=None, page=None, chevron=False):
         y = top + 1.02
         for ln in lines:
             if ln.startswith("-"):
-                _txt(s, x + 0.55, y, cw - 0.80, 0.46, ln, size=9.5, color=SUB_GRAY)
+                _txt(s, x + 0.55, y, cw - 0.80, 0.46, ln, size=PT["sub"], color=SUB_GRAY)
                 y += 0.46
             else:
                 _txt(s, x + 0.30, y, cw - 0.55, 0.50, "● " + ln, size=PT["small"],
@@ -325,7 +327,7 @@ def f_process(prs, title, lead, steps, note=None, detail=None,
         _rect(s, x, top, nw, 0.10, fill=NAVY_F)
         _txt(s, x + 0.20, top + 0.30, nw - 0.40, 0.52, head, size=PT["sec"],
              bold=True, color=NAVY_F, align=PP_ALIGN.CENTER)
-        _txt(s, x + 0.20, top + 0.90, nw - 0.40, nh - 1.05, desc, size=9.5,
+        _txt(s, x + 0.20, top + 0.90, nw - 0.40, nh - 1.05, desc, size=PT["small"],
              color=INK, align=PP_ALIGN.CENTER)
         if i < n - 1:
             _txt(s, x + nw, top + nh / 2 - 0.32, aw, 0.64, "→", size=16,
@@ -333,7 +335,7 @@ def f_process(prs, title, lead, steps, note=None, detail=None,
                  anchor=MSO_ANCHOR.MIDDLE)
     y = top + nh + GAP
     if note:
-        _txt(s, BODY_L, y, BODY_W, 0.48, "※ " + note, size=9.5, color=SUB_GRAY)
+        _txt(s, BODY_L, y, BODY_W, 0.48, "※ " + note, size=PT["sub"], color=SUB_GRAY)
         y += 0.58
     if detail:
         _bullets(s, BODY_L, y, BODY_W, detail)
@@ -384,9 +386,9 @@ def f_gantt(prs, title, lead, periods, tracks, note=None, footnote=None, page=No
               fill=shades[i % 3])
         if desc:
             _txt(s, BODY_L, y + rh * 0.60, BODY_W, rh * 0.36, "– " + desc,
-                 size=9.5, color=SUB_GRAY)
+                 size=PT["sub"], color=SUB_GRAY)
     if note:
-        _txt(s, BODY_L, bot - 0.52, BODY_W, 0.48, "※ " + note, size=9.5, color=SUB_GRAY)
+        _txt(s, BODY_L, bot - 0.52, BODY_W, 0.48, "※ " + note, size=PT["sub"], color=SUB_GRAY)
     return s
 
 
@@ -399,7 +401,7 @@ def f_waterfall(prs, title, lead, base, steps, final, groups=None,
     s, top, bot = chrome(prs, title, lead, footnote, page)
     y = top
     if unit:                                   # 단위는 본문 우상단(그룹표 위)
-        _txt(s, BODY_R - 6.0, y - 0.46, 6.0, 0.42, unit, size=9.5,
+        _txt(s, BODY_R - 6.0, y - 0.46, 6.0, 0.42, unit, size=PT["unit"],
              color=SUB_GRAY, align=PP_ALIGN.RIGHT)
     if groups:
         n = len(groups)
@@ -414,7 +416,7 @@ def f_waterfall(prs, title, lead, base, steps, final, groups=None,
             data = [[k, v] for k, v in items]
             add_fin_table(s, x, y + 0.56, gw, gh - 0.56, data,
                           col_w=[gw * 0.58, gw * 0.42], header_rows=0,
-                          col_align=["l", "c"], font_size=9.5)
+                          col_align=["l", "c"], font_size=PT["small"])
         y += gh + GAP
 
     ch_bot = bot - 0.75
@@ -448,7 +450,7 @@ def f_waterfall(prs, title, lead, base, steps, final, groups=None,
                                else "▲{:,}".format(abs(val)))
         _txt(s, x - cw * 0.15, top_y - 0.52, bw + cw * 0.30, 0.48, show,
              size=PT["small"], bold=True, color=INK, align=PP_ALIGN.CENTER)
-        _txt(s, BODY_L + cw * i, ch_bot + 0.10, cw, 0.60, lab, size=9.5,
+        _txt(s, BODY_L + cw * i, ch_bot + 0.10, cw, 0.60, lab, size=PT["sub"],
              color=INK, align=PP_ALIGN.CENTER)
     return s
 
@@ -470,7 +472,7 @@ def f_funnel(prs, title, lead, levels, note=None, footnote=None, page=None):
         _txt(s, x, yy, w, lh, "%s   %s" % (lab, val), size=PT["sec"], bold=True,
              color=WHITE, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
     if note:
-        _txt(s, BODY_L, bot - 0.52, BODY_W, 0.48, "※ " + note, size=9.5, color=SUB_GRAY)
+        _txt(s, BODY_L, bot - 0.52, BODY_W, 0.48, "※ " + note, size=PT["sub"], color=SUB_GRAY)
     return s
 
 
@@ -491,10 +493,10 @@ def f_pyramid(prs, title, lead, tiers, note=None, footnote=None, page=None):
         _txt(s, x, yy, w, th * 0.55, lab, size=PT["sec"], bold=True, color=WHITE,
              align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.BOTTOM)
         if desc:
-            _txt(s, x, yy + th * 0.55, w, th * 0.42, desc, size=9.5, color=WHITE,
+            _txt(s, x, yy + th * 0.55, w, th * 0.42, desc, size=PT["sub"], color=WHITE,
                  align=PP_ALIGN.CENTER)
     if note:
-        _txt(s, BODY_L, bot - 0.52, BODY_W, 0.48, "※ " + note, size=9.5, color=SUB_GRAY)
+        _txt(s, BODY_L, bot - 0.52, BODY_W, 0.48, "※ " + note, size=PT["sub"], color=SUB_GRAY)
     return s
 
 
@@ -508,7 +510,7 @@ def f_matrix(prs, title, lead, x_axis, y_axis, cells, star=None, dim=None,
     add_matrix2x2(s, x, top, w, h, x_axis, y_axis, cells, star=star, dim=dim)
     if note:
         _txt(s, BODY_L, top + h + 0.14, BODY_W, 0.48, "※ " + note,
-             size=9.5, color=SUB_GRAY)
+             size=PT["sub"], color=SUB_GRAY)
     return s
 
 
@@ -534,7 +536,7 @@ def f_before_after(prs, title, lead, before, after, bg_bullets=None,
         for it in body:
             if isinstance(it, (tuple, list)):
                 k, v = it
-                _txt(s, x + 0.26, yy, cw * 0.30, 0.50, k, size=9.5, bold=True,
+                _txt(s, x + 0.26, yy, cw * 0.30, 0.50, k, size=PT["sub"], bold=True,
                      color=SUB_GRAY)
                 _txt(s, x + 0.26 + cw * 0.30, yy, cw * 0.64, 0.50, v,
                      size=PT["small"], color=INK)
@@ -565,7 +567,7 @@ def f_assessment(prs, title, lead, criteria, options, best=None,
     add_fin_table(s, BODY_L, top, BODY_W, bot - top - 0.60, data,
                   col_w=[kw] + [rest] * (len(header) - 1), header_rows=1,
                   hl_rows=hl, bold_cols=(0,), font_size=PT["small"])
-    _txt(s, BODY_L, bot - 0.52, BODY_W, 0.48, "※ " + legend, size=9.5, color=SUB_GRAY)
+    _txt(s, BODY_L, bot - 0.52, BODY_W, 0.48, "※ " + legend, size=PT["sub"], color=SUB_GRAY)
     return s
 
 
@@ -587,7 +589,7 @@ def f_kpi_tiles(prs, title, lead, tiles, body_bullets=None, footnote=None, page=
         _txt(s, x, top + 0.80, tw, 0.92, val, size=19, bold=True, color=NAVY_F,
              align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
         if sub:
-            _txt(s, x, top + 1.76, tw, 0.46, sub, size=9.5, color=SUB_GRAY,
+            _txt(s, x, top + 1.76, tw, 0.46, sub, size=PT["sub"], color=SUB_GRAY,
                  align=PP_ALIGN.CENTER)
     if body_bullets:
         _bullets(s, BODY_L, top + th + GAP, BODY_W, body_bullets)
@@ -615,11 +617,11 @@ def f_issue_tree(prs, title, lead, root, branches, note=None, footnote=None, pag
         _line(s, BODY_L + rw, top + avail * 0.5, bx, y + bh * 0.40, color=GRAY_L)
         sy = y
         for sub in subs:
-            _txt(s, bx + bw + 0.60, sy, lw, 0.48, "– " + sub, size=9.5, color=INK)
+            _txt(s, bx + bw + 0.60, sy, lw, 0.48, "– " + sub, size=PT["small"], color=INK)
             sy += 0.50
         _line(s, bx + bw, y + bh * 0.40, bx + bw + 0.45, y + bh * 0.40, color=GRAY_L)
     if note:
-        _txt(s, BODY_L, bot - 0.52, BODY_W, 0.48, "※ " + note, size=9.5, color=SUB_GRAY)
+        _txt(s, BODY_L, bot - 0.52, BODY_W, 0.48, "※ " + note, size=PT["sub"], color=SUB_GRAY)
     return s
 
 

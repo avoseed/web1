@@ -45,13 +45,13 @@ WHITE      = RGBColor(0xFF, 0xFF, 0xFF)
 # 크롬 좌표 (실측 기반, v4.1 여백 +0.5mm 조정)  L, T, W, H  (cm)
 # 여백·충전 규칙(v4.2): 좌·우·하단 1.5cm 고정 '액자' 여백. 그 안쪽(BODY_W × CONTENT_BOTTOM)은
 # 빈 곳 없이 충전 — 객체를 세로로 분배해 마지막 객체(각주 포함) 하단선이 CONTENT_BOTTOM 에 닿게.
-MARGIN_L, MARGIN_R = 1.50, 1.50               # 좌·우 여백 1.5cm
+MARGIN_L, MARGIN_R = 1.50, 1.50               # 좌·우 여백 1.5cm (정기협의체 v4). 지주 보고는 frames.HOLD_MARGIN_LR 1.16
 MARGIN_B = 1.50                               # 하단 여백 1.5cm
-BODY_W = PAGE_W_CM - MARGIN_L - MARGIN_R       # 본문 폭 24.52
+BODY_W = PAGE_W_CM - MARGIN_L - MARGIN_R       # 본문 폭 24.52 (v4). 지주 보고 frames 는 25.20
 CONTENT_BOTTOM = PAGE_H_CM - MARGIN_B          # 콘텐츠 하한선 17.55 (여기까지 채움)
-HDR   = (MARGIN_L, 1.20, BODY_W, 0.90)         # 좌상단 브래킷 헤더 (좌여백 1.5)
+HDR   = (MARGIN_L, 1.20, BODY_W, 0.90)         # 좌상단 브래킷 헤더 (좌여백 정렬)
 LEAD  = (MARGIN_L, 2.90, 21.50, 0.65)          # 제목 하단 리드메시지 (■ 한 줄)
-UNIT  = (PAGE_W_CM - MARGIN_R - 3.30, 2.35, 3.30, 0.60)   # 우상단 단위 (우여백 1.5 정렬)
+UNIT  = (PAGE_W_CM - MARGIN_R - 3.30, 2.35, 3.30, 0.60)   # 우상단 단위 (우여백 정렬)
 FOOT  = (MARGIN_L, CONTENT_BOTTOM - 0.55, BODY_W, 0.55)   # 좌하단 각주 (하단선 = CONTENT_BOTTOM)
 BODY_TOP = 3.00                               # 본문 시작 y (리드메시지 미사용 시)
 
@@ -89,7 +89,15 @@ FONT_PT = {
 # ─────────────────────────────────────────────────────────────
 # 2. 저수준 헬퍼
 # ─────────────────────────────────────────────────────────────
-PAREN_DROP_PT = 1.0                              # 본문 이어지는 괄호는 한 사이즈 작게
+PAREN_DROP_PT = 1                                # 본문 이어지는 괄호는 한 사이즈 작게 (정수 pt)
+
+
+def _int_pt(size):
+    """글자 크기 정수 강제 — 소수 pt(9.5 등)는 반올림(.5 올림)해 정수 pt로 맞춘다."""
+    if size is None:
+        return None
+    v = float(size)
+    return int(v + 0.5) if v >= 0 else int(v - 0.5)
 _PAREN_RE = re.compile(r"\([^()]*\)")
 
 
@@ -97,6 +105,7 @@ def _emit_runs(p, text, size, bold, color, name=FONT):
     """문단에 run 생성 — 본문 이어지는 `(…)`는 한 사이즈 작게 + 여는 괄호 앞 한 칸 강제 (v4.1)."""
     text = re.sub(r"(?<=\S)\(", " (", text)      # 본문↔괄호 사이 한 칸
     text = re.sub(r" {2,}\(", " (", text)        # 이중 공백 방지
+    size = _int_pt(size)
     small = None if size is None else max(size - PAREN_DROP_PT, 1)
     idx = 0
     for m in _PAREN_RE.finditer(text):
@@ -115,7 +124,7 @@ def _set_font(run, size=None, bold=None, color=None, name=FONT):
     """맑은 고딕 3중 지정(latin·ea·cs) + 속성. v4 폰트 규칙."""
     f = run.font
     if size is not None:
-        f.size = Pt(size)
+        f.size = Pt(_int_pt(size))             # 정수 pt만
     if bold is not None:
         f.bold = bold
     if color is not None:
@@ -471,6 +480,96 @@ def _blank(prs):
 # ─────────────────────────────────────────────────────────────
 # 4. 원형(Archetype) 빌더
 # ─────────────────────────────────────────────────────────────
+_A = "http://schemas.openxmlformats.org/drawingml/2006/main"
+_SHADOW_TAGS = ("outerShdw", "innerShdw", "prstShdw")
+
+
+def finalize(prs):
+    """저장 직전 전수 정리 (모든 슬라이드·도형·표·차트).
+    ① 글자 크기 정수 강제: a:rPr / a:defRPr / a:endParaRPr 의 sz 가 정수 pt(100 단위)가 아니면 반올림
+    ② 그림자 제거: 명시된 outerShdw·innerShdw·prstShdw 삭제 + 테마 effectStyle 비움
+       + 도형 effectRef idx=0 + 모든 spPr 에 빈 effectLst 강제
+    반환: (정수 보정 건수, 그림자 처리 도형 수)"""
+    fixed_sz = 0
+    no_shadow = 0
+    roots = []
+    for sl in prs.slides:
+        roots.append(sl._element)
+        for sh in sl.shapes:
+            if getattr(sh, "has_chart", False) and sh.has_chart:
+                roots.append(sh.chart._chartSpace)
+    for root in roots:
+        for el in root.iter("{%s}rPr" % _A, "{%s}defRPr" % _A, "{%s}endParaRPr" % _A):
+            sz = el.get("sz")
+            if sz is not None and int(sz) % 100:
+                el.set("sz", str(int(int(sz) / 100 + 0.5) * 100))
+                fixed_sz += 1
+        for tag in _SHADOW_TAGS:
+            for el in list(root.iter("{%s}%s" % (_A, tag))):
+                el.getparent().remove(el)
+    # ③ 테마 효과 스타일 무력화: python-pptx 기본 테마는 effectStyle 3종 모두 outerShdw(+3D) 보유
+    #    → p:style effectRef 로 도형마다 그림자가 따라붙음(LibreOffice 렌더에서 확인). 빈 effectLst 로 교체
+    from lxml import etree
+    for part in prs.part.package.iter_parts():
+        if str(part.partname).startswith("/ppt/theme/"):
+            root = part._element if hasattr(part, "_element") else etree.fromstring(part.blob)
+            for es in root.iter("{%s}effectStyle" % _A):
+                for ch in list(es):
+                    es.remove(ch)
+                es.append(etree.SubElement(es, "{%s}effectLst" % _A))
+            if not hasattr(part, "_element"):
+                part._blob = etree.tostring(root, xml_declaration=True,
+                                            encoding="UTF-8", standalone=True)
+    for sl in prs.slides:
+        for ref in sl._element.iter(qn("a:effectRef")):
+            ref.set("idx", "0")                    # 도형 스타일의 효과 참조 해제
+        for spPr in sl._element.iter(qn("p:spPr")):
+            if spPr.find(qn("a:effectLst")) is None and spPr.find(qn("a:effectDag")) is None:
+                eff = spPr.makeelement(qn("a:effectLst"), {})
+                # 스키마 순서: xfrm, geom, fill, ln, effectLst, scene3d, sp3d, extLst
+                anchor = None
+                for t in ("a:scene3d", "a:sp3d", "a:extLst"):
+                    anchor = spPr.find(qn(t))
+                    if anchor is not None:
+                        break
+                if anchor is not None:
+                    anchor.addprevious(eff)
+                else:
+                    spPr.append(eff)
+                no_shadow += 1
+    return fixed_sz, no_shadow
+
+
+def report_filename(name, version="0.1", ext="pptx", date=None):
+    """파일명 원칙: yymmdd_파일 이름_v.{major}.{minor}.확장자 (파일 이름 안 단어는 띄어쓰기, 언더바는 구분자에만)
+    - 버전: 보고(상신)할 때만 정수 단위 상승(v.1.0 → v.2.0), 그 사이 수정은 소수 단위(v.1.1, v.1.2)
+    - 한 번도 보고하지 않은 초안은 v.0.x (v.0.1부터)
+    - date: 'yymmdd' 문자열 또는 date/datetime. 기본은 오늘(Asia/Seoul, 작성일). 중요 보고 덱은 발표·보고일
+      예) report_filename("온라인전점 부문별 결품률", "0.1", "xlsx") → '261020_온라인전점 부문별 결품률_v.0.1.xlsx'"""
+    import datetime as _dt
+    if date is None:
+        d = _dt.datetime.now(_dt.timezone(_dt.timedelta(hours=9)))
+        date = d.strftime("%y%m%d")
+    elif not isinstance(date, str):
+        date = date.strftime("%y%m%d")
+    if not re.fullmatch(r"\d{6}", date):
+        raise ValueError("date 는 yymmdd 6자리: %r" % date)
+    v = str(version).lstrip("vV.")
+    if not re.fullmatch(r"\d+\.\d+", v):
+        raise ValueError("version 은 major.minor 형식(예: 0.1, 1.0): %r" % version)
+    return "%s_%s_v.%s.%s" % (date, re.sub(r"\s+", " ", name.replace("_", " ")).strip(), v, ext.lstrip("."))
+
+
+def save_deck(prs, path, author="신호균(롯데마트-e사업전략팀)"):
+    """finalize(정수 pt·그림자 제거) + 문서 속성 '만든 이' 지정 후 저장. prs.save 대신 사용."""
+    finalize(prs)
+    cp = prs.core_properties
+    cp.author = author
+    cp.last_modified_by = author
+    prs.save(path)
+    return path
+
+
 def new_deck():
     """A4 가로 빈 프레젠테이션."""
     prs = Presentation()
