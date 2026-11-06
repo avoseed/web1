@@ -4,6 +4,7 @@
 #   (1) 플러그인 번들   plugins/ppt-report-builder/skills/...   ← Cowork/CLI 마켓플레이스 설치용
 #   (2) 프로젝트 스킬   .claude/skills/ppt-report-builder/       ← 이 리포 세션(웹 포함)에서 /plugin 없이 자동 로드
 # 정본은 여전히 zetta-ppt-standard/ 하나. SKILL.md 만 번들 고유(→ 프로젝트 스킬로 미러).
+# 단일 정본 = GitHub avoseed/web1. claude.ai에 .plugin 을 따로 올려 배포하지 않는다(README 「정본 관리」).
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 root="$(cd "$here/../.." && pwd)"

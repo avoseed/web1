@@ -4,6 +4,21 @@ python-pptx 로 임원 보고용 한국어 PPT(장표·원페이저·덱)를 생
 Claude Cowork/Code 에서 설치하면 "임원 보고 장표 만들어줘" 류 요청 시 `ppt-report-builder`
 스킬이 로드되어 검증된 빌더·디자인 토큰·정밀 기하 규칙·렌더 QA 워크플로를 적용한다.
 
+## 정본 관리 (단일 정본 = GitHub `avoseed/web1`, 2026-11-06)
+이 스킬의 정본은 이 저장소 하나다. claude.ai에 `.plugin` 파일을 따로 올리거나 설치본을 직접 고치지 않는다
+(1.11.0이 claude.ai 업로드본과 GitHub로 갈라져 서식 강제 기능이 GitHub에서 빠졌던 사례가 있음).
+
+| 바꿀 것 | 고치는 곳 | 반영 |
+|---|---|---|
+| 빌더 코드(`zetta_ppt_standard`·`frames`·`mck`·`tone_v02`·vendor) | `zetta-ppt-standard/` | `plugins/ppt-report-builder/sync.sh` 실행 |
+| 참고 문서(지침·SPEC·프레임 풀 절차 등) | `zetta-ppt-standard/docs/` | `sync.sh` 실행 |
+| 원페이저 스켈레톤 | `reports/_template_onepager.py` | `sync.sh` 실행 |
+| `SKILL.md`·`README.md`·`plugin.json` | `plugins/ppt-report-builder/` (번들 고유) | `sync.sh` 가 `.claude/skills/` 미러에 복사 |
+
+절차: 브랜치 → 정본 수정 → `sync.sh` → 시험 빌드(여백·정수 pt·그림자 0·만든 이) → `plugin.json`·`marketplace.json` 버전 올림 → PR → 머지 → 앱에서 플러그인 업데이트.
+`plugins/.../skills/` 와 `.claude/skills/` 는 생성물이라 손으로 고치지 않는다.
+예외: 장표 프레임 풀은 클라우드 문서가 원본이다(스킬은 작업 때마다 원본을 읽음, `FRAME_POOL.md` 는 예비 사본).
+
 ## 담긴 것
 ```
 skills/ppt-report-builder/
