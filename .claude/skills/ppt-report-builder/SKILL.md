@@ -175,5 +175,8 @@ for i,sl in enumerate(prs.slides,1):
     print("p%d 하단%.2f 좌%.2f 우%.2f %s"%(i,b,l,r,"OK" if ok else "← 여백/충전 위반"))
 ```
 
+## 스킬 수정 경로
+이 스킬을 고칠 때는 GitHub `avoseed/web1` 정본만 고친다: 코드·문서는 `zetta-ppt-standard/`, SKILL.md·plugin.json은 `plugins/ppt-report-builder/`, 이후 `sync.sh` → PR. claude.ai용 `.plugin` 파일을 따로 만들어 배포하지 않는다. 프레임 풀 내용은 이 스킬이 아니라 클라우드 문서 원본을 고친다(`FRAME_POOL_GUIDE.md`).
+
 ## 세부는 references 참조
 프레임워크 유형·레시피·함수 시그니처·색/타이포 토큰은 `references/BUILDER_GUIDE.md`, 원칙·정밀 기하·문구 규칙은 `references/SPEC_v4.md` 를 필요할 때 읽는다. 전폭 상하 구조 새 보고서는 `references/template_onepager.py` 를 복사해 «채우기» 부분만 수정.
