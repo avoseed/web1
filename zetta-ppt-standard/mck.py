@@ -42,12 +42,12 @@ def ko_theme(family=KO_FONT, copyright_text="ⓒ 롯데마트 · 롯데슈퍼 �
 
 # ── A4 가로 프리셋 — 우리 표준 판형·여백에 맞춘 맥킨지 템플릿 ─────────
 #   A4 가로 27.52 × 19.05cm = 10.8346 × 7.5000 in  (높이는 원본 7.5in 과 동일)
-#   좌·우·하단 여백 1.5cm(0.5906in) = SPEC §3-4-0 액자 규칙
-#   세로 좌표는 하우스 실측(제목 0.82 / 밑줄 1.96 / 본문 4.20 / 하단선 17.55cm)
+#   좌·우 여백 1.16cm(0.4567in), 하단 1.5cm(0.5906in) = 지주 보고 지침 2장(261012 실측)
+#   세로 좌표는 하우스 실측(제목 0.82 / 밑줄 2.05 / 본문 4.20 / 하단선 17.55cm)
 A4_LAYOUT = dict(
     slide_width_in=10.8346, slide_height_in=7.5000,
-    margin_left_in=0.5906, margin_right_in=0.5906, margin_bottom_in=0.5906,
-    title_top_in=0.3228, title_underline_top_in=0.7717,
+    margin_left_in=0.4567, margin_right_in=0.4567, margin_bottom_in=0.5906,
+    title_top_in=0.3228, title_underline_top_in=0.8071,
     body_top_in=1.6535, footer_top_in=6.9094,
 )
 
@@ -68,7 +68,15 @@ def deck(marker=None, theme=None, a4=True, **kw):
     a4=True(기본) → 우리 A4 가로 양식 / a4=False → 맥킨지 원본 16:9."""
     if theme is None:
         theme = a4_theme() if a4 else ko_theme()
-    return PresentationBuilder(theme=theme, default_section_marker=marker, **kw)
+    b = PresentationBuilder(theme=theme, default_section_marker=marker, **kw)
+
+    def _save(path, author="신호균(롯데마트-e사업전략팀)"):
+        # 저장 직전 정수 pt 강제 + 그림자 제거 + '만든 이' 지정 (zetta_ppt_standard.save_deck)
+        from zetta_ppt_standard import save_deck
+        return save_deck(b.prs, path, author=author)
+
+    b.save = _save
+    return b
 
 
 # ── 템플릿 키 (registry) ─────────────────────────────────────
