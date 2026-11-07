@@ -144,6 +144,123 @@ def _chevron(s, cx, cy, w=0.52, h=0.46, color=None):
 
 
 # ═══════════════════════════════════════════════════════════
+# S계열 — 구조 도형 프리미티브 (2026-11-07 허용, HOLDING_REPORT_GUIDE 5장 「구조 도형」)
+#   논리를 보이는 도형만 그린다. 은유형(링·다리·적층 블록·나무·신전) 금지, 그림자·3D 금지.
+#   레퍼런스: 프레임 풀 「외부 레퍼런스」 탭의 시각 장치 열과 이온 도형 사전.
+#   그리는 순서: 패널·받침(배경) → 카드·표 → 기호·캡슐(전경).
+# ═══════════════════════════════════════════════════════════
+S_PANEL = RGBColor(0xF2, 0xF2, 0xF2)    # 연회색 면 (패널·받침)
+S_LINE  = RGBColor(0xBF, 0xBF, 0xBF)    # 선 #BFBFBF
+S_DEEP  = RGBColor(0x00, 0x20, 0x60)    # 진네이비 (캡슐 테두리·수치)
+S_HEAD  = RGBColor(0x1F, 0x38, 0x64)    # 네이비 면 (헤더 캡슐)
+
+
+def _poly(s, pts, fill=None, line=None, line_w=0.75):
+    """cm 좌표 꼭짓점 목록으로 닫힌 다각형(freeform) 생성."""
+    emu = [(int(Cm(x)), int(Cm(y))) for x, y in pts]
+    fb = s.shapes.build_freeform(emu[0][0], emu[0][1], scale=1.0)
+    fb.add_line_segments(emu[1:], close=True)
+    sp = fb.convert_to_shape()
+    sp.shadow.inherit = False
+    if fill is None:
+        sp.fill.background()
+    else:
+        sp.fill.solid(); sp.fill.fore_color.rgb = fill
+    if line is None:
+        sp.line.fill.background()
+    else:
+        sp.line.color.rgb = line; sp.line.width = Pt(line_w)
+    return sp
+
+
+def s_arrow_panel(s, l, t, w, h, tip=0.9, fill=None):
+    """돌출형 쉐브론 패널: 좌측 영역 우변이 화살촉. 좌측 근거 전체 → 우측 결론 귀결.
+    (l,t,w,h)는 화살촉 포함 외곽. 내용은 l ~ l+w-tip 안에 배치."""
+    return _poly(s, [(l, t), (l + w - tip, t), (l + w, t + h / 2),
+                     (l + w - tip, t + h), (l, t + h)], fill=fill or S_PANEL)
+
+
+def s_notch_panel(s, l, t, w, h, notch=0.9, fill=None):
+    """V홈 패널: 우측 패널 좌변이 V자로 파임. 좌측 내용을 받아 우측 해석·효과로 이어짐.
+    내용은 l+notch ~ l+w 안에 배치."""
+    return _poly(s, [(l, t), (l + w, t), (l + w, t + h), (l, t + h),
+                     (l + notch, t + h / 2)], fill=fill or S_PANEL)
+
+
+def s_base(s, l, t, w, h, rise=0.45, fill=None):
+    """받침 도형: 위가 완만히 솟은 평면 판. 상단 카드들이 공통 기반 위에 섬.
+    카드보다 먼저 그리고, 카드 하단이 받침 상단과 겹치게 배치. 입체(3D) 대신 평면."""
+    return _poly(s, [(l, t + rise), (l + w / 2, t), (l + w, t + rise),
+                     (l + w, t + h), (l, t + h)], fill=fill or S_PANEL)
+
+
+def s_brace(s, l, t, w, h, color=None, w_pt=1.25, side="right"):
+    """중괄호: 여러 행을 하나의 위치·결론으로 묶음. side='right' → }, 'left' → {."""
+    kind = MSO_SHAPE.RIGHT_BRACE if side == "right" else MSO_SHAPE.LEFT_BRACE
+    sp = s.shapes.add_shape(kind, Cm(l), Cm(t), Cm(w), Cm(h))
+    sp.shadow.inherit = False
+    sp.fill.background()
+    sp.line.color.rgb = color or INK; sp.line.width = Pt(w_pt)
+    return sp
+
+
+def s_op(s, cx, cy, sym="×", d=0.62, fill=None, color=WHITE):
+    """원형 연산 기호(×·+·=·−): 수단의 결합·합계. (cx,cy)는 중심."""
+    sp = s.shapes.add_shape(MSO_SHAPE.OVAL, Cm(cx - d / 2), Cm(cy - d / 2), Cm(d), Cm(d))
+    sp.shadow.inherit = False
+    sp.fill.solid(); sp.fill.fore_color.rgb = fill or S_HEAD
+    sp.line.fill.background()
+    _txt(s, cx - d / 2, cy - d / 2, d, d, sym, size=PT["sec"], bold=True, color=color,
+         align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    return sp
+
+
+def s_step_arrow(s, cx, cy, size=0.55, direction="right", color=None):
+    """▶(right)·▼(down) 단계 화살표: 열 사이 단계 이동, 위 내용 → 아래 결론."""
+    w, h = (size * 0.85, size) if direction == "right" else (size, size * 0.85)
+    sp = s.shapes.add_shape(MSO_SHAPE.ISOSCELES_TRIANGLE, Cm(cx - w / 2), Cm(cy - h / 2), Cm(w), Cm(h))
+    sp.rotation = 90 if direction == "right" else 180
+    sp.shadow.inherit = False
+    sp.fill.solid(); sp.fill.fore_color.rgb = color or S_LINE
+    sp.line.fill.background()
+    return sp
+
+
+def s_capsule(s, l, t, w, h, label=None, value=None, fill=WHITE, line=None):
+    """캡슐 콜아웃: 핵심 효과 수치 한 곳(장당 1~2곳). 빨간 테두리 대신 진네이비 테두리.
+    label(작은 글씨) 위, value(볼드 큰 글씨) 아래."""
+    sp = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Cm(l), Cm(t), Cm(w), Cm(h))
+    sp.adjustments[0] = 0.5
+    sp.shadow.inherit = False
+    sp.fill.solid(); sp.fill.fore_color.rgb = fill
+    sp.line.color.rgb = line or S_DEEP; sp.line.width = Pt(1.25)
+    if label and value:
+        _txt(s, l, t + 0.08, w, h * 0.38, label, size=PT["small"], color=INK,
+             align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+        _txt(s, l, t + h * 0.40, w, h * 0.52, value, size=PT["lead"], bold=True,
+             color=S_DEEP, align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    elif value or label:
+        _txt(s, l, t, w, h, value or label, size=PT["sec"], bold=True, color=S_DEEP,
+             align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    return sp
+
+
+def s_line_header(s, l, t, w, text, cap_w=None, h=0.62, fill=None):
+    """선 위 캡슐 헤더: 영역 폭 가로선 + 가운데 둥근 제목. 반환: 다음 y."""
+    cap_w = cap_w or min(max(_text_w(text, PT["sec"]) + 1.2, 3.0), w)
+    _line(s, l, t + h / 2, l + w, t + h / 2, color=INK, w_pt=1.0)
+    cl = l + (w - cap_w) / 2
+    sp = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Cm(cl), Cm(t), Cm(cap_w), Cm(h))
+    sp.adjustments[0] = 0.5
+    sp.shadow.inherit = False
+    sp.fill.solid(); sp.fill.fore_color.rgb = fill or S_HEAD
+    sp.line.fill.background()
+    _txt(s, cl, t, cap_w, h, text, size=PT["sec"], bold=True, color=WHITE,
+         align=PP_ALIGN.CENTER, anchor=MSO_ANCHOR.MIDDLE)
+    return t + h + 0.30
+
+
+# ═══════════════════════════════════════════════════════════
 # F계열 — 실측 카탈로그 원형
 # ═══════════════════════════════════════════════════════════
 def f_exec_summary(prs, title, lead, points, footnote=None, page=None):
