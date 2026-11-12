@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "임원 보고용 PPT 생성 스킬 마켓플레이스 (Claude Cowork/Code)",
-    "version": "1.15.1"
+    "version": "1.15.2"
   },
   "plugins": [
     {
