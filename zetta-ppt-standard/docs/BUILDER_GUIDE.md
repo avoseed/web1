@@ -97,6 +97,27 @@ save_deck(prs, report_filename("제목", "0.1"))    # prs.save 대신 — 정수
 
 ---
 
+### 지주 양식 정본 헬퍼 (`holding_std.py`, 2026-11-14 — 지주 보고 본장표 기본)
+261026 「식자재마트 현황 및 당사 비교」(전략기획팀) 실측값을 코드로 옮긴 모듈. 지주 보고 본장표는 `frames.f_*` 대신 이 모듈로 배치한다.
+
+| 함수 | 용도 | 실측값 |
+|---|---|---|
+| `h_chrome(prs, title, sub=None)` | 제목 + 밑줄, 슬라이드 반환 | 20pt 볼드 y 0.99, 밑줄 1.5pt y 2.02 폭 10.71(긴 제목 12.96), 부제 14pt |
+| `h_head(s, "L"/"R", text)` | ❏ 영역 머리글 | 기호 x 0.76 / 14.26, 글자 14pt 볼드 y 2.97 |
+| `h_bullet(s, x, y, segs)` | ● 요지 한 줄 | 11pt 볼드, 영역 안 y 4.07, 카드형 전폭 y 2.85 / 3.75 |
+| `h_caption(s, x, y, text)` | 표 위 기준 표기 | (A Vs. B) 10pt, ※ 9pt, [ 소제목 ] 11pt 볼드 |
+| `h_table(s, l, t, cw, rh, data, gray_rows=())` | 표 | 헤더 #EBEFF5, 격자 #BFBFBF 0.5pt, 합계·결론 행 #F2F2F2 |
+| `h_thick(s, l, t, w, h, pt=1.5)` | 핵심 열·행 굵은 검정 테두리 | 1.5~2.25pt, 영역당 1곳 |
+| `h_redline(s, x, y, w)` · `h_redline_center(s, cx, y, text, size)` | 빨간 밑줄 선 | #FF0000 1.5pt |
+| `h_graybox(s, l, t, w, h, lines=None)` | 회색 시사점 박스 | #F2F2F2, 테두리 없음, ①② 11pt 볼드 |
+| `h_tri(s, cx, t)` | 표 → 박스 회색 역삼각 | 폭 4.15, 높이 0.40 |
+| `h_card(s, l, t, label)` | 카드형 장표의 카드 | 라벨 칸 #EBEFF5 폭 2.14 + 내용 칸, 높이 5.81 |
+| `h_summary(prs, paragraphs)` | 덱 끝 Summary 장 | ■ 12pt 볼드 문단, 제목 좌측 20pt |
+| `h_footnote(s, text)` · `h_line` · `h_dot` · `h_text` · `tw` | 각주, 도식 선·점, 글상자, 글자 폭 추정 | 각주 x 0.76 y 18.34 8pt |
+
+좌표 상수: `LT`(1.26)·`LTW`(12.00)·`RT`(14.76)·`RTW`(12.00)·`CARD_RT`(14.26)·`BOT`(17.53). 색: `HDR`·`GRAY`·`LINE`·`SUB`·`NAVY`·`RED`.
+줄·셀 값은 문자열 또는 `[(글, 볼드, 색, 크기)]`. 남색 구절은 `("구절", True, NAVY)`. 저장은 `save_deck`.
+
 ## 2. 레이아웃 레시피
 
 > ⚠ **6:4 좌우 2단 폐기(v4.1)**: 좌우 폭 배분·바닥선 정렬 부담과 한쪽 성김 탓에 제거. 경쟁사 동향·현황형의 **정본은 전폭 상하 구조(A)**.

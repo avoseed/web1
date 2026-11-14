@@ -24,6 +24,7 @@ Claude Cowork/Code 에서 설치하면 "임원 보고 장표 만들어줘" 류 �
 skills/ppt-report-builder/
   SKILL.md                     # 진입점(워크플로·규칙·QA)
   scripts/zetta_ppt_standard.py  # ZETTA v4 표준 톤 빌더
+  scripts/holding_std.py          # 지주 양식 정본 헬퍼(261026 덱 실측, h_*)
   scripts/tone_v02.py            # v0.2 임원 톤(헤더·리딩·빨강강조·표·박스·플로우·차트·피라미드)
   references/SPEC_v4.md · BUILDER_GUIDE.md · FRAMEWORKS.md · mockup_template.html · template_onepager.py
 ```
@@ -31,6 +32,7 @@ skills/ppt-report-builder/
 돈흐름 플로우·막대/컬럼 차트를 지원한다.
 
 ## 내장 규칙(요약)
+- **지주 양식 정본 교체**(v1.17.0, 2026-11-14): 정본 = 261026 「식자재마트 현황 및 당사 비교」(전략기획팀). 제목 아래 ■ 리드 폐지, ❏ 영역 머리글 + 영역 ● 요지, 표 헤더 #EBEFF5, 굵은 검정 테두리, 빨간 밑줄 선 #FF0000 1.5pt, 남색 #000099 볼드, 회색 시사점 박스, 본문 좌 1.26~13.26 / 우 14.76~26.76·하한 17.53, 관용 한자와 p 표기 허용. 빌드는 `scripts/holding_std.py`(`h_*`), 지침 사본 `references/HOLDING_REPORT_GUIDE.md` 1~5·10장 교체. 아래 항목 중 이와 다른 내용(■ 리드, 좌우 1.16, 파란 글자 금지, 순한글)은 정기협의체 계열에만 적용
 - **지주 보고 표준 지침 최우선**(v1.10.0, `references/HOLDING_REPORT_GUIDE.md`): 본장표 한 장 단위 산출(표지·목차·페이지번호 제외), 스토리보드 초안 2~3장 → 본장표 1장 결합, 반복 지적 사항 자체 점검표
 - **프레임 풀 연동·지침 2차 개정 반영**(v1.13.0): 장표 기획 때마다 클라우드 문서 「장표 프레임 풀」 원본을 읽어 후보 2~3개(F-번호) 제시, 새 레퍼런스·확정본·지적이 생기면 Claude가 원본을 직접 갱신(`references/FRAME_POOL_GUIDE.md`, 예비 사본 `FRAME_POOL.md`). 지주 보고 여백 좌우 1.16·하단 1.5cm, 제목 밑줄 y 2.05·1.2pt, 빨간 밑줄 = 선 도형, 수치 비교 「현재 (비교, +증감률)」, 파일명 `yymmdd_파일 이름_v.x.x`, 원안 존중·요청 범위·내용만 요청 시 텍스트
 - **서식 강제**(v1.11.0): 그림자 효과 전면 제거(테마 효과 스타일까지), 글자 크기 정수 pt만(frames 9.5·8.5pt → 9·10pt), `save_deck`(만든 이 지정)·`report_filename`(yymmdd_파일명_v{major}.{minor}) 추가
